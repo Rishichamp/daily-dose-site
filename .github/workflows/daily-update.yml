@@ -1,0 +1,70 @@
+name: Daily Dose of DS — Auto Update
+
+on:
+  schedule:
+    - cron: "30 1 * * *"   # 7:00 AM IST daily
+  workflow_dispatch:
+    inputs:
+      first_run:
+        description: "Process ALL historical emails (first-time setup)"
+        required: false
+        default: "false"
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write Gmail token
+        env:
+          GMAIL_TOKEN: ${{ secrets.GMAIL_TOKEN }}
+        run: |
+          if [ -n "$GMAIL_TOKEN" ]; then
+            echo "$GMAIL_TOKEN" > token.json
+            echo "✅ token.json written"
+          else
+            echo "⚠️  GMAIL_TOKEN secret not set"
+          fi
+
+      - name: Build site
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_ACTIONS: "true"
+        run: |
+          if [ "${{ github.event.inputs.first_run }}" = "true" ]; then
+            echo "🕐 First-run mode — processing ALL historical emails..."
+            python build_site.py --first-run
+          else
+            echo "📅 Daily mode — processing new emails..."
+            python build_site.py --daily
+          fi
+
+      - name: Commit and push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name  "github-actions[bot]"
+          git add docs/
+          git diff --staged --quiet || git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') [v6]"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

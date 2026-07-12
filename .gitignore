@@ -1,0 +1,26 @@
+# SECRETS — never commit these
+.env
+credentials.json
+token.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Database (auto-regenerated)
+site_data.db
+*.db-journal
+*.db-wal
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
