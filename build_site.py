@@ -1,50 +1,52 @@
 #!/usr/bin/env python3
 """
-Daily Dose of DS — Website Generator v6.0
-==========================================
-COMPLETE REWRITE — clean slate.
+Daily Dose of DS — Website Generator v7.0
+============================================
+COMPLETE REDESIGN — cinematic roadmap experience.
 
-What this does:
-  1. Connects to Gmail (OAuth2), fetches all Daily Dose of DS emails
-  2. Cleans each email: removes ALL ads, tracking URLs, footers, spam
-  3. Sends clean content to Gemini AI → generates beautiful study notes
-     structured like the actual email (headings, explanations, code)
-  4. Builds a premium website:
-       - index.html  → date-ordered list of all issues, each a clickable card
-       - entries/    → one page per issue with full AI-enhanced content
-  5. On-demand e-book: click "Download E-Book" → PDF with all issues,
-     chapter per issue, proper TOC, clean formatting — NO junk
-  6. AI Tutor: ask "explain issue #7" — answers from your knowledge base
-  7. Runs automatically every day at 7:00 AM via GitHub Actions
+Fixes from v6:
+  - CRITICAL: site_data.db is now committed to git (was gitignored before,
+    which meant GitHub Actions started with an EMPTY database every run and
+    the roadmap only ever showed that day's single new issue). Now the full
+    history persists forever across every automated run.
 
-Key design decisions:
-  - AI quota safe: 5s delay between emails + smart retry with Gemini's own wait time
-  - Fallback: if AI fails, content is STILL clean (not raw junk) via smart extractor
-  - E-book built from AI-enhanced content stored in DB, not raw email
-  - All 46+ issues indexed correctly with issue numbers
+New in v7 (redesign requested):
+  - Landing page is now a chronological ROADMAP, oldest -> newest top to
+    bottom, grouped by week with sticky week-header labels while scrolling.
+  - Clicking a card triggers a bold full-screen zoom/morph transition into
+    the chapter page (native Cross-Document View Transitions API on
+    Chromium, JS zoom fallback on other browsers).
+  - Scrollytelling: sections fade/scale/blur into view as you scroll.
+  - Ambient background motion: slow aurora gradients + drifting dust
+    particles + subtle mouse-parallax, present on every page.
+  - Ask-bar at the top of the roadmap (search + "Ask AI" in one control).
+  - Floating AI Tutor button restored on chapter + e-book pages.
+  - Editorial typography: serif display headings, clean sans body.
+  - Website-only: no local PDF folder, no separate PDF/EPUB download files.
+    "E-Book" is a single in-browser page with full history, chapter by
+    chapter, built from the same AI-enhanced content as the roadmap.
 """
 
 import os, sys, re, json, base64, sqlite3, hashlib, argparse, subprocess, time
 from datetime import datetime, timedelta
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Optional
 
 # ── Config ──────────────────────────────────────────────────────────────────
-SENDER          = "Daily Dose of DS"
-SITE_TITLE      = "Daily Dose of DS"
-AI_MODEL        = "gemini-1.5-flash-8b"
-MAX_TOKENS      = 4000
-DB_FILE         = "site_data.db"
-TOKEN_FILE      = "token.json"
-CREDS_FILE      = "credentials.json"
-OUT_DIR         = "docs"
-IS_CI           = bool(os.getenv("GITHUB_ACTIONS"))
+SENDER      = "Daily Dose of DS"
+SITE_TITLE  = "Daily Dose of DS"
+AI_MODEL    = "gemini-1.5-flash-8b"
+MAX_TOKENS  = 4000
+DB_FILE     = "site_data.db"
+TOKEN_FILE  = "token.json"
+CREDS_FILE  = "credentials.json"
+OUT_DIR     = "docs"
+IS_CI       = bool(os.getenv("GITHUB_ACTIONS"))
 
 from dotenv import load_dotenv
 load_dotenv()
-GEMINI_KEY  = os.getenv("GEMINI_API_KEY", "")
-OPENAI_KEY  = os.getenv("OPENAI_API_KEY", "")
+GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
+OPENAI_KEY = os.getenv("OPENAI_API_KEY", "")
 
 import logging
 logging.basicConfig(
@@ -62,22 +64,20 @@ class RawEmail:
     email_id:     str
     subject:      str
     date:         datetime
-    body_text:    str      # cleaned plain text
-    body_html:    str      # original HTML (for image extraction)
+    body_text:    str
+    body_html:    str
     topic:        str
     content_hash: str
 
 @dataclass
 class StudyNote:
-    """One issue worth of AI-enhanced study content."""
     issue_number: int
-    date:         str          # YYYY-MM-DD
+    date:         str
     topic:        str
     category:     str
-    # Sections — all plain text / markdown, NO tracking URLs
-    tldr:         str = ""     # 2-3 sentence summary
-    overview:     str = ""     # 3-4 paragraph intro
-    sections:     list = field(default_factory=list)  # [{"title": ..., "body": ..., "code": ...}]
+    tldr:         str = ""
+    overview:     str = ""
+    sections:     list = field(default_factory=list)
     key_points:   list = field(default_factory=list)
     interview_qs: list = field(default_factory=list)
     further:      list = field(default_factory=list)
@@ -87,8 +87,7 @@ class StudyNote:
 
     @classmethod
     def from_json(cls, s: str) -> "StudyNote":
-        d = json.loads(s)
-        return cls(**d)
+        return cls(**json.loads(s))
 
 
 # ── Category colours ─────────────────────────────────────────────────────────
@@ -105,7 +104,6 @@ CAT_KW = {
     "SQL":                    ["sql","query","join","aggregate","window function","cte","postgresql"],
     "Mathematics":            ["matrix","vector","eigenvalue","calculus","derivative","linear algebra","optimization"],
 }
-
 CAT_COLOR = {
     "Reinforcement Learning": ("#f97316","#ef4444"),
     "LLMs & Agents":          ("#ec4899","#8b5cf6"),
@@ -180,10 +178,11 @@ class DB:
              html_file, note.to_json(), note.issue_number))
         self.conn.commit()
 
-    def all_issues(self, order="DESC"):
+    def all_issues_asc(self):
+        """Ascending by date — oldest first, for the roadmap top-to-bottom flow."""
         return self.conn.execute(
-            f"SELECT date,topic,html_file,subject,category,issue_number FROM issues "
-            f"WHERE processed=1 ORDER BY date {order}").fetchall()
+            "SELECT date,topic,html_file,subject,category,issue_number FROM issues "
+            "WHERE processed=1 ORDER BY date ASC").fetchall()
 
     def all_for_ebook(self):
         rows = self.conn.execute(
@@ -248,8 +247,7 @@ class Gmail:
         q = f"from:{SENDER}"
         if after:
             q += f" after:{after.strftime('%Y/%m/%d')}"
-        msgs = []
-        token = None
+        msgs, token = [], None
         while True:
             kw = dict(userId="me", q=q, maxResults=500)
             if token: kw["pageToken"] = token
@@ -268,10 +266,9 @@ class Gmail:
             date = datetime.strptime(date_str[:31], "%a, %d %b %Y %H:%M:%S %z")
         except Exception:
             date = datetime.now()
-
         plain, html = self._extract_parts(msg["payload"])
-        clean_text  = self._clean(plain or self._html2text(html))
-        topic       = self._make_topic(subject, clean_text)
+        clean_text = self._clean(plain or self._html2text(html))
+        topic = self._make_topic(subject, clean_text)
         return RawEmail(
             email_id=msg_id, subject=subject, date=date,
             body_text=clean_text, body_html=html,
@@ -287,86 +284,56 @@ class Gmail:
             else:
                 plain = data
         for part in payload.get("parts", []):
-            p2, h2 = self._extract_parts(part, depth+1)
+            p2, h2 = self._extract_parts(part, depth + 1)
             plain = plain or p2
-            html  = html  or h2
+            html = html or h2
         return plain, html
 
     def _html2text(self, html: str) -> str:
-        """Convert HTML to clean plain text."""
         try:
             from html.parser import HTMLParser
             class H2T(HTMLParser):
                 def __init__(self):
-                    super().__init__()
-                    self.result = []
-                    self.skip = False
-                def handle_data(self, d): 
-                    if not self.skip: self.result.append(d)
+                    super().__init__(); self.result = []
+                def handle_data(self, d): self.result.append(d)
                 def get_text(self): return "".join(self.result)
-            p = H2T()
-            p.feed(html)
+            p = H2T(); p.feed(html)
             return p.get_text()
         except Exception:
             return re.sub(r"<[^>]+>", " ", html)
 
     def _clean(self, text: str) -> str:
-        """
-        Deep clean: remove ALL tracking URLs, ads, footers, promo sections.
-        Keep ONLY educational content.
-        """
-        # 1. Strip tracking/encoded URLs
         text = re.sub(r'\(\s*https?://[^\s)]*(?:click\.kit|fff97757|tracking|aHR0c)[^\s)]*\s*\)', "", text)
         text = re.sub(r'https?://[^\s)>]*aHR0c[^\s)>]*', "", text)
-        # Remove any URL in parens longer than 80 chars (always tracking)
         text = re.sub(r'\(\s*https?://\S{80,}\s*\)', "", text)
-        # Remove remaining short junk URLs in parens
         text = re.sub(r'\(\s*https?://\S{5,60}\s*\)', "", text)
 
-        # 2. Strip ad / footer sections line by line
-        # SECTION_STOP: these lines BEGIN a promo/footer block — skip this line and all after
         SECTION_STOP = [
-            "unsubscribe",
-            "you are receiving this",
-            "advertise to 950",
-            "our newsletter puts your products",
-            "partner with us",
-            "today's email was brought to you",
-            "looking for more? unlock",
-            "no-fluff resources to",
-            "get in touch today by replying",
-            "succeed in ai engineering roles",
-            "that's a wrap",
+            "unsubscribe", "you are receiving this", "advertise to 950",
+            "our newsletter puts your products", "partner with us",
+            "today's email was brought to you", "looking for more? unlock",
+            "no-fluff resources to", "get in touch today by replying",
+            "succeed in ai engineering roles", "that's a wrap",
         ]
-        # LINE_DROP: drop only this single line (not everything after)
         LINE_DROP = [
-            "master full-stack ai engineering",
-            "unlock our premium",
-            "© 20",
-            "all rights reserved",
-            "today.s email was brought",
+            "master full-stack ai engineering", "unlock our premium",
+            "© 20", "all rights reserved", "today.s email was brought",
         ]
         out, skip = [], False
         for line in text.split("\n"):
             low = line.lower().strip()
-            # Section stop — skip this and all subsequent lines
             if any(k in low for k in SECTION_STOP):
                 skip = True; continue
-            # Resume after a separator (new section after footer)
             if skip and re.match(r'^[-=]{5,}$', low):
                 skip = False; continue
             if skip:
                 continue
-            # Line drop — skip only this single line
             if any(k in low for k in LINE_DROP):
                 continue
             out.append(line)
         text = "\n".join(out)
 
-        # 3. Remove separator lines
         text = re.sub(r'^[-=]{10,}\s*$', "", text, flags=re.MULTILINE)
-
-        # 4. Deduplicate identical paragraphs
         paras = re.split(r'\n{2,}', text)
         seen, unique = set(), []
         for p in paras:
@@ -374,8 +341,6 @@ class Gmail:
             if key and key not in seen:
                 seen.add(key); unique.append(p.strip())
         text = "\n\n".join(unique)
-
-        # 5. Remove decoration lines
         text = re.sub(r'^\s*[■→●•►▸✦]+\s*$', "", text, flags=re.MULTILINE)
         text = re.sub(r'\n{3,}', "\n\n", text)
         return text.strip()
@@ -405,7 +370,6 @@ class AI:
             log.info("AI: OpenAI gpt-4o-mini")
 
     def enhance(self, email: RawEmail) -> StudyNote:
-        """Transform clean email text into structured study content."""
         if not self.provider:
             return self._fallback(email)
 
@@ -414,11 +378,11 @@ Transform the following newsletter email into clean, structured study notes.
 
 STRICT RULES:
 1. Do NOT include any URLs, links, tracking codes, or promotional content
-2. Do NOT include any "unsubscribe", "advertise", "unlock premium", or footer text
+2. Do NOT include "unsubscribe", "advertise", "unlock premium", or footer text
 3. Do NOT duplicate content between sections
 4. Write in clear, educational prose — not bullet dumps
 5. Cover ALL topics mentioned in the email thoroughly
-6. The DEEP EXPLANATION must be 4-6 educational paragraphs, NOT a copy of overview
+6. DEEP EXPLANATION must be 4-6 educational paragraphs, NOT a copy of overview
 7. For code: preserve exact code blocks, explain each part
 
 EMAIL SUBJECT: {email.subject}
@@ -427,150 +391,105 @@ EMAIL DATE: {email.date.strftime("%B %d, %Y")}
 EMAIL CONTENT (already cleaned):
 {email.body_text[:9000]}
 
-Respond in EXACTLY this format (use these exact section headers):
+Respond in EXACTLY this format:
 
 TOPIC: [Clean descriptive title for this newsletter issue]
 
 TLDR: [2-3 sentence summary of what this issue covers and why it matters]
 
 OVERVIEW:
-[3-4 paragraphs introducing the topic. What is it? Why does it matter? What will the reader learn?]
+[3-4 paragraphs introducing the topic]
 
-SECTION: [Title of first major topic from the email]
-[3-5 paragraphs of educational explanation for this topic. Include all key concepts, how things work, concrete examples.]
+SECTION: [Title of first major topic]
+[3-5 paragraphs of educational explanation]
 
-SECTION: [Title of second major topic if email covers multiple topics]
-[3-5 paragraphs explaining this topic]
-
-[Add more SECTION blocks as needed — one per major topic in the email]
+SECTION: [Title of second major topic if applicable]
+[3-5 paragraphs]
 
 CODE:
 ```python
-# If the email contains code examples, reproduce them here with explanations as comments
-# If no code in email, write a short illustrative example of the main concept
+# code if present in email, else a short illustrative example
 ```
 
 KEY_POINTS:
-- [Most important insight — a complete useful sentence]
-- [Second most important]
-- [Third]
-- [Fourth]
-- [Fifth]
-[5-7 key points total]
+- [Insight]
+[5-7 total]
 
 INTERVIEW_QUESTIONS:
-- [Beginner level question about this topic]
-- [Beginner level question]
-- [Intermediate level question]
-- [Intermediate level question]
-- [Advanced level question]
-- [Advanced level question]
+- [Question]
+[6 total, mixed difficulty]
 
 FURTHER_READING:
-- [Related topic or concept to explore next — no URLs, just topic name and why]
-- [Another suggestion]
-- [Another suggestion]
+- [Topic to explore next, no URLs]
+[3-5 total]
 """
         MAX_RETRY = 5
         for attempt in range(MAX_RETRY):
             try:
                 if self.provider == "gemini":
                     resp = self.model.generate_content(
-                        prompt,
-                        generation_config={"temperature": 0.25, "max_output_tokens": MAX_TOKENS}
-                    )
+                        prompt, generation_config={"temperature": 0.25, "max_output_tokens": MAX_TOKENS})
                     text = resp.text
                 else:
                     resp = self.client.chat.completions.create(
-                        model="gpt-4o-mini",
-                        messages=[{"role": "user", "content": prompt}],
-                        max_tokens=MAX_TOKENS, temperature=0.25
-                    )
+                        model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}],
+                        max_tokens=MAX_TOKENS, temperature=0.25)
                     text = resp.choices[0].message.content or ""
                 return self._parse(text, email)
             except Exception as e:
                 err = str(e)
                 m = re.search(r'retry_delay.*?seconds:\s*([0-9]+)', err, re.DOTALL)
-                if m:
-                    wait = int(m.group(1)) + 5
-                else:
-                    wait = 30 * (attempt + 1)
-                log.warning("AI quota/error — waiting %ds (attempt %d/%d)...", wait, attempt+1, MAX_RETRY)
+                wait = int(m.group(1)) + 5 if m else 30 * (attempt + 1)
+                log.warning("AI quota/error — waiting %ds (attempt %d/%d)...", wait, attempt + 1, MAX_RETRY)
                 time.sleep(wait)
-
         log.error("AI failed after %d retries — using smart fallback", MAX_RETRY)
         return self._fallback(email)
 
     def _parse(self, text: str, email: RawEmail) -> StudyNote:
-        def gs(header: str) -> str:
+        def gs(header):
             m = re.search(rf"{re.escape(header)}\s*\n(.*?)(?=\n[A-Z_]+:|SECTION:|CODE:|\Z)", text, re.DOTALL)
             return m.group(1).strip() if m else ""
-
-        def glist(header: str) -> list:
+        def glist(header):
             raw = gs(header)
             return [l.strip("- •").strip() for l in raw.split("\n") if l.strip().startswith(("-","•","*")) and len(l.strip()) > 3]
 
-        # Extract sections (multiple SECTION: blocks)
         sections = []
         for m in re.finditer(r'SECTION:\s*(.+?)\n(.*?)(?=\nSECTION:|\nCODE:|\nKEY_POINTS:|\Z)', text, re.DOTALL):
-            title = m.group(1).strip()
-            body  = m.group(2).strip()
+            title, body = m.group(1).strip(), m.group(2).strip()
             if title and body:
                 sections.append({"title": title, "body": body, "code": ""})
 
-        # Extract code
         code_blocks = re.findall(r'```(?:python)?\n(.*?)```', text, re.DOTALL)
-
-        # Attach code to last section or create a code section
         if code_blocks:
-            if sections:
-                sections[-1]["code"] = code_blocks[0].strip()
-            else:
-                sections.append({"title": "Code Example", "body": "", "code": code_blocks[0].strip()})
+            if sections: sections[-1]["code"] = code_blocks[0].strip()
+            else: sections.append({"title": "Code Example", "body": "", "code": code_blocks[0].strip()})
 
         topic = gs("TOPIC:") or email.topic.replace("_", " ")
-
         return StudyNote(
-            issue_number=0,  # set by caller
-            date=email.date.strftime("%Y-%m-%d"),
-            topic=topic,
+            issue_number=0, date=email.date.strftime("%Y-%m-%d"), topic=topic,
             category=detect_category(topic + " " + email.body_text[:500]),
-            tldr=gs("TLDR:"),
-            overview=gs("OVERVIEW:"),
-            sections=sections,
-            key_points=glist("KEY_POINTS:"),
-            interview_qs=glist("INTERVIEW_QUESTIONS:"),
+            tldr=gs("TLDR:"), overview=gs("OVERVIEW:"), sections=sections,
+            key_points=glist("KEY_POINTS:"), interview_qs=glist("INTERVIEW_QUESTIONS:"),
             further=glist("FURTHER_READING:"),
         )
 
     def _fallback(self, email: RawEmail) -> StudyNote:
-        """Smart fallback — readable content even without AI."""
         paras = [p.strip() for p in email.body_text.split("\n\n") if len(p.strip()) > 80]
-        overview = paras[0][:800] + "..." if paras else "Content from Daily Dose of DS."
-        bullet_lines = []
+        overview = (paras[0][:800] + "...") if paras else "Content from Daily Dose of DS."
+        bullets = []
         for line in email.body_text.split("\n"):
             line = line.strip()
             if re.match(r'^[\*\-•\d]+[.)\s]', line) and 15 < len(line) < 200:
                 cleaned = re.sub(r'^[\*\-•\d.)+\s]+', "", line).strip()
-                if cleaned: bullet_lines.append(cleaned)
-
-        sections = []
-        # Group remaining paragraphs into sections
-        for i, para in enumerate(paras[1:6]):
-            if len(para) > 100:
-                sections.append({"title": f"Section {i+1}", "body": para, "code": ""})
-
+                if cleaned: bullets.append(cleaned)
+        sections = [{"title": f"Section {i+1}", "body": p, "code": ""}
+                    for i, p in enumerate(paras[1:6]) if len(p) > 100]
         topic = email.topic.replace("_", " ")
         return StudyNote(
-            issue_number=0,
-            date=email.date.strftime("%Y-%m-%d"),
-            topic=topic,
+            issue_number=0, date=email.date.strftime("%Y-%m-%d"), topic=topic,
             category=detect_category(topic + " " + email.body_text[:500]),
-            tldr=overview[:200],
-            overview=overview,
-            sections=sections,
-            key_points=bullet_lines[:7],
-            interview_qs=[],
+            tldr=overview[:200], overview=overview, sections=sections,
+            key_points=bullets[:7], interview_qs=[],
             further=["Visit dailydoseofds.com for the full article and related resources"],
         )
 
@@ -578,344 +497,432 @@ FURTHER_READING:
 # ── CSS ───────────────────────────────────────────────────────────────────────
 
 CSS = """
+@view-transition { navigation: auto; }
+
 :root{
-  --void:#03040a;--deep:#08090f;--card:rgba(255,255,255,.04);--card-h:rgba(255,255,255,.07);
-  --glass:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--border-h:rgba(255,255,255,.14);
-  --text:#f0f2ff;--text-2:rgba(200,205,240,.75);--text-3:rgba(150,160,200,.5);
-  --a:#6366f1;--b:#a855f7;--c:#06b6d4;--d:#ec4899;--e:#10b981;--f:#fbbf24;
-  --ca:#6366f1;--cb:#a855f7;
-  --r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;
-  --bounce:cubic-bezier(.34,1.56,.64,1);--smooth:cubic-bezier(.4,0,.2,1);
-  --mono:'Fira Code','JetBrains Mono','Cascadia Code',monospace;
+  --void:#040308;--deep:#0a0810;--card:rgba(255,255,255,.035);--card-h:rgba(255,255,255,.065);
+  --glass:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--border-h:rgba(255,255,255,.16);
+  --text:#f3f1ff;--text-2:rgba(210,205,235,.75);--text-3:rgba(160,155,195,.5);
+  --a:#7c6cf6;--b:#c86dd7;--c:#22d3ee;--d:#f472b6;--e:#34d399;--f:#fbbf24;
+  --ca:#7c6cf6;--cb:#c86dd7;
+  --r10:10px;--r16:16px;--r20:20px;--r24:24px;--r32:32px;
+  --bounce:cubic-bezier(.22,1.4,.36,1);--smooth:cubic-bezier(.4,0,.2,1);
+  --serif:'Fraunces','Georgia',serif;--sans:'Inter','Segoe UI',system-ui,sans-serif;
+  --mono:'Fira Code','JetBrains Mono',monospace;
 }
-body.light{--void:#f0f2ff;--deep:#f8f9ff;--card:rgba(99,102,241,.04);--card-h:rgba(99,102,241,.08);
-  --glass:rgba(255,255,255,.7);--border:rgba(99,102,241,.12);--border-h:rgba(99,102,241,.25);
-  --text:#1a1b2e;--text-2:rgba(30,35,80,.7);--text-3:rgba(50,55,100,.45);}
+body.light{--void:#faf9ff;--deep:#ffffff;--card:rgba(124,108,246,.04);--card-h:rgba(124,108,246,.08);
+  --glass:rgba(255,255,255,.75);--border:rgba(124,108,246,.14);--border-h:rgba(124,108,246,.28);
+  --text:#1a1626;--text-2:rgba(35,28,60,.72);--text-3:rgba(60,50,90,.48);}
+
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--void);color:var(--text);
+body{font-family:var(--sans);background:var(--void);color:var(--text);
   min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;cursor:none;}
 @media(pointer:coarse){body{cursor:auto;}}
 
-/* Aurora */
-.aurora{position:fixed;inset:0;z-index:-3;overflow:hidden;pointer-events:none;}
-.orb{position:absolute;border-radius:50%;filter:blur(100px);opacity:.15;animation:orbf 20s ease-in-out infinite;}
-.orb:nth-child(1){width:700px;height:700px;left:-15%;top:-20%;background:radial-gradient(circle,var(--a),transparent 70%);}
-.orb:nth-child(2){width:500px;height:500px;right:-10%;top:30%;background:radial-gradient(circle,var(--b),transparent 70%);animation-delay:-7s;opacity:.12;}
-.orb:nth-child(3){width:400px;height:400px;left:40%;bottom:-10%;background:radial-gradient(circle,var(--c),transparent 70%);animation-delay:-13s;opacity:.1;}
-.orb:nth-child(4){width:300px;height:300px;right:20%;top:10%;background:radial-gradient(circle,var(--d),transparent 70%);animation-delay:-4s;opacity:.07;}
-@keyframes orbf{0%,100%{transform:translate(0,0) scale(1);}25%{transform:translate(30px,-40px) scale(1.08);}50%{transform:translate(-20px,30px) scale(.94);}75%{transform:translate(40px,15px) scale(1.04);}}
+/* ── AMBIENT BACKGROUND MOTION ─────────────────────────────────── */
+.aurora{position:fixed;inset:0;z-index:-4;overflow:hidden;pointer-events:none;}
+.orb{position:absolute;filter:blur(110px);opacity:.16;
+  animation:orbf 26s ease-in-out infinite,blobMorph 14s ease-in-out infinite;will-change:transform,border-radius;}
+.orb:nth-child(1){width:760px;height:760px;left:-18%;top:-22%;background:radial-gradient(circle,var(--a),transparent 70%);}
+.orb:nth-child(2){width:560px;height:560px;right:-12%;top:28%;background:radial-gradient(circle,var(--b),transparent 70%);animation-delay:-8s,-3s;opacity:.13;}
+.orb:nth-child(3){width:440px;height:440px;left:38%;bottom:-14%;background:radial-gradient(circle,var(--c),transparent 70%);animation-delay:-16s,-7s;opacity:.1;}
+.orb:nth-child(4){width:320px;height:320px;right:22%;top:8%;background:radial-gradient(circle,var(--d),transparent 70%);animation-delay:-5s,-11s;opacity:.07;}
+@keyframes orbf{0%,100%{transform:translate(0,0) scale(1);}25%{transform:translate(4%,-5%) scale(1.1);}50%{transform:translate(-3%,4%) scale(.92);}75%{transform:translate(5%,2%) scale(1.05);}}
+/* Organic blob morphing — inspired by animated-gradient reference motion */
+@keyframes blobMorph{
+  0%,100%{border-radius:58% 42% 63% 37%/41% 58% 42% 59%;}
+  25%{border-radius:42% 58% 39% 61%/58% 43% 57% 42%;}
+  50%{border-radius:63% 37% 47% 53%/33% 65% 35% 67%;}
+  75%{border-radius:37% 63% 58% 42%/62% 38% 62% 38%;}
+}
 
-/* Grid */
+.dust{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden;}
+.mote{position:absolute;border-radius:50%;background:rgba(200,190,255,.35);
+  animation:moteDrift linear infinite;}
+@keyframes moteDrift{
+  0%{transform:translate(0,100vh) scale(0);opacity:0;}
+  8%{opacity:.5;}
+  92%{opacity:.35;}
+  100%{transform:translate(var(--drift,20px),-10vh) scale(1);opacity:0;}
+}
+
 .grid-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background-image:linear-gradient(rgba(99,102,241,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,.025) 1px,transparent 1px);
-  background-size:60px 60px;}
+  background-image:linear-gradient(rgba(124,108,246,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(124,108,246,.025) 1px,transparent 1px);
+  background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 40%,transparent 100%);}
 
-/* Cursor */
-.cur-dot{position:fixed;width:10px;height:10px;border-radius:50%;background:var(--a);pointer-events:none;z-index:99999;
-  transform:translate(-50%,-50%);box-shadow:0 0 12px var(--a),0 0 24px var(--a);transition:width .2s,height .2s,background .2s;}
-.cur-ring{position:fixed;width:40px;height:40px;border-radius:50%;border:1px solid rgba(99,102,241,.4);pointer-events:none;z-index:99998;
-  transform:translate(-50%,-50%);transition:transform .15s ease;}
-.cur-trail{position:fixed;border-radius:50%;pointer-events:none;z-index:99997;background:var(--b);transform:translate(-50%,-50%);
-  animation:trailFade .6s ease forwards;}
-@keyframes trailFade{0%{opacity:.5;width:8px;height:8px;}100%{opacity:0;width:2px;height:2px;}}
+/* ── CURSOR ─────────────────────────────────────────────────────── */
+.cur-dot{position:fixed;width:9px;height:9px;border-radius:50%;background:var(--a);pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);box-shadow:0 0 14px var(--a),0 0 28px var(--a);transition:width .2s,height .2s,background .2s;}
+.cur-ring{position:fixed;width:38px;height:38px;border-radius:50%;border:1px solid rgba(124,108,246,.4);pointer-events:none;z-index:99998;
+  transform:translate(-50%,-50%);transition:transform .16s ease,width .2s,height .2s;}
 @media(pointer:coarse){.cur-dot,.cur-ring{display:none;}}
 
-/* Scroll bar */
-.scroll-bar{position:fixed;top:0;left:0;height:2px;z-index:9999;
-  background:linear-gradient(90deg,var(--a),var(--b),var(--d));
-  box-shadow:0 0 8px var(--a);transition:width .1s linear;}
+/* ── ZOOM-LAUNCH (fallback bold transition for non-Chromium) ─────── */
+.card.zoom-launch{
+  position:relative;z-index:500;
+  animation:zoomLaunch .48s var(--smooth) forwards;
+}
+@keyframes zoomLaunch{
+  0%{transform:scale(1);opacity:1;filter:blur(0);}
+  60%{transform:scale(1.06);opacity:1;}
+  100%{transform:scale(2.4);opacity:0;filter:blur(6px);}
+}
+body.page-entering{animation:pageZoomIn .55s var(--smooth) both;}
+@keyframes pageZoomIn{
+  0%{opacity:0;transform:scale(.96);filter:blur(4px);}
+  100%{opacity:1;transform:scale(1);filter:blur(0);}
+}
 
-/* Nav */
-.nav{position:sticky;top:0;z-index:100;background:rgba(8,9,15,.75);backdrop-filter:blur(24px) saturate(180%);
-  -webkit-backdrop-filter:blur(24px) saturate(180%);border-bottom:1px solid var(--border);
-  animation:slideDown .6s var(--bounce);}
-body.light .nav{background:rgba(248,249,255,.85);}
-@keyframes slideDown{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
-.nav-in{max-width:1280px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;}
-.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);font-weight:800;font-size:1.1rem;cursor:none;}
-.gem{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--a),var(--b));
-  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
-  box-shadow:0 0 20px rgba(99,102,241,.4);animation:gempulse 3s ease-in-out infinite;}
-@keyframes gempulse{0%,100%{box-shadow:0 0 15px rgba(99,102,241,.35);}50%{box-shadow:0 0 35px rgba(99,102,241,.65);}}
-.nav-links{display:flex;align-items:center;gap:6px;}
-.nav-link{padding:8px 16px;border-radius:100px;color:var(--text-2);text-decoration:none;font-size:.88rem;font-weight:500;
-  transition:all .2s;cursor:none;position:relative;overflow:hidden;}
-.nav-link:hover{color:var(--text);background:rgba(99,102,241,.08);}
-.nav-btn{padding:8px 16px;border-radius:100px;border:none;cursor:none;background:none;color:var(--text-2);font-size:.9rem;transition:all .2s;}
+/* ── SCROLL PROGRESS ────────────────────────────────────────────── */
+.scroll-bar{position:fixed;top:0;left:0;height:2px;z-index:9999;
+  background:linear-gradient(90deg,var(--a),var(--b),var(--d));box-shadow:0 0 10px var(--a);transition:width .1s linear;}
+
+/* ── NAV ─────────────────────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:100;background:rgba(10,8,16,.72);backdrop-filter:blur(26px) saturate(180%);
+  -webkit-backdrop-filter:blur(26px) saturate(180%);border-bottom:1px solid var(--border);}
+body.light .nav{background:rgba(255,255,255,.82);}
+.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);font-weight:800;font-size:1.08rem;cursor:none;font-family:var(--serif);}
+.gem{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--a),var(--b));
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 0 18px rgba(124,108,246,.4);
+  animation:gempulse 4s ease-in-out infinite;position:relative;overflow:hidden;
+  transform-style:preserve-3d;transition:transform .5s var(--bounce);}
+.nav-logo:hover .gem{transform:rotateY(20deg) rotateX(-8deg) scale(1.08);}
+.gem::after{content:'';position:absolute;top:-50%;left:-150%;width:60%;height:200%;
+  background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.55) 45%,transparent 65%);
+  transform:rotate(20deg);animation:gemShine 5s ease-in-out infinite;}
+@keyframes gemShine{0%,100%{left:-150%;}50%{left:150%;}}
+@keyframes gempulse{0%,100%{box-shadow:0 0 14px rgba(124,108,246,.3);}50%{box-shadow:0 0 30px rgba(124,108,246,.6);}}
+.nav-links{display:flex;align-items:center;gap:4px;}
+.nav-link{padding:8px 15px;border-radius:100px;color:var(--text-2);text-decoration:none;font-size:.86rem;font-weight:500;transition:all .2s;cursor:none;}
+.nav-link:hover{color:var(--text);background:rgba(124,108,246,.08);}
+.nav-btn{padding:8px 15px;border-radius:100px;border:none;cursor:none;background:none;color:var(--text-2);font-size:.88rem;transition:all .2s;}
 .nav-btn:hover{color:var(--a);}
 
-/* Hero */
-.hero{position:relative;text-align:center;padding:clamp(80px,12vw,140px) 20px clamp(60px,8vw,100px);overflow:hidden;}
-#neural-canvas{position:absolute;inset:0;z-index:0;opacity:.25;pointer-events:none;}
-.hero-in{position:relative;z-index:1;}
-.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:100px;margin-bottom:28px;
-  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);
-  color:var(--a);font-size:.8rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-  animation:fadeUp .8s var(--bounce) .1s both;}
-.dot-live{width:8px;height:8px;border-radius:50%;background:var(--e);animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
-.hero h1{font-size:clamp(2.8rem,7vw,5.5rem);font-weight:900;line-height:1.05;letter-spacing:-.03em;margin-bottom:20px;animation:fadeUp .8s var(--bounce) .2s both;}
-.shine{background:linear-gradient(135deg,#fff 0%,var(--a) 40%,var(--b) 70%,var(--d) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  background-size:200% 200%;animation:shineMove 5s ease infinite;}
-@keyframes shineMove{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
-.hero-sub{font-size:clamp(1rem,2vw,1.15rem);color:var(--text-2);max-width:580px;margin:0 auto 36px;line-height:1.7;animation:fadeUp .8s var(--bounce) .3s both;}
-.hero-cta{display:inline-flex;align-items:center;gap:10px;padding:14px 34px;border-radius:100px;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:1rem;text-decoration:none;
-  box-shadow:0 4px 24px rgba(99,102,241,.4);animation:fadeUp .8s var(--bounce) .4s both;
-  transition:box-shadow .3s,transform .1s;position:relative;overflow:hidden;}
-.hero-cta::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
-  transform:translateX(-100%);transition:transform .5s;}
-.hero-cta:hover::before{transform:translateX(100%);}
-.hero-cta:hover{box-shadow:0 8px 36px rgba(99,102,241,.5);}
-@keyframes fadeUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+/* Animated theme toggle switch — inspired by animated-toggle-switch ref */
+.theme-switch{position:relative;width:52px;height:28px;border-radius:100px;border:none;cursor:none;
+  background:linear-gradient(135deg,#1e1b2e,#2a2540);border:1px solid var(--border);
+  transition:background .4s;flex-shrink:0;overflow:hidden;}
+body.light .theme-switch{background:linear-gradient(135deg,#bfe0ff,#eaf4ff);}
+.theme-switch .stars{position:absolute;inset:0;opacity:1;transition:opacity .4s;}
+body.light .theme-switch .stars{opacity:0;}
+.theme-switch .stars::before,.theme-switch .stars::after{content:'';position:absolute;width:2px;height:2px;
+  background:#fff;border-radius:50%;box-shadow:8px 4px 0 #fff,16px 10px 0 rgba(255,255,255,.6);}
+.theme-switch .stars::before{top:6px;left:6px;}
+.theme-switch .stars::after{bottom:6px;left:22px;}
+.theme-switch .thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(135deg,#fde68a,#fbbf24);box-shadow:0 2px 8px rgba(0,0,0,.3);
+  transition:transform .4s var(--bounce),background .4s;display:flex;align-items:center;justify-content:center;font-size:.7rem;}
+body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gradient(135deg,#fff9db,#fff3a0);}
 
-/* Stats */
-.stats{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;padding:20px 24px 60px;max-width:700px;margin:0 auto;animation:fadeUp .8s var(--bounce) .5s both;}
+/* ── HERO (roadmap landing) ─────────────────────────────────────── */
+.hero{position:relative;text-align:center;padding:clamp(70px,11vw,120px) 20px clamp(50px,7vw,80px);overflow:hidden;}
+#neural-canvas{position:absolute;inset:0;z-index:0;opacity:.28;pointer-events:none;}
+.hero-in{position:relative;z-index:1;}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:100px;margin-bottom:26px;
+  background:rgba(124,108,246,.1);border:1px solid rgba(124,108,246,.25);color:var(--a);
+  font-size:.78rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;animation:fadeUp .8s var(--bounce) .1s both;}
+.dot-live{width:7px;height:7px;border-radius:50%;background:var(--e);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+.hero h1{font-family:var(--serif);font-size:clamp(2.6rem,6.5vw,5rem);font-weight:600;line-height:1.08;
+  letter-spacing:-.01em;margin-bottom:20px;animation:fadeUp .8s var(--bounce) .2s both;font-style:italic;}
+.shine{background:linear-gradient(135deg,#fff 0%,var(--a) 45%,var(--b) 75%,var(--d) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  background-size:200% 200%;animation:shineMove 6s ease infinite;}
+@keyframes shineMove{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
+.hero-line{display:block;margin:0 auto 24px;animation:fadeUp .8s var(--bounce) .25s both;}
+.hero-line path{stroke-dasharray:340;stroke-dashoffset:340;animation:drawLine 1.6s var(--smooth) .5s forwards;}
+@keyframes drawLine{to{stroke-dashoffset:0;}}
+.hero-sub{font-size:clamp(1rem,2vw,1.15rem);color:var(--text-2);max-width:560px;margin:0 auto 32px;line-height:1.7;
+  animation:fadeUp .8s var(--bounce) .3s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s var(--bounce) .4s both;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:100px;border:none;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;
+  box-shadow:0 4px 20px rgba(124,108,246,.4);transition:box-shadow .3s,transform .1s;position:relative;overflow:hidden;}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
+  transform:translateX(-100%);transition:transform .5s;}
+.btn-primary:hover::before{transform:translateX(100%);}
+.btn-primary:hover{box-shadow:0 8px 30px rgba(124,108,246,.5);}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:100px;
+  background:rgba(124,108,246,.08);border:1px solid rgba(124,108,246,.22);color:var(--a);
+  font-weight:600;font-size:.92rem;text-decoration:none;cursor:none;transition:all .25s;}
+.btn-ghost:hover{background:rgba(124,108,246,.16);border-color:rgba(124,108,246,.4);transform:translateY(-2px);}
+
+/* ── STATS ───────────────────────────────────────────────────────── */
+.stats{display:flex;justify-content:center;gap:44px;flex-wrap:wrap;padding:8px 24px 50px;max-width:700px;margin:0 auto;
+  animation:fadeUp .8s var(--bounce) .5s both;}
 .stat{text-align:center;}
-.stat-n{font-size:2.5rem;font-weight:900;line-height:1;
+.stat-n{font-family:var(--serif);font-size:2.3rem;font-weight:600;line-height:1;
   background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .stat-sep{width:1px;background:var(--border);align-self:stretch;margin:4px 0;}
-.stat-l{font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:2px;margin-top:6px;}
+.stat-l{font-size:.68rem;color:var(--text-3);text-transform:uppercase;letter-spacing:2px;margin-top:6px;}
 
-/* Search */
-.search-wrap{max-width:640px;margin:0 auto 20px;padding:0 24px;position:relative;animation:fadeUp .8s var(--bounce) .6s both;}
-.search-in{width:100%;padding:16px 52px;background:var(--glass);border:1px solid var(--border);
-  border-radius:100px;color:var(--text);font-size:1rem;outline:none;cursor:text;
-  backdrop-filter:blur(12px);transition:border-color .2s,box-shadow .2s,transform .2s;}
-.search-in::placeholder{color:var(--text-3);}
-.search-in:focus{border-color:var(--a);box-shadow:0 0 0 3px rgba(99,102,241,.15),0 8px 32px rgba(0,0,0,.3);transform:translateY(-2px);}
-.search-ico{position:absolute;left:42px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none;}
-.search-kbd{position:absolute;right:40px;top:50%;transform:translateY(-50%);
-  background:var(--card);border:1px solid var(--border);color:var(--text-3);font-size:.7rem;padding:2px 8px;border-radius:6px;}
-.search-count{text-align:center;color:var(--text-3);font-size:.82rem;margin-bottom:16px;opacity:0;transition:opacity .3s;}
+/* ── ASK-BAR (roadmap only) ──────────────────────────────────────── */
+.ask-wrap{max-width:680px;margin:0 auto 12px;padding:0 24px;position:relative;animation:fadeUp .8s var(--bounce) .6s both;}
+.ask-shell{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--border);
+  border-radius:100px;padding:6px 8px 6px 20px;backdrop-filter:blur(14px);transition:border-color .25s,box-shadow .25s,transform .2s;}
+.ask-shell:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(124,108,246,.15),0 10px 34px rgba(0,0,0,.35);transform:translateY(-2px);}
+.ask-ico{color:var(--text-3);font-size:1.05rem;flex-shrink:0;}
+.ask-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:.98rem;padding:8px 4px;cursor:text;}
+.ask-input::placeholder{color:var(--text-3);}
+.ask-go{flex-shrink:0;padding:10px 20px;border-radius:100px;border:none;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.85rem;
+  transition:transform .2s,box-shadow .2s;white-space:nowrap;}
+.ask-go:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,108,246,.4);}
+.ask-go:disabled{opacity:.5;transform:none;}
+.ask-hint{text-align:center;color:var(--text-3);font-size:.78rem;margin-bottom:8px;}
+.ask-answer{max-width:680px;margin:0 auto 20px;padding:0 24px;}
+.ask-answer-box{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--a);
+  border-radius:var(--r16);padding:18px 22px;font-size:.92rem;color:var(--text-2);line-height:1.7;
+  display:none;animation:fadeUp .4s var(--bounce) both;}
+.ask-answer-box.show{display:block;}
+.ask-answer-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--a);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.search-count{text-align:center;color:var(--text-3);font-size:.8rem;margin-bottom:14px;opacity:0;transition:opacity .3s;}
 .search-count.show{opacity:1;}
 
-/* Cards */
-.grid-wrap{max-width:1280px;margin:0 auto;padding:0 24px 80px;}
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;}
-.card{display:block;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r20);padding:28px;position:relative;overflow:hidden;
-  transition:transform .3s var(--bounce),border-color .3s,box-shadow .3s,background .3s;cursor:none;
-  opacity:0;transform:translateY(40px);backdrop-filter:blur(8px);}
-.card.visible{opacity:1;transform:translateY(0);transition:opacity .6s ease,transform .6s var(--bounce),border-color .3s,box-shadow .3s,background .3s;}
-.card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,color-mix(in srgb,var(--ca) 8%,transparent),color-mix(in srgb,var(--cb) 4%,transparent));opacity:0;transition:opacity .3s;border-radius:inherit;pointer-events:none;}
-.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ca),var(--cb));transform:scaleX(0);transform-origin:left;transition:transform .4s var(--bounce);border-radius:var(--r20) var(--r20) 0 0;}
-.card:hover{transform:translateY(-8px) scale(1.01);border-color:color-mix(in srgb,var(--ca) 30%,transparent);
-  box-shadow:0 20px 48px rgba(0,0,0,.5),0 0 0 1px color-mix(in srgb,var(--ca) 20%,transparent);background:var(--card-h);}
-.card:hover::before{opacity:1;}.card:hover::after{transform:scaleX(1);}
-.card-issue{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:var(--ca);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
-.cat-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
-  background:color-mix(in srgb,var(--ca) 12%,transparent);border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);color:var(--ca);}
-.card-title{font-size:1.2rem;font-weight:700;line-height:1.4;margin-bottom:10px;}
+/* ── ROADMAP (week-grouped timeline) ─────────────────────────────── */
+.roadmap-wrap{max-width:840px;margin:0 auto;padding:20px 24px 100px;position:relative;}
+.roadmap-line{position:absolute;left:calc(24px + 27px);top:0;bottom:100px;width:2px;
+  background:linear-gradient(180deg,transparent,var(--border) 4%,var(--border) 96%,transparent);z-index:0;}
+@media(max-width:640px){.roadmap-line{display:none;}}
+
+.week-header{position:sticky;top:64px;z-index:20;padding:14px 0 14px 0;margin-top:8px;
+  background:linear-gradient(180deg,var(--void) 60%,transparent);}
+.week-header-inner{display:inline-flex;align-items:center;gap:10px;padding:7px 18px;border-radius:100px;
+  background:rgba(124,108,246,.1);border:1px solid rgba(124,108,246,.2);backdrop-filter:blur(10px);}
+.week-dot{width:7px;height:7px;border-radius:50%;background:var(--a);}
+.week-label{font-size:.78rem;font-weight:700;color:var(--a);text-transform:uppercase;letter-spacing:1.2px;font-family:var(--sans);}
+
+.entry-row{display:flex;gap:20px;margin-bottom:18px;position:relative;z-index:1;
+  opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s var(--bounce);}
+.entry-row.visible{opacity:1;transform:translateY(0);}
+.entry-dot-col{flex-shrink:0;width:54px;display:flex;flex-direction:column;align-items:center;padding-top:22px;}
+.entry-dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--ca),var(--cb));
+  box-shadow:0 0 0 4px var(--void),0 0 16px color-mix(in srgb,var(--ca) 50%,transparent);flex-shrink:0;}
+
+.card{flex:1;display:block;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r20);padding:24px 26px;position:relative;overflow:hidden;cursor:none;perspective:800px;
+  transform-style:preserve-3d;transition:transform .35s var(--bounce),border-color .3s,box-shadow .3s,background .3s;}
+.card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--ca) 7%,transparent),color-mix(in srgb,var(--cb) 3%,transparent));
+  opacity:0;transition:opacity .3s;border-radius:inherit;pointer-events:none;}
+.card:hover{transform:translateY(-4px) scale(1.008);border-color:color-mix(in srgb,var(--ca) 30%,transparent);
+  box-shadow:0 18px 44px rgba(0,0,0,.45);background:var(--card-h);}
+.card:hover::before{opacity:1;}
+.card-issue{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.8px;color:var(--ca);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.cat-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:.63rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:.6px;background:color-mix(in srgb,var(--ca) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);color:var(--ca);}
+.card-title{font-family:var(--serif);font-size:1.28rem;font-weight:600;line-height:1.35;margin-bottom:8px;}
 .card:hover .card-title{background:linear-gradient(90deg,var(--ca),var(--cb));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.card-desc{font-size:.88rem;color:var(--text-2);line-height:1.65;margin-bottom:18px;}
-.card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:16px;border-top:1px solid var(--border);}
-.card-date{font-size:.75rem;color:var(--text-3);}
-.arrow{width:32px;height:32px;border-radius:50%;background:color-mix(in srgb,var(--ca) 10%,transparent);
+.card-desc{font-size:.86rem;color:var(--text-2);line-height:1.6;margin-bottom:14px;}
+.card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);}
+.card-date{font-size:.74rem;color:var(--text-3);}
+.arrow{width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--ca) 10%,transparent);
   border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);color:var(--ca);
-  display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .25s var(--bounce);}
+  display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .25s var(--bounce);}
 .card:hover .arrow{background:linear-gradient(135deg,var(--ca),var(--cb));border-color:transparent;color:#fff;transform:translateX(4px);}
 
-/* E-book button */
-.ebook-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;border-radius:100px;
-  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.25);color:var(--a);
-  font-weight:600;font-size:.9rem;text-decoration:none;cursor:none;transition:all .3s;
-  animation:fadeUp .8s var(--bounce) .45s both;}
-.ebook-btn:hover{background:rgba(99,102,241,.2);border-color:rgba(99,102,241,.4);transform:translateY(-2px);}
-
-/* Empty */
+/* ── EMPTY ───────────────────────────────────────────────────────── */
 .empty{text-align:center;padding:100px 20px;}
 .empty-icon{font-size:5rem;margin-bottom:20px;animation:float 3s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-16px);}}
 
-/* Entry page */
-.entry-hero{padding:clamp(60px,10vw,100px) 20px 40px;text-align:center;position:relative;overflow:hidden;}
+/* ── CHAPTER (entry) PAGE ────────────────────────────────────────── */
+.entry-hero{padding:clamp(60px,10vw,100px) 20px 40px;text-align:center;position:relative;overflow:hidden;
+  view-transition-name:none;}
 .entry-hero::before{content:'';position:absolute;left:50%;top:-30%;width:600px;height:600px;border-radius:50%;
-  background:radial-gradient(circle,color-mix(in srgb,var(--ca) 8%,transparent),transparent 70%);transform:translateX(-50%);pointer-events:none;}
-.issue-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;margin-bottom:16px;
+  background:radial-gradient(circle,color-mix(in srgb,var(--ca) 9%,transparent),transparent 70%);transform:translateX(-50%);pointer-events:none;}
+.issue-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;margin-bottom:18px;
   background:color-mix(in srgb,var(--ca) 10%,transparent);border:1px solid color-mix(in srgb,var(--ca) 25%,transparent);
-  color:var(--ca);font-size:.78rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;}
-.entry-title{font-size:clamp(1.8rem,4vw,3.2rem);font-weight:900;line-height:1.15;margin-bottom:14px;
+  color:var(--ca);font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;}
+.entry-title{font-family:var(--serif);font-size:clamp(1.9rem,4.2vw,3.4rem);font-weight:600;font-style:italic;
+  line-height:1.18;margin-bottom:16px;
   background:linear-gradient(135deg,var(--text) 0%,var(--ca) 60%,var(--cb) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.entry-meta{color:var(--text-3);font-size:.88rem;display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;}
+.entry-meta{color:var(--text-3);font-size:.86rem;display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;}
 
-/* TLDR box */
 .tldr-box{background:color-mix(in srgb,var(--ca) 6%,var(--card));border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);
-  border-left:4px solid var(--ca);border-radius:var(--r16);padding:20px 24px;margin-bottom:24px;
-  font-size:1rem;color:var(--text-2);line-height:1.7;}
-.tldr-label{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ca);margin-bottom:8px;}
+  border-left:3px solid var(--ca);border-radius:var(--r16);padding:18px 24px;margin-bottom:22px;
+  font-size:1rem;color:var(--text-2);line-height:1.7;
+  box-shadow:8px 8px 24px rgba(0,0,0,.28),-6px -6px 20px rgba(255,255,255,.02),inset 0 1px 0 rgba(255,255,255,.03);}
+.tldr-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ca);margin-bottom:8px;}
 
-.entry-body{max-width:820px;margin:0 auto;padding:0 20px 80px;position:relative;}
+.entry-body{max-width:780px;margin:0 auto;padding:0 20px 90px;position:relative;}
 
-/* Sections */
-.sec{background:var(--card);border:1px solid var(--border);border-radius:var(--r20);padding:32px;margin-bottom:20px;
-  position:relative;overflow:hidden;z-index:1;opacity:0;transform:translateY(28px);backdrop-filter:blur(8px);transition:all .4s;}
-.sec.visible{opacity:1;transform:translateY(0);}
-.sec:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);box-shadow:0 12px 40px rgba(0,0,0,.4);}
-.sec::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
-  background:linear-gradient(180deg,var(--ca),var(--cb));border-radius:inherit 0 0 inherit;opacity:0;transition:opacity .3s;}
-.sec:hover::before{opacity:1;}
-.sec h2{font-size:1.3rem;font-weight:700;color:var(--ca);margin-bottom:20px;display:flex;align-items:center;gap:10px;}
-.sec-icon{width:36px;height:36px;border-radius:10px;background:color-mix(in srgb,var(--ca) 12%,transparent);
-  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
-.sec p{color:var(--text-2);margin-bottom:14px;line-height:1.82;}
+.sec{background:var(--card);border:1px solid var(--border);border-radius:var(--r24);padding:30px;margin-bottom:18px;
+  position:relative;overflow:hidden;z-index:1;opacity:0;transform:translateY(34px) scale(.98);filter:blur(4px);
+  transition:opacity .7s var(--smooth),transform .7s var(--bounce),filter .7s var(--smooth);}
+.sec.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
+.sec:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.4);}
+.sec h2{font-family:var(--serif);font-size:1.32rem;font-weight:600;color:var(--ca);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.sec-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--ca) 12%,transparent);
+  display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+.sec p{color:var(--text-2);margin-bottom:14px;line-height:1.85;font-size:.98rem;}
 .sec ul,.sec ol{padding-left:22px;margin:12px 0;}
-.sec li{color:var(--text-2);margin-bottom:9px;line-height:1.7;}
-.sec ul li::marker{color:var(--ca);} .sec ol li::marker{color:var(--cb);font-weight:700;}
-.sec h3{font-size:1.05rem;font-weight:700;color:var(--cb);margin:22px 0 10px;}
+.sec li{color:var(--text-2);margin-bottom:9px;line-height:1.7;font-size:.95rem;}
+.sec ul li::marker{color:var(--ca);}.sec ol li::marker{color:var(--cb);font-weight:700;}
 
-/* Code */
-.code-wrap{background:#060810;border:1px solid rgba(99,102,241,.15);border-radius:var(--r16);margin:16px 0;overflow:hidden;}
-.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;
-  background:rgba(99,102,241,.06);border-bottom:1px solid rgba(99,102,241,.1);}
-.code-lang{font-size:.72rem;color:var(--a);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
-.code-copy{background:none;border:1px solid var(--border);color:var(--text-3);padding:3px 12px;
-  border-radius:6px;font-size:.78rem;cursor:none;transition:all .2s;}
+.code-wrap{background:#050208;border:1px solid rgba(124,108,246,.16);border-radius:var(--r16);margin:16px 0;overflow:hidden;}
+.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(124,108,246,.06);border-bottom:1px solid rgba(124,108,246,.1);}
+.code-lang{font-size:.7rem;color:var(--a);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.code-copy{background:none;border:1px solid var(--border);color:var(--text-3);padding:3px 12px;border-radius:6px;font-size:.76rem;cursor:none;transition:all .2s;}
 .code-copy:hover{border-color:var(--a);color:var(--a);}
 .code-copy.copied{border-color:var(--e);color:var(--e);}
-.code-wrap pre{padding:20px;margin:0;font-family:var(--mono);font-size:.86rem;line-height:1.72;overflow-x:auto;color:#a5b4fc;}
+.code-wrap pre{padding:20px;margin:0;font-family:var(--mono);font-size:.84rem;line-height:1.72;overflow-x:auto;color:#c4b5fd;}
 
-/* Interview Qs */
 .iq-q{padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);
   margin-bottom:8px;font-size:.9rem;color:var(--text-2);transition:all .2s;}
 .iq-q:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);transform:translateX(4px);color:var(--text);}
 
-/* AI Tutor */
-.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:62px;height:62px;border-radius:50%;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-size:1.5rem;
-  box-shadow:0 4px 24px rgba(99,102,241,.5);animation:fabPulse 3s ease-in-out infinite;
-  transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
-@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(99,102,241,.4);}50%{box-shadow:0 4px 40px rgba(99,102,241,.7),0 0 60px rgba(99,102,241,.2);}}
+/* ── AI TUTOR (chapter/e-book pages) ─────────────────────────────── */
+.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:60px;height:60px;border-radius:50%;border:none;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-size:1.5rem;box-shadow:0 4px 24px rgba(124,108,246,.5);
+  animation:fabPulse 3s ease-in-out infinite;transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
+@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(124,108,246,.4);}50%{box-shadow:0 4px 40px rgba(124,108,246,.7),0 0 60px rgba(124,108,246,.2);}}
 .fab:hover{transform:scale(1.12) rotate(8deg);}
 .fab.hidden{display:none!important;}
-
-.tutor{position:fixed;bottom:100px;right:24px;z-index:999;width:420px;height:560px;
-  background:rgba(8,9,15,.93);backdrop-filter:blur(32px) saturate(200%);
-  border:1px solid var(--border);border-radius:var(--r24);
-  box-shadow:0 32px 80px rgba(0,0,0,.7),0 0 0 1px rgba(99,102,241,.1);
-  display:flex;flex-direction:column;overflow:hidden;
+.tutor{position:fixed;bottom:98px;right:24px;z-index:999;width:400px;height:540px;
+  background:rgba(10,8,16,.94);backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--border);border-radius:var(--r24);
+  box-shadow:0 32px 80px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;
   opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:all .3s var(--bounce);}
 .tutor.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
-@media(max-width:500px){.tutor{width:calc(100% - 32px);right:16px;bottom:90px;height:65vh;}}
-.tutor-head{padding:18px 20px;display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(168,85,247,.1));border-bottom:1px solid var(--border);flex-shrink:0;}
-.tutor-title{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:8px;}
-.t-close{background:none;border:none;color:var(--text-3);font-size:1.2rem;cursor:none;transition:color .2s;}
+@media(max-width:480px){.tutor{width:calc(100% - 32px);right:16px;bottom:88px;height:65vh;}}
+.tutor-head{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;
+  background:linear-gradient(135deg,rgba(124,108,246,.15),rgba(200,109,215,.1));border-bottom:1px solid var(--border);flex-shrink:0;}
+.tutor-title{font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:8px;}
+.t-close{background:none;border:none;color:var(--text-3);font-size:1.15rem;cursor:none;}
 .t-close:hover{color:var(--text);}
-.tutor-hint{padding:10px 16px;background:rgba(99,102,241,.04);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.75rem;color:var(--text-3);}
+.tutor-hint{padding:10px 16px;background:rgba(124,108,246,.04);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.73rem;color:var(--text-3);}
 .tutor-hint strong{color:var(--a);}
 .tutor-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
 .tutor-body::-webkit-scrollbar{width:4px;}
-.tutor-body::-webkit-scrollbar-thumb{background:rgba(99,102,241,.3);border-radius:2px;}
-.msg{max-width:88%;padding:12px 16px;border-radius:16px;font-size:.88rem;line-height:1.55;word-wrap:break-word;animation:msgPop .35s var(--bounce);}
+.tutor-body::-webkit-scrollbar-thumb{background:rgba(124,108,246,.3);border-radius:2px;}
+.msg{max-width:88%;padding:11px 15px;border-radius:15px;font-size:.86rem;line-height:1.55;word-wrap:break-word;animation:msgPop .35s var(--bounce);}
 @keyframes msgPop{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
 .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-bottom-right-radius:4px;}
 .msg.bot{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
 .typing{display:flex;gap:5px;padding:4px 0;}
-.typing span{width:7px;height:7px;border-radius:50%;background:var(--text-3);animation:tyBounce 1.3s ease-in-out infinite;}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:tyBounce 1.3s ease-in-out infinite;}
 .typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
 @keyframes tyBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
 .chips{padding:0 16px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
-.chip{padding:5px 12px;border-radius:100px;font-size:.75rem;cursor:none;
-  background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.15);color:var(--a);transition:all .2s;}
-.chip:hover{background:rgba(99,102,241,.18);border-color:rgba(99,102,241,.35);}
+.chip{padding:5px 12px;border-radius:100px;font-size:.73rem;cursor:none;
+  background:rgba(124,108,246,.08);border:1px solid rgba(124,108,246,.15);color:var(--a);transition:all .2s;}
+.chip:hover{background:rgba(124,108,246,.18);border-color:rgba(124,108,246,.35);}
 .tutor-inp{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);flex-shrink:0;}
-.tutor-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:12px;
-  padding:11px 16px;color:var(--text);font-size:.88rem;outline:none;cursor:text;transition:border-color .2s;}
-.tutor-input:focus{border-color:var(--a);box-shadow:0 0 0 2px rgba(99,102,241,.12);}
-.tsend{padding:11px 18px;border:none;border-radius:12px;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.88rem;transition:transform .2s,box-shadow .2s;}
-.tsend:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(99,102,241,.4);}
+.tutor-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;
+  padding:10px 15px;color:var(--text);font-size:.86rem;outline:none;cursor:text;transition:border-color .2s;}
+.tutor-input:focus{border-color:var(--a);box-shadow:0 0 0 2px rgba(124,108,246,.12);}
+.tsend{padding:10px 17px;border:none;border-radius:11px;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.86rem;transition:transform .2s,box-shadow .2s;}
+.tsend:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,108,246,.4);}
 .tsend:disabled{opacity:.5;transform:none;}
 
-/* Reading ring */
-.read-ring{position:fixed;top:18px;right:18px;z-index:101;width:48px;height:48px;opacity:0;transform:scale(.7);transition:all .3s;cursor:none;}
+/* ── READING RING ─────────────────────────────────────────────────── */
+.read-ring{position:fixed;top:16px;right:16px;z-index:101;width:46px;height:46px;opacity:0;transform:scale(.7);transition:all .3s;cursor:none;}
 .read-ring.show{opacity:1;transform:scale(1);}
 .read-ring svg{transform:rotate(-90deg);}
 .rr-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:3;}
 .rr-prog{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .1s;}
 
-/* BTT */
-.btt{position:fixed;bottom:100px;right:24px;z-index:99;width:46px;height:46px;border-radius:50%;border:none;cursor:none;
-  background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);color:var(--a);font-size:1.1rem;
+/* ── BACK TO TOP ─────────────────────────────────────────────────── */
+.btt{position:fixed;bottom:98px;right:24px;z-index:99;width:44px;height:44px;border-radius:50%;border:none;cursor:none;
+  background:rgba(124,108,246,.12);border:1px solid rgba(124,108,246,.2);color:var(--a);font-size:1.05rem;
   display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(16px);pointer-events:none;transition:all .3s;}
 .btt.show{opacity:1;transform:translateY(0);pointer-events:auto;}
 .btt:hover{background:var(--a);color:#fff;border-color:var(--a);transform:translateY(-3px);}
 
-/* Footer */
-.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);
-  color:var(--text-3);font-size:.82rem;background:rgba(3,4,10,.5);backdrop-filter:blur(12px);}
+/* ── FOOTER ──────────────────────────────────────────────────────── */
+.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);color:var(--text-3);font-size:.8rem;
+  background:rgba(4,3,8,.5);backdrop-filter:blur(12px);}
 .footer a{color:var(--a);text-decoration:none;}
 
-/* Confetti */
+/* ── CONFETTI / RIPPLE ───────────────────────────────────────────── */
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:9998;}
-/* Ripple */
-.ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:9990;border:2px solid rgba(99,102,241,.5);
+.ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:9990;border:2px solid rgba(124,108,246,.5);
   transform:translate(-50%,-50%) scale(0);animation:rippleExp .6s ease-out forwards;}
 @keyframes rippleExp{to{transform:translate(-50%,-50%) scale(4);opacity:0;}}
 
-/* Responsive */
+/* ── RESPONSIVE ──────────────────────────────────────────────────── */
 @media(max-width:768px){
-  .card-grid{grid-template-columns:1fr;}.stats{gap:24px;}.read-ring{display:none;}
-  .entry-body{padding:0 12px 60px;}.sec{padding:20px;}.tutor{width:calc(100vw - 32px);right:16px;}
+  .stats{gap:24px;}.read-ring{display:none;}.entry-body{padding:0 12px 60px;}.sec{padding:20px;}
+  .tutor{width:calc(100vw - 32px);right:16px;}.entry-row{gap:12px;}.entry-dot-col{width:32px;}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}
   .cur-dot,.cur-ring{display:none;}body{cursor:auto;}html{scroll-behavior:auto;}
 }
-/* Particles */
-@keyframes prise{0%{transform:translateY(100vh) scale(0);opacity:0;}10%{opacity:.6;}90%{opacity:.3;}100%{transform:translateY(-10vh) scale(1);opacity:0;}}
 """
 
-# ── JavaScript ────────────────────────────────────────────────────────────────
-
 JS = r"""
-// Theme
+// Reveal page entrance (fallback zoom-in continuation)
+document.body.classList.add('page-entering');
+
+// Theme (animated toggle switch)
 (function(){
   const s=localStorage.getItem('dds-theme');
   if(s==='light') document.body.classList.add('light');
   const b=document.getElementById('themeBtn');
   if(b){
-    b.textContent=document.body.classList.contains('light')?'🌙':'☀️';
     b.addEventListener('click',()=>{
       document.body.classList.toggle('light');
       localStorage.setItem('dds-theme',document.body.classList.contains('light')?'light':'dark');
-      b.textContent=document.body.classList.contains('light')?'🌙':'☀️';
     });
   }
 })();
 
-// Cursor
+// Cursor with mouse-parallax on ambient orbs (real-time feel)
 (function(){
   if(window.matchMedia('(pointer:coarse)').matches) return;
   const d=document.querySelector('.cur-dot'),r=document.querySelector('.cur-ring');
-  if(!d||!r) return;
-  let mx=0,my=0,rx=0,ry=0;
+  const orbs=document.querySelectorAll('.orb');
+  let mx=window.innerWidth/2,my=window.innerHeight/2,rx=mx,ry=my;
   window.addEventListener('mousemove',e=>{
     mx=e.clientX;my=e.clientY;
-    d.style.left=mx+'px';d.style.top=my+'px';
-    const t=document.createElement('div');
-    t.className='cur-trail';t.style.cssText=`left:${mx}px;top:${my}px;width:7px;height:7px;`;
-    document.body.appendChild(t);setTimeout(()=>t.remove(),600);
+    if(d){d.style.left=mx+'px';d.style.top=my+'px';}
+    const nx=(mx/window.innerWidth-.5), ny=(my/window.innerHeight-.5);
+    orbs.forEach((o,i)=>{
+      const depth=(i+1)*6;
+      o.style.transform=`translate(${nx*depth}px,${ny*depth}px)`;
+    });
   });
-  (function a(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;r.style.left=rx+'px';r.style.top=ry+'px';requestAnimationFrame(a);})();
+  if(r){(function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;r.style.left=rx+'px';r.style.top=ry+'px';requestAnimationFrame(a);})();}
   document.querySelectorAll('a,button,.card,.chip').forEach(el=>{
-    el.addEventListener('mouseenter',()=>{d.style.width='18px';d.style.height='18px';r.style.width='54px';r.style.height='54px';});
-    el.addEventListener('mouseleave',()=>{d.style.width='10px';d.style.height='10px';r.style.width='40px';r.style.height='40px';});
+    el.addEventListener('mouseenter',()=>{if(d){d.style.width='17px';d.style.height='17px';}if(r){r.style.width='50px';r.style.height='50px';}});
+    el.addEventListener('mouseleave',()=>{if(d){d.style.width='9px';d.style.height='9px';}if(r){r.style.width='38px';r.style.height='38px';}});
   });
 })();
 
-// Ripple
+// Ripple on click
 document.addEventListener('click',e=>{
   const r=document.createElement('div');
   r.className='ripple';r.style.cssText=`left:${e.clientX}px;top:${e.clientY}px;width:60px;height:60px;`;
   document.body.appendChild(r);setTimeout(()=>r.remove(),700);
 });
 
-// Neural canvas
+// Dust particles (ambient)
+(function(){
+  const c=document.getElementById('dustField');
+  if(!c) return;
+  const n=28;
+  for(let i=0;i<n;i++){
+    const m=document.createElement('div');
+    const size=1+Math.random()*2.4;
+    m.className='mote';
+    m.style.left=(Math.random()*100)+'%';
+    m.style.width=size+'px';m.style.height=size+'px';
+    m.style.setProperty('--drift',(Math.random()*80-40)+'px');
+    m.style.animationDuration=(18+Math.random()*22)+'s';
+    m.style.animationDelay=(-Math.random()*30)+'s';
+    c.appendChild(m);
+  }
+})();
+
+// Neural / knowledge graph canvas (real-time rendering, roadmap hero)
 (function(){
   const cv=document.getElementById('neural-canvas');
   if(!cv) return;
@@ -924,77 +931,126 @@ document.addEventListener('click',e=>{
   function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
   function init(){
     resize();
-    nodes=Array.from({length:24},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:2+Math.random()*3,p:Math.random()*Math.PI*2}));
+    nodes=Array.from({length:24},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:2+Math.random()*3,p:Math.random()*Math.PI*2}));
   }
   function draw(){
     ctx.clearRect(0,0,W,H);
-    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.p+=.025;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.p+=.022;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
     nodes.forEach((a,i)=>{
       nodes.slice(i+1).forEach(b=>{
-        const d=Math.hypot(a.x-b.x,a.y-b.y);if(d>190)return;
+        const dist=Math.hypot(a.x-b.x,a.y-b.y);if(dist>180)return;
         ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-        ctx.strokeStyle=`rgba(99,102,241,${(1-d/190)*.3})`;ctx.lineWidth=.7;ctx.stroke();
-        if(Math.sin(a.p)>.75){const t=(Math.sin(a.p)-.75)/.25,sx=a.x+(b.x-a.x)*t,sy=a.y+(b.y-a.y)*t;
-          ctx.beginPath();ctx.arc(sx,sy,2,0,Math.PI*2);ctx.fillStyle='rgba(168,85,247,.9)';ctx.fill();}
+        ctx.strokeStyle=`rgba(124,108,246,${(1-dist/180)*.28})`;ctx.lineWidth=.7;ctx.stroke();
+        if(Math.sin(a.p)>.76){const t=(Math.sin(a.p)-.76)/.24,sx=a.x+(b.x-a.x)*t,sy=a.y+(b.y-a.y)*t;
+          ctx.beginPath();ctx.arc(sx,sy,2,0,Math.PI*2);ctx.fillStyle='rgba(200,109,215,.85)';ctx.fill();}
       });
     });
     nodes.forEach(n=>{const g=.5+.5*Math.sin(n.p);ctx.beginPath();ctx.arc(n.x,n.y,n.r*(.8+.3*g),0,Math.PI*2);
-      ctx.fillStyle=`rgba(99,102,241,${.4+.4*g})`;ctx.shadowBlur=12*g;ctx.shadowColor='#6366f1';ctx.fill();ctx.shadowBlur=0;});
+      ctx.fillStyle=`rgba(124,108,246,${.35+.4*g})`;ctx.shadowBlur=11*g;ctx.shadowColor='#7c6cf6';ctx.fill();ctx.shadowBlur=0;});
     raf=requestAnimationFrame(draw);
   }
   init();draw();
   window.addEventListener('resize',()=>{cancelAnimationFrame(raf);init();draw();});
 })();
 
-// Scroll bar
+// Scroll progress
 const sb=document.getElementById('scrollBar');
 if(sb) window.addEventListener('scroll',()=>{const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;sb.style.width=(h>0?(s/h)*100:0)+'%';},{passive:true});
 
 // Reading ring
 const rr=document.getElementById('readRing');
 if(rr){
-  const c=rr.querySelector('.rr-prog'),r=c.r.baseVal.value,ci=r*2*Math.PI;
+  const c=rr.querySelector('.rr-prog'),rad=c.r.baseVal.value,ci=rad*2*Math.PI;
   c.style.strokeDasharray=`${ci} ${ci}`;c.style.strokeDashoffset=ci;
   window.addEventListener('scroll',()=>{const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight,p=h>0?(s/h)*100:0;
-    c.style.strokeDashoffset=ci-(p/100)*ci;rr.classList.toggle('show',p>5);},{passive:true});
+    c.style.strokeDashoffset=ci-(p/100)*ci;rr.classList.toggle('show',p>4);},{passive:true});
 }
 
-// BTT
+// Back to top
 const btt=document.getElementById('btt');
 if(btt){window.addEventListener('scroll',()=>btt.classList.toggle('show',window.scrollY>400),{passive:true});btt.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));}
 
-// Intersection observer
-const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');io.unobserve(x.target);}});},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.card,.sec').forEach(el=>io.observe(el));
+// Scrollytelling reveal
+const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.sec,.entry-row').forEach(el=>io.observe(el));
 
-// 3D tilt
-document.querySelectorAll('.card').forEach(c=>{
-  c.addEventListener('mousemove',e=>{const r=c.getBoundingClientRect(),rx=(e.clientY-r.top-r.height/2)/22,ry=(r.width/2-(e.clientX-r.left))/22;c.style.transform=`perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-8px) scale(1.01)`;});
-  c.addEventListener('mouseleave',()=>c.style.transform='');
-});
+// Sticky week headers stay pinned naturally via CSS position:sticky (no JS needed)
 
-// Magnetic CTA
-document.querySelectorAll('.hero-cta,.magnetic').forEach(b=>{
-  b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);b.style.transform=`translate(${dx*.22}px,${dy*.22}px)`;});
+// Bold click transition — native Cross-Document View Transitions handle Chromium.
+// For other browsers, do a manual zoom-launch before navigating.
+(function(){
+  const supportsVT = CSS.supports && CSS.supports('selector(::view-transition)');
+  document.querySelectorAll('.card[href]').forEach(card=>{
+    card.addEventListener('click', e=>{
+      if(supportsVT) return; // let native cross-document view transition run
+      e.preventDefault();
+      const href=card.getAttribute('href');
+      card.classList.add('zoom-launch');
+      setTimeout(()=>{ window.location.href=href; },440);
+    });
+  });
+})();
+
+// Subtle 3D tilt on cards (pencil-turn inspired), skipped on touch
+(function(){
+  if(window.matchMedia('(pointer:coarse)').matches) return;
+  document.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const rx=((e.clientY-r.top)/r.height-.5)*-6;
+      const ry=((e.clientX-r.left)/r.width-.5)*6;
+      card.style.transform=`translateY(-4px) scale(1.008) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+  });
+})();
+
+// Magnetic buttons
+document.querySelectorAll('.btn-primary,.btn-ghost,.magnetic').forEach(b=>{
+  b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);b.style.transform=`translate(${dx*.18}px,${dy*.18}px)`;});
   b.addEventListener('mouseleave',()=>b.style.transform='');
 });
 
 // Counter
 document.querySelectorAll('.stat-n[data-t]').forEach(el=>{
   const t=parseInt(el.dataset.t,10);if(isNaN(t)||el.dataset.date)return;
-  let n=0;const st=Math.ceil(t/60),iv=setInterval(()=>{n=Math.min(n+st,t);el.textContent=n;if(n>=t)clearInterval(iv);},18);
+  let n=0;const st=Math.ceil(t/50),iv=setInterval(()=>{n=Math.min(n+st,t);el.textContent=n;if(n>=t)clearInterval(iv);},20);
 });
 
-// Search
-const si=document.getElementById('searchIn'),sc=document.getElementById('searchCount');
-let to;
-if(si){
-  si.addEventListener('input',()=>{clearTimeout(to);to=setTimeout(()=>{const q=si.value.toLowerCase().trim();let v=0;
-    document.querySelectorAll('.card').forEach(c=>{const m=!q||c.innerText.toLowerCase().includes(q);c.style.display=m?'block':'none';if(m)v++;});
-    if(sc){sc.textContent=`${v} issue${v!==1?'s':''} found`;sc.classList.toggle('show',!!q);}},280);});
+// Ask-bar: search + Ask AI combined
+const askIn=document.getElementById('askIn'), askGo=document.getElementById('askGo'), askAns=document.getElementById('askAns'), searchCount=document.getElementById('searchCount');
+let searchTO;
+function filterCards(q){
+  let v=0;
+  document.querySelectorAll('.entry-row').forEach(row=>{
+    const m=!q||row.innerText.toLowerCase().includes(q.toLowerCase());
+    row.style.display=m?'flex':'none';if(m)v++;
+  });
+  document.querySelectorAll('.week-header').forEach(wh=>{
+    let anyVisible=false;let sib=wh.nextElementSibling;
+    while(sib && !sib.classList.contains('week-header')){ if(sib.style.display!=='none') anyVisible=true; sib=sib.nextElementSibling; }
+    wh.style.display=anyVisible?'block':'none';
+  });
+  if(searchCount){searchCount.textContent=`${v} issue${v!==1?'s':''} found`;searchCount.classList.toggle('show',!!q);}
+}
+if(askIn){
+  askIn.addEventListener('input',()=>{clearTimeout(searchTO);searchTO=setTimeout(()=>filterCards(askIn.value.trim()),260);});
   document.addEventListener('keydown',e=>{
-    if(e.key==='/'&&document.activeElement!==si){e.preventDefault();si.focus();}
-    if(e.key==='Escape'&&document.activeElement===si){si.value='';si.blur();document.querySelectorAll('.card').forEach(c=>c.style.display='');if(sc)sc.classList.remove('show');}
+    if(e.key==='/'&&document.activeElement!==askIn){e.preventDefault();askIn.focus();}
+    if(e.key==='Escape'&&document.activeElement===askIn){askIn.value='';askIn.blur();filterCards('');if(askAns)askAns.classList.remove('show');}
+  });
+}
+if(askGo){
+  askGo.addEventListener('click', async ()=>{
+    const q=askIn.value.trim();
+    if(!q) return;
+    askGo.disabled=true; askGo.textContent='Thinking…';
+    const ans = await callGemini(q);
+    askGo.disabled=false; askGo.textContent='Ask AI';
+    if(askAns){
+      askAns.innerHTML = ans ? `<div class="ask-answer-label">🧠 AI Tutor</div>${ans.replace(/\n/g,'<br>')}` : `<div class="ask-answer-label">🧠 AI Tutor</div>No API key set. Click the search box, then try again after entering a Gemini key when prompted.`;
+      askAns.classList.add('show');
+    }
   });
 }
 
@@ -1007,26 +1063,21 @@ document.querySelectorAll('.code-copy').forEach(b=>{
   });
 });
 
-// Confetti
+// Confetti at end of chapter
 let cf=false;
 window.addEventListener('scroll',()=>{if(cf)return;const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;if(h>0&&(s/h)>.95){cf=true;fireConfetti();}},{passive:true});
 function fireConfetti(){
   const cv=document.getElementById('confetti');if(!cv)return;
   const ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;
-  const cols=['#6366f1','#a855f7','#06b6d4','#ec4899','#10b981','#fbbf24'];
-  const ps=Array.from({length:120},()=>({x:window.innerWidth/2,y:window.innerHeight/2,vx:(Math.random()-.5)*18,vy:(Math.random()-.5)*18-6,c:cols[Math.floor(Math.random()*cols.length)],s:Math.random()*7+2,l:1,d:.009+Math.random()*.01}));
+  const cols=['#7c6cf6','#c86dd7','#22d3ee','#f472b6','#34d399','#fbbf24'];
+  const ps=Array.from({length:110},()=>({x:window.innerWidth/2,y:window.innerHeight/2,vx:(Math.random()-.5)*17,vy:(Math.random()-.5)*17-6,c:cols[Math.floor(Math.random()*cols.length)],s:Math.random()*6+2,l:1,d:.01+Math.random()*.01}));
   (function a(){ctx.clearRect(0,0,cv.width,cv.height);let al=false;ps.forEach(p=>{if(p.l<=0)return;al=true;p.x+=p.vx;p.y+=p.vy;p.vy+=.28;p.l-=p.d;ctx.globalAlpha=p.l;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fill();});
   if(al)requestAnimationFrame(a);else ctx.clearRect(0,0,cv.width,cv.height);})();
 }
 
-// Particles
-const pc=document.getElementById('pcont');
-if(pc){for(let i=0;i<22;i++){const p=document.createElement('div');p.style.cssText=`position:absolute;border-radius:50%;background:rgba(99,102,241,.3);left:${Math.random()*100}%;width:${2+Math.random()*3}px;height:${2+Math.random()*3}px;animation:prise ${14+Math.random()*20}s linear ${Math.random()*14}s infinite;`;pc.appendChild(p);}}
-
-// AI Tutor
-let to_open=false;
-function openTutor(){const p=document.getElementById('tutorPanel'),f=document.getElementById('tutorFab');to_open=true;p.classList.add('open');f.classList.add('hidden');}
-function closeTutor(){to_open=false;document.getElementById('tutorPanel').classList.remove('open');document.getElementById('tutorFab').classList.remove('hidden');}
+// AI Tutor (chapter/e-book floating panel)
+function openTutor(){document.getElementById('tutorPanel').classList.add('open');document.getElementById('tutorFab').classList.add('hidden');}
+function closeTutor(){document.getElementById('tutorPanel').classList.remove('open');document.getElementById('tutorFab').classList.remove('hidden');}
 async function tutorSend(){
   const inp=document.getElementById('tutorIn'),body=document.getElementById('tutorBody'),btn=document.getElementById('tSend'),msg=inp.value.trim();
   if(!msg)return;
@@ -1042,28 +1093,25 @@ function addMsg(text,role){
   d.className=`msg ${role}`;d.textContent=text;body.appendChild(d);body.scrollTop=body.scrollHeight;
 }
 async function callGemini(msg){
-  const k=typeof GEMINI_KEY_JS!=='undefined'&&GEMINI_KEY_JS?GEMINI_KEY_JS:(localStorage.getItem('dds-gemini')||'');
-  if(!k)return null;
+  const k=(typeof GEMINI_KEY_JS!=='undefined'&&GEMINI_KEY_JS)?GEMINI_KEY_JS:(localStorage.getItem('dds-gemini')||'');
+  if(!k) { const nk=prompt('Enter your FREE Gemini API key (get at aistudio.google.com):'); if(nk&&nk.trim()){ localStorage.setItem('dds-gemini',nk.trim()); return callGemini(msg);} return null; }
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
-    const prompt=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer questions:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer based on the index above. If asked to explain an issue by number, give a thorough explanation. Cite issue number and date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+    const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }
-if(!localStorage.getItem('dds-gemini')){
-  setTimeout(()=>{const k=prompt('Enable AI Tutor? Enter your FREE Gemini API key (get at aistudio.google.com):');if(k&&k.trim())localStorage.setItem('dds-gemini',k.trim());},3000);
-}
-document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{document.getElementById('tutorIn').value=c.dataset.q||c.textContent;tutorSend();});});
+document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{const inp=document.getElementById('tutorIn')||document.getElementById('askIn');if(inp){inp.value=c.dataset.q||c.textContent;} if(document.getElementById('tutorIn')) tutorSend(); else if(askGo) askGo.click();});});
 document.getElementById('tutorIn')?.addEventListener('keypress',e=>{if(e.key==='Enter')tutorSend();});
 """
 
 # ── HTML helpers ──────────────────────────────────────────────────────────────
 
 def esc(t: str) -> str:
-    return str(t).replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+    return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-def head_html(title: str, ca: str = "#6366f1", cb: str = "#a855f7") -> str:
+def head_html(title: str, ca: str = "#7c6cf6", cb: str = "#c86dd7") -> str:
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1072,13 +1120,13 @@ def head_html(title: str, ca: str = "#6366f1", cb: str = "#a855f7") -> str:
 <title>{esc(title)} | Daily Dose of DS</title>
 <meta name="description" content="AI-enhanced study notes from Daily Dose of DS newsletter">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 <style>:root{{--ca:{ca};--cb:{cb};}}</style>
 <style>{CSS}</style>
 </head>"""
 
 def nav_html(back=False) -> str:
-    back_link = '<a href="../index.html" class="nav-link">← All Issues</a>' if back else ''
+    back_link = '<a href="../index.html" class="nav-link">← Roadmap</a>' if back else ''
     return f"""
 <nav class="nav">
   <div class="nav-in">
@@ -1087,14 +1135,25 @@ def nav_html(back=False) -> str:
     </a>
     <div class="nav-links">
       {back_link}
-      <button class="nav-btn" id="themeBtn">☀️</button>
+      <button class="theme-switch" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
+        <span class="stars"></span>
+        <span class="thumb">☀️</span>
+      </button>
     </div>
   </div>
 </nav>"""
 
-def common_tail(tutor_ctx_js: str = "''") -> str:
+def ambient_layers() -> str:
+    return """
+<div class="aurora"><div class="orb"></div><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+<div class="dust" id="dustField"></div>
+<div class="grid-bg"></div>
+<div class="cur-dot"></div><div class="cur-ring"></div>
+<div class="scroll-bar" id="scrollBar"></div>"""
+
+def tutor_widget(tutor_ctx_js: str, topic_hint: str = "") -> str:
+    hint = f'<br><br>You are reading: <strong>{esc(topic_hint)}</strong>' if topic_hint else ''
     return f"""
-<button class="btt" id="btt">↑</button>
 <button class="fab" id="tutorFab" onclick="openTutor()">🧠</button>
 <div class="tutor" id="tutorPanel">
   <div class="tutor-head">
@@ -1103,26 +1162,33 @@ def common_tail(tutor_ctx_js: str = "''") -> str:
   </div>
   <div class="tutor-hint">Ask me to <strong>explain any issue by number</strong> — e.g. "Explain issue #5"</div>
   <div class="tutor-body" id="tutorBody">
-    <div class="msg bot">👋 Hi! I know all {SITE_TITLE} issues. Try:<br><br><em>"Explain issue #3"</em> or <em>"What topics cover RAG?"</em></div>
+    <div class="msg bot">👋 Hi! I know every {SITE_TITLE} issue.{hint}</div>
   </div>
   <div class="chips">
     <span class="chip" data-q="Explain issue #1">Issue #1</span>
     <span class="chip" data-q="What topics have been covered?">All topics</span>
     <span class="chip" data-q="Which issues cover LLMs?">LLMs</span>
-    <span class="chip" data-q="Give me key takeaways from issue #5">Takeaways #5</span>
   </div>
   <div class="tutor-inp">
     <input class="tutor-input" id="tutorIn" placeholder='Try "Explain issue #7"...'>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX={tutor_ctx_js};</script>"""
+
+def common_tail(extra_head: str = "") -> str:
+    return f"""
+{extra_head}
+<button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
-<div id="pcont" style="position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;"></div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX={tutor_ctx_js};</script>
 <script>{JS}</script>"""
 
 
 # ── HTML Generator ────────────────────────────────────────────────────────────
+
+def week_start(d: datetime) -> datetime:
+    """Monday of the week containing d."""
+    return d - timedelta(days=d.weekday())
 
 class SiteBuilder:
     def __init__(self):
@@ -1131,25 +1197,19 @@ class SiteBuilder:
         (self.out / "entries").mkdir(exist_ok=True)
 
     def build_entry(self, email: RawEmail, note: StudyNote, tutor_ctx_js: str) -> str:
-        """Build a single issue page. Returns relative path like entries/..."""
         ca, cb = cat_color(note.category)
-        safe   = re.sub(r'[^\w\s-]','',note.topic).strip().replace(' ','-')[:50]
-        fname  = f"entries/{note.date}_issue{note.issue_number:03d}_{safe}.html"
-        fpath  = self.out / fname
+        safe = re.sub(r'[^\w\s-]', '', note.topic).strip().replace(' ', '-')[:50]
+        fname = f"entries/{note.date}_issue{note.issue_number:03d}_{safe}.html"
+        fpath = self.out / fname
         d_disp = datetime.strptime(note.date, "%Y-%m-%d").strftime("%B %d, %Y")
 
-        # Build content sections HTML
         content_html = ""
-
-        # TLDR box
         if note.tldr:
             content_html += f"""
-<div class="sec visible" style="--ca:{ca};--cb:{cb}">
+<div class="tldr-box" style="--ca:{ca};--cb:{cb}">
   <div class="tldr-label">TL;DR</div>
-  <p>{esc(note.tldr)}</p>
+  <p style="margin:0">{esc(note.tldr)}</p>
 </div>"""
-
-        # Overview
         if note.overview:
             paras = "\n".join(f"<p>{esc(p)}</p>" for p in note.overview.split("\n") if p.strip())
             content_html += f"""
@@ -1158,20 +1218,15 @@ class SiteBuilder:
   {paras}
 </div>"""
 
-        # Dynamic sections (one per major topic in the email)
         icons = ["🔬","💡","⚙️","🏗️","📊","🔧","🎯","🌐"]
         for i, sec in enumerate(note.sections):
             body_paras = "\n".join(f"<p>{esc(p)}</p>" for p in sec["body"].split("\n") if p.strip())
-            code_html  = ""
+            code_html = ""
             if sec.get("code"):
-                code_esc = esc(sec["code"])
                 code_html = f"""
 <div class="code-wrap">
-  <div class="code-head">
-    <span class="code-lang">Python</span>
-    <button class="code-copy">Copy</button>
-  </div>
-  <pre><code>{code_esc}</code></pre>
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>{esc(sec["code"])}</code></pre>
 </div>"""
             content_html += f"""
 <div class="sec">
@@ -1180,7 +1235,6 @@ class SiteBuilder:
   {code_html}
 </div>"""
 
-        # Key points
         if note.key_points:
             items = "\n".join(f"<li>{esc(k)}</li>" for k in note.key_points)
             content_html += f"""
@@ -1188,8 +1242,6 @@ class SiteBuilder:
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
   <ul>{items}</ul>
 </div>"""
-
-        # Interview questions
         if note.interview_qs:
             qs = "\n".join(f'<div class="iq-q">{esc(q)}</div>' for q in note.interview_qs)
             content_html += f"""
@@ -1197,8 +1249,6 @@ class SiteBuilder:
   <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
   {qs}
 </div>"""
-
-        # Further reading
         if note.further:
             items = "\n".join(f"<li>{esc(f)}</li>" for f in note.further)
             content_html += f"""
@@ -1209,12 +1259,9 @@ class SiteBuilder:
 
         html = f"""{head_html(note.topic, ca, cb)}
 <body>
-<div class="aurora"><div class="orb"></div><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
-<div class="grid-bg"></div>
-<div class="cur-dot"></div><div class="cur-ring"></div>
-<div class="scroll-bar" id="scrollBar"></div>
+{ambient_layers()}
 <div class="read-ring" id="readRing">
-  <svg width="48" height="48" viewBox="0 0 48 48">
+  <svg width="46" height="46" viewBox="0 0 48 48">
     <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="{ca}"/><stop offset="100%" stop-color="{cb}"/>
     </linearGradient></defs>
@@ -1223,180 +1270,176 @@ class SiteBuilder:
   </svg>
 </div>
 {nav_html(back=True)}
-<div class="entry-hero" style="--ca:{ca};--cb:{cb}">
+<div class="entry-hero" style="--ca:{ca};--cb:{cb}" style="view-transition-name:issue-{note.issue_number}">
   <div class="issue-badge">Issue #{note.issue_number} · {esc(note.category)}</div>
   <h1 class="entry-title">{esc(note.topic)}</h1>
-  <div class="entry-meta">
-    <span>📅 {d_disp}</span><span>·</span>
-    <span>📬 Daily Dose of DS</span>
-  </div>
+  <div class="entry-meta"><span>📅 {d_disp}</span><span>·</span><span>📬 Daily Dose of DS</span></div>
 </div>
 <div class="entry-body" style="--ca:{ca};--cb:{cb}">
   {content_html}
 </div>
-<div class="footer">
-  <a href="../index.html">← Back to all issues</a> &nbsp;·&nbsp; {SITE_TITLE}
-</div>
-{common_tail(tutor_ctx_js)}
+<div class="footer"><a href="../index.html">← Back to roadmap</a> &nbsp;·&nbsp; {SITE_TITLE}</div>
+{common_tail(tutor_widget(tutor_ctx_js, note.topic))}
 </body></html>"""
-
         fpath.write_text(html, encoding="utf-8")
         return fname
 
-    def build_index(self, rows, tutor_ctx_js: str):
-        """
-        rows: list of (date, topic, html_file, subject, category, issue_number)
-        sorted by date DESC (newest first)
-        """
-        cards = ""
-        for date, topic, html_file, subject, category, issue_num in rows:
-            ca, cb = cat_color(category or "Data Science")
-            d_obj  = datetime.fromisoformat(date)
-            d_disp = d_obj.strftime("%d %b %Y")
-            num    = issue_num or 0
-            desc   = esc((subject or topic)[:90])
-            cards += f"""
-<a href="{html_file}" class="card" style="--ca:{ca};--cb:{cb}">
-  <div class="card-issue">#{num:03d}<span class="cat-badge">{esc(category or 'DS')}</span></div>
-  <div class="card-title">{esc(topic.replace('_',' '))}</div>
-  <div class="card-desc">{desc}...</div>
-  <div class="card-foot">
-    <span class="card-date">📅 {d_disp}</span>
-    <div class="arrow">→</div>
-  </div>
-</a>"""
+    def build_index(self, rows_asc, tutor_ctx_js: str):
+        """rows_asc: (date, topic, html_file, subject, category, issue_number), ascending by date."""
+        body_html = ""
+        current_week = None
 
-        total  = len(rows)
-        cats   = len(set(r[4] for r in rows if r[4]))
-        latest = rows[0][0][:10] if rows else "—"
+        for date, topic, html_file, subject, category, issue_num in rows_asc:
+            ca, cb = cat_color(category or "Data Science")
+            d_obj = datetime.fromisoformat(date)
+            ws = week_start(d_obj)
+            if current_week is None or ws != current_week:
+                current_week = ws
+                week_label = ws.strftime("Week of %B %d")
+                body_html += f"""
+<div class="week-header">
+  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">{esc(week_label)}</span></div>
+</div>"""
+            d_disp = d_obj.strftime("%d %b %Y")
+            num = issue_num or 0
+            desc = esc((subject or topic)[:90])
+            body_html += f"""
+<div class="entry-row">
+  <div class="entry-dot-col"><div class="entry-dot" style="--ca:{ca};--cb:{cb}"></div></div>
+  <a href="{html_file}" class="card" style="--ca:{ca};--cb:{cb}">
+    <div class="card-issue">#{num:03d}<span class="cat-badge">{esc(category or 'DS')}</span></div>
+    <div class="card-title">{esc(topic.replace('_',' '))}</div>
+    <div class="card-desc">{desc}...</div>
+    <div class="card-foot"><span class="card-date">📅 {d_disp}</span><div class="arrow">→</div></div>
+  </a>
+</div>"""
+
+        total = len(rows_asc)
+        cats = len(set(r[4] for r in rows_asc if r[4]))
+        latest = rows_asc[-1][0][:10] if rows_asc else "—"
 
         empty = """<div class="empty">
   <div class="empty-icon">📬</div>
   <h2>No issues yet</h2>
   <p>Run <code>python build_site.py --first-run</code> to process your emails.</p>
-</div>""" if not cards else ""
+</div>""" if not body_html else ""
 
         html = f"""{head_html(SITE_TITLE)}
 <body>
-<div class="aurora"><div class="orb"></div><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
-<div class="grid-bg"></div>
-<div class="cur-dot"></div><div class="cur-ring"></div>
-<div class="scroll-bar" id="scrollBar"></div>
+{ambient_layers()}
 {nav_html()}
 <div class="hero">
   <canvas id="neural-canvas"></canvas>
   <div class="hero-in">
     <div class="badge"><span class="dot-live"></span>Auto-Updated Daily</div>
-    <h1><span class="shine">Daily Dose of DS</span></h1>
-    <p class="hero-sub">AI-enhanced study notes from every Daily Dose of DS newsletter issue.<br>Indexed, searchable, and explained by your personal AI tutor.</p>
-    <a href="#issues" class="hero-cta magnetic">Browse All Issues ↓</a>
-    <div style="margin-top:16px;">
-      <a href="ebook.html" class="ebook-btn magnetic">📖 Download E-Book</a>
+    <h1><span class="shine">Your Learning Roadmap</span></h1>
+    <svg class="hero-line" width="180" height="16" viewBox="0 0 180 16" fill="none">
+      <path d="M4 8c20-10 40 10 60 0s40-10 60 0 30 8 50 0" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round"/>
+      <defs><linearGradient id="lineGrad" x1="0" y1="0" x2="180" y2="0">
+        <stop offset="0%" stop-color="#7c6cf6"/><stop offset="50%" stop-color="#c86dd7"/><stop offset="100%" stop-color="#f472b6"/>
+      </linearGradient></defs>
+    </svg>
+    <p class="hero-sub">Every Daily Dose of DS issue, refined by AI into a readable chapter — laid out chronologically as a journey through what you've learned.</p>
+    <div class="hero-actions">
+      <a href="#roadmap" class="btn-primary magnetic">Start the Journey ↓</a>
+      <a href="ebook.html" class="btn-ghost magnetic">📖 Read as E-Book</a>
     </div>
   </div>
 </div>
 <div class="stats">
-  <div class="stat"><div class="stat-n" data-t="{total}">{total}</div><div class="stat-l">Issues</div></div>
+  <div class="stat"><div class="stat-n" data-t="{total}">{total}</div><div class="stat-l">Chapters</div></div>
   <div class="stat-sep"></div>
-  <div class="stat"><div class="stat-n" data-t="{cats}">{cats}</div><div class="stat-l">Categories</div></div>
+  <div class="stat"><div class="stat-n" data-t="{cats}">{cats}</div><div class="stat-l">Topics</div></div>
   <div class="stat-sep"></div>
   <div class="stat"><div class="stat-n" data-date="true">{latest}</div><div class="stat-l">Latest</div></div>
 </div>
-<div class="grid-wrap" id="issues">
-  <div class="search-wrap">
-    <span class="search-ico">🔍</span>
-    <input class="search-in" id="searchIn" placeholder="Search issues… (press / to focus)">
-    <span class="search-kbd">/</span>
+<div class="ask-wrap">
+  <div class="ask-shell">
+    <span class="ask-ico">🔍</span>
+    <input class="ask-input" id="askIn" placeholder='Search chapters, or ask "Explain issue #5"...'>
+    <button class="ask-go" id="askGo">Ask AI</button>
   </div>
-  <div class="search-count" id="searchCount"></div>
-  <div class="card-grid">{cards or empty}</div>
+</div>
+<div class="ask-hint">Press / to focus · type to search, or click Ask AI to query your AI tutor</div>
+<div class="ask-answer"><div class="ask-answer-box" id="askAns"></div></div>
+<div class="search-count" id="searchCount"></div>
+<div class="roadmap-wrap" id="roadmap">
+  <div class="roadmap-line"></div>
+  {body_html or empty}
 </div>
 <div class="footer">
   Auto-generated from Daily Dose of DS emails · Updated daily at 7:00 AM IST ·
   <a href="https://www.dailydoseofds.com" target="_blank">dailydoseofds.com</a>
 </div>
-{common_tail(tutor_ctx_js)}
+<script>const TUTOR_CTX={tutor_ctx_js};const GEMINI_KEY_JS='';</script>
+{common_tail()}
 </body></html>"""
-
         (self.out / "index.html").write_text(html, encoding="utf-8")
-        log.info("Index built — %d issues.", total)
+        log.info("Roadmap built — %d chapters.", total)
 
     def build_ebook_page(self, db: DB):
-        """
-        Build ebook.html — a beautiful in-browser e-book with all issues,
-        TOC at top linked to each chapter.
-        Also generates a downloadable PDF version via ReportLab if available.
-        """
         rows = db.all_for_ebook()
         if not rows:
-            # Placeholder
             html = f"""{head_html("E-Book")}
-<body>
-<div class="aurora"><div class="orb"></div><div class="orb"></div></div>
-{nav_html()}<div style="text-align:center;padding:100px 20px;">
-<h1 style="color:var(--a)">E-Book</h1>
+<body>{ambient_layers()}{nav_html()}
+<div style="text-align:center;padding:100px 20px;">
+<h1 style="font-family:var(--serif);color:var(--a)">E-Book</h1>
 <p style="color:var(--text-2);margin-top:16px">No issues processed yet. Run <code>python build_site.py --first-run</code> first.</p>
-</div></body></html>"""
+</div>{common_tail(tutor_widget("''"))}
+</body></html>"""
             (self.out / "ebook.html").write_text(html, encoding="utf-8")
             return
 
-        # Build TOC
         toc_items = ""
-        chapters  = ""
+        chapters = ""
         for num, date, topic, note in rows:
             d_disp = datetime.strptime(date, "%Y-%m-%d").strftime("%B %d, %Y")
             ca, cb = cat_color(note.category)
             toc_items += f"""
 <a href="#ch{num}" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
   text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
-  onmouseover="this.style.background='rgba(99,102,241,.08)';this.style.borderColor='rgba(99,102,241,.15)';this.style.color='var(--text)'"
+  onmouseover="this.style.background='rgba(124,108,246,.08)';this.style.borderColor='rgba(124,108,246,.15)';this.style.color='var(--text)'"
   onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
   <span style="color:{ca};font-weight:800;font-size:.8rem;min-width:60px">#{num:03d}</span>
-  <span style="font-size:.9rem">{esc(topic.replace('_',' '))}</span>
+  <span style="font-size:.9rem;font-family:var(--serif)">{esc(topic.replace('_',' '))}</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">{d_disp}</span>
 </a>"""
-
-            # Chapter content
-            chap_content = ""
+            chap = ""
             if note.tldr:
-                chap_content += f'<div class="tldr-box" style="--ca:{ca};--cb:{cb}"><div class="tldr-label">TL;DR</div><p>{esc(note.tldr)}</p></div>'
+                chap += f'<div class="tldr-box" style="--ca:{ca};--cb:{cb}"><div class="tldr-label">TL;DR</div><p style="margin:0">{esc(note.tldr)}</p></div>'
             if note.overview:
                 paras = "".join(f"<p>{esc(p)}</p>" for p in note.overview.split("\n") if p.strip())
-                chap_content += f'<h3 style="color:{ca};margin:24px 0 12px">Overview</h3>{paras}'
+                chap += f'<h3 style="color:{ca};margin:22px 0 10px;font-family:var(--serif)">Overview</h3>{paras}'
             for sec in note.sections:
                 paras = "".join(f"<p>{esc(p)}</p>" for p in sec["body"].split("\n") if p.strip())
-                chap_content += f'<h3 style="color:{ca};margin:24px 0 12px">{esc(sec["title"])}</h3>{paras}'
+                chap += f'<h3 style="color:{ca};margin:22px 0 10px;font-family:var(--serif)">{esc(sec["title"])}</h3>{paras}'
                 if sec.get("code"):
-                    code_esc = esc(sec["code"])
-                    chap_content += f'<div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>{code_esc}</code></pre></div>'
+                    chap += f'<div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>{esc(sec["code"])}</code></pre></div>'
             if note.key_points:
                 items = "".join(f"<li>{esc(k)}</li>" for k in note.key_points)
-                chap_content += f'<h3 style="color:{ca};margin:24px 0 12px">Key Takeaways</h3><ul>{items}</ul>'
+                chap += f'<h3 style="color:{ca};margin:22px 0 10px;font-family:var(--serif)">Key Takeaways</h3><ul>{items}</ul>'
 
             chapters += f"""
-<div id="ch{num}" style="margin-bottom:60px;padding-bottom:60px;border-bottom:1px solid var(--border);">
-  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;">
-    <span style="font-size:.75rem;font-weight:800;color:{ca};text-transform:uppercase;letter-spacing:1.5px">Chapter {num}</span>
-    <span style="font-size:.75rem;color:var(--text-3)">{d_disp} · {esc(note.category)}</span>
+<div id="ch{num}" class="sec" style="--ca:{ca};--cb:{cb};margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:{ca};text-transform:uppercase;letter-spacing:1.4px">Chapter {num}</span>
+    <span style="font-size:.72rem;color:var(--text-3)">{d_disp} · {esc(note.category)}</span>
   </div>
-  <h2 style="font-size:clamp(1.5rem,3vw,2.2rem);font-weight:900;margin-bottom:20px;
+  <h2 style="font-family:var(--serif);font-size:clamp(1.4rem,3vw,2.1rem);font-weight:600;font-style:italic;margin-bottom:18px;
     background:linear-gradient(135deg,var(--text) 0%,{ca} 60%,{cb} 100%);
     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
     {esc(topic.replace('_',' '))}
   </h2>
-  {chap_content}
-  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:{ca};text-decoration:none;font-size:.85rem;margin-top:20px;opacity:.7;transition:opacity .2s"
-    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Table of Contents</a>
+  {chap}
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:{ca};text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div>"""
 
         html = f"""{head_html("Complete E-Book | Daily Dose of DS")}
 <body>
-<div class="aurora"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
-<div class="grid-bg"></div>
-<div class="cur-dot"></div><div class="cur-ring"></div>
-<div class="scroll-bar" id="scrollBar"></div>
+{ambient_layers()}
 <div class="read-ring" id="readRing">
-  <svg width="48" height="48" viewBox="0 0 48 48">
+  <svg width="46" height="46" viewBox="0 0 48 48">
     <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="var(--a)"/><stop offset="100%" stop-color="var(--b)"/>
     </linearGradient></defs>
@@ -1405,77 +1448,58 @@ class SiteBuilder:
   </svg>
 </div>
 {nav_html(back=True)}
-<div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) 24px 80px;">
-
-  <!-- Book cover -->
-  <div style="text-align:center;padding:60px 20px;margin-bottom:60px;
-    background:var(--card);border:1px solid var(--border);border-radius:var(--r24);
-    position:relative;overflow:hidden;">
-    <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,.06),rgba(168,85,247,.04));pointer-events:none;"></div>
+<div style="max-width:820px;margin:0 auto;padding:clamp(40px,6vw,70px) 24px 80px;">
+  <div style="text-align:center;padding:56px 20px;margin-bottom:50px;background:var(--card);border:1px solid var(--border);border-radius:var(--r24);position:relative;overflow:hidden;">
+    <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(124,108,246,.06),rgba(200,109,215,.04));pointer-events:none;"></div>
     <div style="position:relative;z-index:1;">
-      <div style="font-size:4rem;margin-bottom:16px;">📚</div>
-      <h1 style="font-size:clamp(2rem,5vw,3.5rem);font-weight:900;margin-bottom:12px;">
-        <span class="shine">Daily Dose of DS</span>
-      </h1>
-      <p style="font-size:1.3rem;color:var(--text-2);margin-bottom:8px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.9rem">{len(rows)} Issues · Generated {datetime.now().strftime("%B %d, %Y")}</p>
+      <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
+      <h1 style="font-family:var(--serif);font-style:italic;font-size:clamp(1.8rem,4.5vw,3.2rem);font-weight:600;margin-bottom:10px;"><span class="shine">Daily Dose of DS</span></h1>
+      <p style="font-size:1.15rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
+      <p style="color:var(--text-3);font-size:.88rem">{len(rows)} Chapters · Generated {datetime.now().strftime("%B %d, %Y")}</p>
     </div>
   </div>
-
-  <!-- TOC -->
-  <div id="toc" style="margin-bottom:60px;">
-    <h2 style="font-size:1.8rem;font-weight:800;margin-bottom:24px;color:var(--a)">📑 Table of Contents</h2>
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r20);padding:16px;">
-      {toc_items}
-    </div>
+  <div id="toc" style="margin-bottom:50px;">
+    <h2 style="font-family:var(--serif);font-size:1.6rem;font-weight:600;margin-bottom:20px;color:var(--a)">📑 Table of Contents</h2>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r20);padding:14px;">{toc_items}</div>
   </div>
-
-  <!-- Chapters -->
-  <div id="chapters">
-    {chapters}
-  </div>
-
+  <div id="chapters">{chapters}</div>
 </div>
-<div class="footer">
-  <a href="index.html">← Back to Issues Index</a> &nbsp;·&nbsp; Daily Dose of DS E-Book
-</div>
-{common_tail()}
+<div class="footer"><a href="index.html">← Back to Roadmap</a> &nbsp;·&nbsp; Daily Dose of DS E-Book</div>
+{common_tail(tutor_widget("''"))}
 </body></html>"""
-
         (self.out / "ebook.html").write_text(html, encoding="utf-8")
-        log.info("E-book page built — %d chapters.", len(rows))
+        log.info("E-book built — %d chapters.", len(rows))
 
 
 # ── Orchestrator ──────────────────────────────────────────────────────────────
 
 class App:
     def __init__(self):
-        self.db    = DB()
-        self.ai    = None
+        self.db = DB()
+        self.ai = None
         self.gmail = None
-        self.site  = SiteBuilder()
+        self.site = SiteBuilder()
 
     def _init_apis(self):
         self.gmail = Gmail()
-        self.ai    = AI()
+        self.ai = AI()
 
     def _tutor_ctx(self) -> str:
         return json.dumps(self.db.tutor_context())
 
     def run(self, first_run: bool = False):
         log.info("=" * 55)
-        log.info("Daily Dose of DS v6.0 — Mode: %s", "FULL HISTORY" if first_run else "DAILY")
+        log.info("Daily Dose of DS v7.0 — Mode: %s", "FULL HISTORY" if first_run else "DAILY")
         log.info("=" * 55)
         self._init_apis()
 
-        after    = None if first_run else datetime.now() - timedelta(days=1)
+        after = None if first_run else datetime.now() - timedelta(days=1)
         messages = self.gmail.fetch_all(after)
         if not messages:
             log.info("No emails found. Rebuilding site...")
             self._rebuild()
             return
 
-        # Process oldest first for correct issue numbering
         if first_run:
             messages = list(reversed(messages))
 
@@ -1491,7 +1515,6 @@ class App:
 
         self._rebuild()
         log.info("Done! Processed: %d, Skipped: %d", processed, skipped)
-
         if processed > 0:
             self._deploy()
 
@@ -1499,33 +1522,22 @@ class App:
         email = self.gmail.get_email(eid)
         if self.db.dup_hash(email.content_hash):
             log.info("Duplicate content, skipping."); return
-
-        # Generate AI-enhanced study notes
-        note             = self.ai.enhance(email)
+        note = self.ai.enhance(email)
         note.issue_number = self.db.next_issue()
-
-        # Build the entry page
-        ctx_js   = self._tutor_ctx()
+        ctx_js = self._tutor_ctx()
         html_file = self.site.build_entry(email, note, ctx_js)
-
-        # Save to DB
-        self.db.save(
-            email.email_id, email.subject,
-            email.date.strftime("%Y-%m-%d"),
-            note.topic, note.category, email.content_hash,
-            html_file, note
-        )
+        self.db.save(email.email_id, email.subject, email.date.strftime("%Y-%m-%d"),
+                     note.topic, note.category, email.content_hash, html_file, note)
         log.info("✅ Issue #%d: %s [%s]", note.issue_number, note.topic, note.category)
-        time.sleep(5)  # Rate limit respect
+        time.sleep(5)
 
     def _rebuild(self):
-        rows     = self.db.all_issues()
-        ctx_js   = self._tutor_ctx()
+        rows = self.db.all_issues_asc()
+        ctx_js = self._tutor_ctx()
         self.site.build_index(rows, ctx_js)
         self.site.build_ebook_page(self.db)
 
     def rebuild_only(self):
-        """Rebuild HTML from existing DB without fetching new emails."""
         log.info("Rebuilding site from existing database...")
         self._rebuild()
         log.info("Done.")
@@ -1533,9 +1545,13 @@ class App:
     def _deploy(self):
         log.info("Deploying to GitHub Pages...")
         try:
-            subprocess.run(["git","add","docs/"], check=True)
-            subprocess.run(["git","commit","-m",f"🤖 Auto-update: {datetime.now().strftime('%Y-%m-%d %H:%M')} [v6]"], check=False)
-            subprocess.run(["git","push"], check=True)
+            # CRITICAL: commit the database too, so history persists across
+            # every automated run (previously gitignored — this was the bug
+            # that made old issues disappear from the roadmap).
+            subprocess.run(["git", "add", "docs/", DB_FILE], check=True)
+            subprocess.run(["git", "commit", "-m",
+                f"🤖 Auto-update: {datetime.now().strftime('%Y-%m-%d %H:%M')} [v7]"], check=False)
+            subprocess.run(["git", "push"], check=True)
             log.info("Deployed ✅")
         except Exception as e:
             log.error("Deploy failed: %s", e)
@@ -1548,20 +1564,18 @@ class App:
             sched.run_pending(); time.sleep(60)
 
 
-# ── Entry point ───────────────────────────────────────────────────────────────
-
 def main():
-    p = argparse.ArgumentParser(description="Daily Dose of DS Website v6.0")
+    p = argparse.ArgumentParser(description="Daily Dose of DS Website v7.0")
     p.add_argument("--first-run", action="store_true", help="Process ALL historical emails")
-    p.add_argument("--daily",     action="store_true", help="Process new emails only")
-    p.add_argument("--rebuild",   action="store_true", help="Rebuild site from DB (no Gmail fetch)")
-    p.add_argument("--schedule",  action="store_true", help="Run daily scheduler")
+    p.add_argument("--daily", action="store_true", help="Process new emails only")
+    p.add_argument("--rebuild", action="store_true", help="Rebuild site from DB (no Gmail fetch)")
+    p.add_argument("--schedule", action="store_true", help="Run daily scheduler")
     args = p.parse_args()
 
     app = App()
-    if   args.schedule: app._init_apis(); app.schedule()
-    elif args.rebuild:  app.rebuild_only()
-    else:               app.run(first_run=args.first_run)
+    if args.schedule: app._init_apis(); app.schedule()
+    elif args.rebuild: app.rebuild_only()
+    else: app.run(first_run=args.first_run)
 
 if __name__ == "__main__":
     main()

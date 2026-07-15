@@ -11,11 +11,6 @@ __pycache__/
 venv/
 env/
 
-# Database (auto-regenerated)
-site_data.db
-*.db-journal
-*.db-wal
-
 # IDE
 .vscode/
 .idea/
@@ -24,3 +19,11 @@ Thumbs.db
 
 # Logs
 *.log
+
+# ─────────────────────────────────────────────────────────────
+# IMPORTANT: site_data.db is intentionally NOT ignored.
+# It must be committed to the repo so the roadmap's history
+# persists across every automated GitHub Actions run. If it's
+# gitignored, each daily run starts with an empty database and
+# the roadmap will only ever show that day's single new issue.
+# ─────────────────────────────────────────────────────────────

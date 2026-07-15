@@ -1,4 +1,4 @@
-# Daily Dose of DS — Website Generator v6.0
+# Daily Dose of DS — Website Generator v7.0
 
 # Gmail API
 google-auth>=2.22.0
