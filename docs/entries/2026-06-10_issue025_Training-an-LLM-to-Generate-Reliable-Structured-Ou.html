@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Handson Building Custom Tools for AI Agents | Daily Dose of DS</title>
+<title>Training an LLM to Generate Reliable Structured Output | Daily Dose of DS</title>
 <meta name="description" content="AI-enhanced study notes from Daily Dose of DS newsletter">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<style>:root{--ca:#ec4899;--cb:#8b5cf6;}</style>
+<style>:root{--ca:#f97316;--cb:#ef4444;}</style>
 <style>
 @view-transition { navigation: auto; }
 
@@ -380,7 +380,7 @@ body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gra
 <div class="read-ring" id="readRing">
   <svg width="46" height="46" viewBox="0 0 48 48">
     <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ec4899"/><stop offset="100%" stop-color="#8b5cf6"/>
+      <stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#ef4444"/>
     </linearGradient></defs>
     <circle class="rr-bg" cx="24" cy="24" r="20"/>
     <circle class="rr-prog" cx="24" cy="24" r="20" stroke="url(#rg)"/>
@@ -401,149 +401,143 @@ body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gra
     </div>
   </div>
 </nav>
-<div class="entry-hero" style="--ca:#ec4899;--cb:#8b5cf6" style="view-transition-name:issue-5">
-  <div class="issue-badge">Issue #5 · LLMs &amp; Agents</div>
-  <h1 class="entry-title">Handson Building Custom Tools for AI Agents</h1>
-  <div class="entry-meta"><span>📅 May 15, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
+<div class="entry-hero" style="--ca:#f97316;--cb:#ef4444" style="view-transition-name:issue-25">
+  <div class="issue-badge">Issue #25 · Reinforcement Learning</div>
+  <h1 class="entry-title">Training an LLM to Generate Reliable Structured Output</h1>
+  <div class="entry-meta"><span>📅 June 10, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
 </div>
-<div class="entry-body" style="--ca:#ec4899;--cb:#8b5cf6">
+<div class="entry-body" style="--ca:#f97316;--cb:#ef4444">
   
-<div class="tldr-box" style="--ca:#ec4899;--cb:#8b5cf6">
+<div class="tldr-box" style="--ca:#f97316;--cb:#ef4444">
   <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* ​Your Agent harness needs a harness too​
-* [Hands-on] ​Building custom tools for AI Agents​.
-* An intuitive perspective to understand neural networks.
-
-TODAY'S ISSUE
-
-open-source...</p>
+  <p style="margin:0">* CMU’s new study is a must-read for coding agent users.
+* ​Training an LLM to generate reliable structured output​.* Introduction
+* Problems with SFT
+* How GRPO helps
+* Infra for GRPO
+* The full</p>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* ​Your Agent harness needs a harness too​</p>
-<p>* [Hands-on] ​Building custom tools for AI Agents​.</p>
-<p>* An intuitive perspective to understand neural networks.</p>
+  <p>* CMU’s new study is a must-read for coding agent users.</p>
+<p>* ​Training an LLM to generate reliable structured output​.* Introduction</p>
+<p>* Problems with SFT</p>
+<p>* How GRPO helps</p>
+<p>* Infra for GRPO</p>
+<p>* The full training loop</p>
+<p>* Results on the held-out eval</p>
 <p>TODAY'S ISSUE</p>
-<p>open-source...</p>
+<p>TOGETHER WITH SONAR...</p>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​</p>
-<p>Agent quality doesn’t live in the model. It lives in the harness. The same model with a better harness will be faster, smarter, and more efficient.</p>
-<p>But maintaining that harness is still manual work in most teams. Someone is tuning the context window, classifying tool errors, tracking degradations, and manually repairing them.</p>
-<p>​Opik (open-source with 19.3k stars)  implements patterns to solve this problem:</p>
+  <p>They tracked 807 GitHub repos that adopted Cursor.</p>
+<p>Each was matched against a similar repo that did not, so the difference reflects the agent, not the project.</p>
+<p>In the first month after adoption, the agent-assisted repos added 3 to 5x more code. That gain was real but short-lived, and it faded within two months.</p>
 <p>​</p>
-<p>Test suites grow organically from real production failures.</p>
-<p>You can write assertions in plain English (something like “the response must not hallucinate facts absent from the retrieved context”) and Opik evaluates traces against them.</p>
-<p>Also, the whole regression suite builds itself over time from actual bugs.</p>
-<p>Opik also ships with a debugging agent called Ollie. It reads the full span tree of a failing trace, reads the source code through opik connect, proposes a fix as a diff, reruns the agent with the same inputs, and saves the fix as a test case.</p>
-<p>Agent configurations like prompts, tools, models, and params are versioned together as one unit with one-click rollback. The Agent Playground runs the full instrumented graph before deploying anything.</p>
-<p>​You can find the official documentation here → ​</p>
-<p>​And here’s the GitHub repo → ​</p>
-<p>We are working on a hands-on demo on this. Stay tuned!</p>
-<p>Agents</p>
-<p>------</p>
+<p>What did not fade was the hit to code quality.</p>
+<p>Static analysis warnings rose around 30% and code complexity around 41%, and both stayed elevated for the rest of the study.</p>
+<p>The obvious objection is that this is a skill problem, fixable with sharper prompts and review.</p>
+<p>But even after controlling for how much code was added, complexity still climbed faster in the agent-assisted repos than in the controls. The agent adds to the problem, not just the developer using it.</p>
+<p>The instinct is to have the agent review the code it just wrote, or add a second agent to check it.</p>
+<p>That does not work as well as expected because the model that wrote the code carries the same blind spots that produced the defects.</p>
+<p>A second model trained on similar data shares most of them, so an AI reviewer misses what the AI author missed.</p>
+<p>Catching this reliably needs deterministic code analysis, which applies fixed rules instead of another probabilistic guess.</p>
+<p>SonarQube actually implements this as a plugin inside Claude Code.</p>
+<p>It runs deterministic verification in the session, flagging issues, complexity, and exposed secrets after every edit across the project.</p>
+<p>For instance, in the video below, I typed a prompt with a GitHub token in it, and SonarQube blocked it before it reached Claude. The token never entered the context window.</p>
+<p>​</p>
+<p>To get started in Claude Code, run /plugin, find sonarqube, install it, then run /sonarqube:integrate.</p>
+<p>​You can find the Claude plugin here → ​</p>
+<p>​And here’s the CMU’s study → ​</p>
+<p>hands-on</p>
+<p>--------</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Agentic frameworks provide native support for several tools.</p>
-<p>For instance, here are some powerful tools provided by CrewAI:</p>
+  <p>An LLM has no inherent concept of a parser. It predicts the next token from the ones before it, and well-formed JSON is only one of the continuations that fit this format.</p>
+<p>So a number written as a string fits just as well, and so does an object with a line of explanation in front of it.</p>
+<p>More examples and a tighter prompt do push the failure rate down, but then it stalls.</p>
+<p>DeepSeek-R1 showed a way around this. Training a strong model used to mean annotation pipelines, preference pairs, and a team of labelers.</p>
+<p>DeepSeek replaced all of it with one function that checks whether an answer is right. If you can define correctness via code, you do not need the rest.</p>
+<p>That is the idea behind GRPO. Instead of learning from examples, the model learns from a reward function you write.</p>
+<p>For each prompt, it generates a few candidate answers. The reward function scores them, and the model is pushed toward the ones that score higher.</p>
 <p>​</p>
-<p>However, you may need to build custom tools at times.</p>
-<p>Today, let us show how it’s done!</p>
-<p>We’ll build a real-time currency conversion tool. Instead of making an Agent guess exchange rates, we will integrate a custom tool to help the Agent get live exchange rates.</p>
-<p>Let’s begin!</p>
-<p>First, get an exchange rate API key  (it's free) and specify it in the .env file:</p>
+<p>Today, let’s use this idea to fine-tune Qwen3-8B for JSON extraction. The loop runs from a local notebook while the model trains on remote H200s.</p>
+<p>The reward function just checks whether each output parses and matches the schema.</p>
 <p>​</p>
-<p>Next, we have some standard import statements:</p>
-<p>​</p>
-<p>To build a custom tool in CrewAI, you need to implement two classes:</p>
-<p>#1) Class for input schema</p>
+<p>Schema-valid output went from 62% on the base model to 82% after training, past GPT-4.1 on the same eval at 58%.</p>
+<p>Before we dive into code, let’s see why the obvious approach stalls.</p>
+<p>Problems with SFT</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Here, we declare the input fields the tool expects using Pydantic. Descriptions are important since they help the agent prepare a tool call.</p>
+  <p>SFT learns by copying examples. If you show it correct completions, it gets good at producing output that looks like them.</p>
+<p>Notice the word “looks.”</p>
+<p>This implies that looking like valid JSON and being valid JSON are different goals, and SFT only optimizes the first one.</p>
 <p>​</p>
-<p>#2) Class for the actual tool</p>
+<p>The loss is measured token by token, and a completion with one field typed wrong scores almost the same as a perfect one.</p>
+<p>If you add more examples, the metrics do tick up, but then they flatten, because the limit is the objective, not the data.</p>
+<p>Once you see the problem this way, the fix becomes immediately clear. You can define what “correct” means in code, and train the model against that definition directly.</p>
+<p>This is what GRPO does.</p>
+<p>It swaps labeled examples for a reward function. For each prompt, the model generates a small group of answers (usually 4-8). And then the reward function scores every one of them.</p>
+<p>​</p>
+<p>The scores are normalized inside the group. The model update then reinforces the answers that scored above the group’s average.</p>
+<p>So the model is always comparing its own outputs against each other. It learns what “more correct” means for your task, not what “more similar to an example” means.</p>
+<p>Here is how the reward function scores three different outputs for the same prompt:</p>
+<p>​</p>
+<p>* Output that doesn’t parse as JSON scores 0.0.</p>
+<p>* Output that parses but fails the schema scores 0.5.</p>
+<p>* Output that parses and matches the schema scores 1.0.</p>
+<p>That middle score is important because without it, valid JSON with the wrong field types would score zero, the same as complete garbage.</p>
+<p>The model would lose an important signal that a valid structure is already progressing. The 0.5 is what gives training something to climb toward.</p>
+<p>Infra for GRPO</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Next, we define the CurrencyConverterTool by inheriting from BaseTool and declare attributes like name, description, arguments schema (which is the same as the input schema we defined above):</p>
+  <p>GRPO is heavier than SFT. On an 8B model, it needs H200s and runs for hours.</p>
+<p>Every step, it generates several completions per prompt, scores all of them, and updates the weights. That repeats across the whole dataset, many times over.</p>
+<p>So this is not something you can run on your laptop.</p>
+<p>There is also a timing problem that SFT never has.</p>
+<p>During rollout, the model samples answers from its current weights. During training, those same weights are changing underneath it.</p>
 <p>​</p>
-<p>Every tool class has a _run method that implements the tool logic.</p>
-<p>​</p>
-<p>In the above code, we fetch live exchange rates using an API request. We also handle errors if the request fails or the currency code is invalid.</p>
-<p>Done!</p>
-<p>Now we build the Agent as usual and specify the tool we created above:</p>
-<p>​</p>
-<p>We define its Tasks:</p>
-<p>​</p>
-<p>We define the Crew and execute it:</p>
-<p>​</p>
-<p>Printing the response, we get this:</p>
-<p>​</p>
-<p>Works as expected!</p>
-<p>Here, note that we directly passed a structured input to the Crew.</p>
-<p>But real-world queries could look like this:</p>
-<p>How much is 100 dollars in euros today?</p>
-<p>We can introduce a Query Parser Agent (or even better…a regular LLM call) and produce structured outputs first. We can then pass the structured output like we did above.</p>
-<p>Consider that an assignment from today’s newsletter issue, and feel free to reach out with your solution.</p>
-<p>That said, we published a course to help you implement reliable Agentic systems, understand the underlying challenges, and develop expertise in building Agentic apps on LLMs, which every industry cares about now.</p>
-<p>* ​​ ​In Part 1 ​​ , we covered the fundamentals of Agentic systems, understanding how AI agents act autonomously to perform tasks.</p>
-<p>* ​​ ​In Part 2 ​​ , we extended Agent capabilities by integrating custom tools, using structured outputs, and we also built modular Crews.</p>
-<p>* ​​ ​In Part 3 ​​ , we focused on Flows, learning about state management, flow control, and integrating a Crew into a Flow.</p>
-<p>* ​​ ​In Part 4 ​​ , we extended these concepts into real-world multi-agent, multi-crew Flow projects.</p>
-<p>* In ​ ​Part 5 ​​  and ​ ​Part 6 ​​ , we moved into advanced techniques that make AI agents more robust, dynamic, and adaptable, like Guardrails, Async execution, Callbacks, Human-in-the-loop, Multimodal Agents, and more.</p>
-<p>* In ​ ​Part 7 ​​ , we covered Knowledge of agentic Systems.</p>
-<p>* In ​ ​Part 8 ​​  and ​ ​Part 9 ​​ , we primarily focused on 5 types of Memory for AI agents, which help agents “remember” and utilize past information.</p>
-<p>* In ​ ​Part 10 ​​ , we implemented the ReAct pattern from scratch.</p>
-<p>* In ​ ​Part 11 ​​ , we implemented the Planning pattern from scratch.</p>
-<p>* In ​ ​Part 12 ​​ , we implemented the Multi-agent pattern from scratch.</p>
-<p>* In Part 13  and Part 14 , we covered 10 practical steps to improve Agentic systems.</p>
-<p>* And in ​ ​Part 15 ​​ , ​ ​Part 16 ​​  and ​ ​Part 17 ​​ , we covered practical ways to optimize the Agent’s memory in production use cases.</p>
-<p>Of course, if you have never worked with LLMs, that’s okay. We cover everything in a practical and beginner-friendly way.</p>
-<p>deep learning</p>
+<p>If the inference side and the trainer fall out of sync, you sample from a stale model and train on answers that the current one would never give. This is where most custom RL setups fall apart.</p>
+<p>​Fireworks’ Training API  handles both sides. You can write the training logic in Python on your own machine, and the infrastructure handles the rest.</p>
+<p>It provisions the GPUs, runs the forward and backward passes, saves checkpoints, and resyncs the inference deployment after every step.</p>
+<p>The setup is three steps:</p>
+<p>* Write the reward function</p>
+<p>* Upload the dataset</p>
+<p>* And configure the run.</p>
+<p>Let’s go through each one.</p>
+<p>The training loop</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>In a neural network, the data undergoes a series of transformations at each hidden layer:</p>
+  <p>Fireworks documents the full setup in their Training API docs . That includes rl_loop, the recipe that runs the entire GRPO loop.</p>
+<p>Clone the cookbook and install the training dependencies:</p>
 <p>​</p>
-<p>* Linear transformation of the data obtained from the previous layer</p>
-<p>* …followed by a non-linearity using an activation function — ReLU, Sigmoid, Tanh, etc.</p>
-<p>Assume a classification dataset.</p>
-<p>Once the data passes through the very last hidden layer of the neural network, the activations move to the output layer, which is entirely linear since all sources of non-linearity (activation functions) exist on or before the last hidden layer:</p>
+<p>Step 1: Write the Reward Function</p>
+<p>This is the only place your task is defined. The SCHEMA says what a correct output looks like, and score() checks each completion against it.</p>
+<p>For invoice extraction, we pull four fields from raw text: vendor, date, amount, and currency.</p>
 <p>​</p>
-<p>So there is no further scope for non-linearity left:</p>
-<p>​</p>
-<p>Thus, to make accurate predictions, the data received by the output layer from the last hidden layer MUST BE linearly separable.</p>
-<p>This is exactly what activation functions and hidden layers help achieve.</p>
-<p>While transforming the data through all its hidden layers and just before reaching the output layer, a neural network is constantly hustling to project the data to a space where it becomes linearly separable.</p>
-<p>If it does, the output layer becomes analogous to a logistic regression model, which can easily handle this linearly separable data.</p>
-<p>We can also verify this experimentally.</p>
-<p>Add a dummy hidden layer with just two neurons right before the output layer so that we can visualize the activations and train the network:</p>
-<p>​</p>
-<p>Next, we plot the input data and the activations of the 2D dummy hidden layer:</p>
-<p>​</p>
-<p>As shown above, while the input data was linearly inseparable, the input received by the output layer is linearly separable.</p>
-<p>This data can be easily handled by the output layer.</p>
-<p>That said, KANs are another recently introduced neural network paradigm that challenges the traditional neural network design and offers an exciting new approach to design and train them.</p>
-<p>​</p>
-<p>​We understood and implemented them from scratch here → ​</p>
+<p>jsonschema handles the type checks, the required fields, and any nested rules in a single call.</p>
+<p>For a different task, like SQL or tool-call formatting, you can swap in a new schema. The score() function stays the same.</p>
+<p>Step 2: Prepare the Dataset</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>​Your Agent harness needs a harness too​</li>
-<li>[Hands-on] ​Building custom tools for AI Agents​.</li>
-<li>An intuitive perspective to understand neural networks.</li>
-<li>​​ ​In Part 1 ​​ , we covered the fundamentals of Agentic systems, understanding how AI agents act autonomously to perform tasks.</li>
-<li>​​ ​In Part 2 ​​ , we extended Agent capabilities by integrating custom tools, using structured outputs, and we also built modular Crews.</li>
-<li>​​ ​In Part 3 ​​ , we focused on Flows, learning about state management, flow control, and integrating a Crew into a Flow.</li>
-<li>​​ ​In Part 4 ​​ , we extended these concepts into real-world multi-agent, multi-crew Flow projects.</li></ul>
+  <ul><li>CMU’s new study is a must-read for coding agent users.</li>
+<li>​Training an LLM to generate reliable structured output​.* Introduction</li>
+<li>Problems with SFT</li>
+<li>How GRPO helps</li>
+<li>Infra for GRPO</li>
+<li>The full training loop</li>
+<li>Results on the held-out eval</li></ul>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
@@ -561,7 +555,7 @@ open-source...</p>
   </div>
   <div class="tutor-hint">Ask me to <strong>explain any issue by number</strong> — e.g. "Explain issue #5"</div>
   <div class="tutor-body" id="tutorBody">
-    <div class="msg bot">👋 Hi! I know every Daily Dose of DS issue.<br><br>You are reading: <strong>Handson Building Custom Tools for AI Agents</strong></div>
+    <div class="msg bot">👋 Hi! I know every Daily Dose of DS issue.<br><br>You are reading: <strong>Training an LLM to Generate Reliable Structured Output</strong></div>
   </div>
   <div class="chips">
     <span class="chip" data-q="Explain issue #1">Issue #1</span>
@@ -573,7 +567,7 @@ open-source...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #17 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #18 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n\nIssue #19 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Summary: * An open-weight agent that handles both work + code.\r\n* The evolution of retrieval layer.\r\n* A simple implementation of boosting algorithm.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: An open-weight agent that handles both work + code. | The evolution of retrieval layer. | A simple implementation of boosting algorithm.\n\nIssue #20 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Summary: * Documentation that keeps pace with the codebase.\r\n* \u200bResearchers found a way to make LLMs 8.5x faster.\r\n* [LLM Interview question] Train LLMs using other LLMs.\r\n* Our AI Engineering, MCP, Agents, an\n  Key points: Documentation that keeps pace with the codebase. | \u200bResearchers found a way to make LLMs 8.5x faster. | [LLM Interview question] Train LLMs using other LLMs.\n\nIssue #21 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Summary: * Build your own Claude app with open-source tooling!\r\n* Finally, Hermes agent's desktop app is here!\r\n* What feature scaling is not used for?\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: Build your own Claude app with open-source tooling! | Finally, Hermes agent's desktop app is here! | What feature scaling is not used for?\n\nIssue #22 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Summary: * REINFORCE and actor-critic methods in RL.\r\n* \u200b15 LLM fine-tuning techniques.\r\n* [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI Engineering...\n  Key points: REINFORCE and actor-critic methods in RL. | \u200b15 LLM fine-tuning techniques. | [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\n\nIssue #23 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* [Hands-on] Your agent harness should repair itself.\r\n* An intuitive guide to non-linearity of ReLU.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-sou\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | [Hands-on] Your agent harness should repair itself. | An intuitive guide to non-linearity of ReLU.\n\nIssue #24 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Summary: * Strands Agents\r\n* Loop engineering: Design the system that prompts agents.\r\n* \u200bRAG & Fine-tuning, explained visually\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: Strands Agents | Loop engineering: Design the system that prompts agents. | \u200bRAG & Fine-tuning, explained visually\u200b.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Handson Building Custom Tools for AI Agents | Daily Dose of DS</title>
+<title>The Evolution of Retrieval Layer | Daily Dose of DS</title>
 <meta name="description" content="AI-enhanced study notes from Daily Dose of DS newsletter">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
@@ -401,149 +401,110 @@ body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gra
     </div>
   </div>
 </nav>
-<div class="entry-hero" style="--ca:#ec4899;--cb:#8b5cf6" style="view-transition-name:issue-5">
-  <div class="issue-badge">Issue #5 · LLMs &amp; Agents</div>
-  <h1 class="entry-title">Handson Building Custom Tools for AI Agents</h1>
-  <div class="entry-meta"><span>📅 May 15, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
+<div class="entry-hero" style="--ca:#ec4899;--cb:#8b5cf6" style="view-transition-name:issue-19">
+  <div class="issue-badge">Issue #19 · LLMs &amp; Agents</div>
+  <h1 class="entry-title">The Evolution of Retrieval Layer</h1>
+  <div class="entry-meta"><span>📅 June 03, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
 </div>
 <div class="entry-body" style="--ca:#ec4899;--cb:#8b5cf6">
   
 <div class="tldr-box" style="--ca:#ec4899;--cb:#8b5cf6">
   <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* ​Your Agent harness needs a harness too​
-* [Hands-on] ​Building custom tools for AI Agents​.
-* An intuitive perspective to understand neural networks.
+  <p style="margin:0">* An open-weight agent that handles both work + code.
+* The evolution of retrieval layer.
+* A simple implementation of boosting algorithm.
 
 TODAY'S ISSUE
 
-open-source...</p>
+OPEN-SOURCE...</p>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* ​Your Agent harness needs a harness too​</p>
-<p>* [Hands-on] ​Building custom tools for AI Agents​.</p>
-<p>* An intuitive perspective to understand neural networks.</p>
+  <p>* An open-weight agent that handles both work + code.</p>
+<p>* The evolution of retrieval layer.</p>
+<p>* A simple implementation of boosting algorithm.</p>
 <p>TODAY'S ISSUE</p>
-<p>open-source...</p>
+<p>OPEN-SOURCE...</p>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​</p>
-<p>Agent quality doesn’t live in the model. It lives in the harness. The same model with a better harness will be faster, smarter, and more efficient.</p>
-<p>But maintaining that harness is still manual work in most teams. Someone is tuning the context window, classifying tool errors, tracking degradations, and manually repairing them.</p>
-<p>​Opik (open-source with 19.3k stars)  implements patterns to solve this problem:</p>
+  <p>AI tools typically split work and code into two products.</p>
+<p>For instance:</p>
+<p>* Claude Code lives in a separate interface from Claude.</p>
+<p>* ChatGPT’s agent and Codex are different products.</p>
+<p>On its own, that split looks harmless. But the cost shows up when a single task crosses the line, like a bug discussed in Slack that needs a code change.</p>
+<p>Neither product carries the other's history, connectors, or task state, so you re-explain the same context twice, and each agent only ever sees half the work.</p>
+<p>​Mistral Vibe  is taking an interesting approach by collapsing that into one agent with two modes.</p>
 <p>​</p>
-<p>Test suites grow organically from real production failures.</p>
-<p>You can write assertions in plain English (something like “the response must not hallucinate facts absent from the retrieved context”) and Opik evaluates traces against them.</p>
-<p>Also, the whole regression suite builds itself over time from actual bugs.</p>
-<p>Opik also ships with a debugging agent called Ollie. It reads the full span tree of a failing trace, reads the source code through opik connect, proposes a fix as a diff, reruns the agent with the same inputs, and saves the fix as a test case.</p>
-<p>Agent configurations like prompts, tools, models, and params are versioned together as one unit with one-click rollback. The Agent Playground runs the full instrumented graph before deploying anything.</p>
-<p>​You can find the official documentation here → ​</p>
-<p>​And here’s the GitHub repo → ​</p>
-<p>We are working on a hands-on demo on this. Stay tuned!</p>
-<p>Agents</p>
-<p>------</p>
+<p>* Work Mode handles long-horizon tasks across your inbox, calendar, and docs. It maps a plan, gets your sign-off, then executes across connectors like Google Workspace, Slack, and SharePoint. You hand off routine multi-step work in a single prompt, and every step stays visible as it runs.</p>
+<p>* Code Mode takes a request from a prompt to a merged pull request. Sessions run in isolated sandboxes, in parallel, and end with a reviewable PR on GitHub.</p>
+<p>The CLI  is open-source under Apache 2.0, so you can fork it, swap models, or wire it into your own pipeline.</p>
+<p>The model ships with open weights and self-hosts on as few as four GPUs, which means code never has to leave your infrastructure.</p>
+<p>​</p>
+<p>There’s also /teleport. Start a refactor in your terminal, hit /teleport, and the session moves to a cloud sandbox with its history, task state, and approvals intact. Close your laptop, let it keep running, and reattach later from any device.</p>
+<p>​Get started with Mistral Vibe here → ​</p>
+<p>​Find the CLI GitHub repo here →  (don’t forget to star 🌟)</p>
+<p>RAG</p>
+<p>---</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Agentic frameworks provide native support for several tools.</p>
-<p>For instance, here are some powerful tools provided by CrewAI:</p>
-<p>​</p>
-<p>However, you may need to build custom tools at times.</p>
-<p>Today, let us show how it’s done!</p>
-<p>We’ll build a real-time currency conversion tool. Instead of making an Agent guess exchange rates, we will integrate a custom tool to help the Agent get live exchange rates.</p>
-<p>Let’s begin!</p>
-<p>First, get an exchange rate API key  (it's free) and specify it in the .env file:</p>
-<p>​</p>
-<p>Next, we have some standard import statements:</p>
-<p>​</p>
-<p>To build a custom tool in CrewAI, you need to implement two classes:</p>
-<p>#1) Class for input schema</p>
+  <p>​</p>
+<p>Google and Anthropic agree on one thing about RAG that retrieval is no longer a pipeline you build once.</p>
+<p>Instead, it is a tool that something else calls.</p>
+<p>* Anthropic’s MCP exposes retrieval as a tool an agent can call.</p>
+<p>* Google now ships retrieval the same way, with its RAG Engine sitting under the Gemini agent platform alongside MCP servers.</p>
+<p>That shift sounds small, but it changes the entire architecture underneath.</p>
+<p>Today, let’s break down why classical RAG isn’t ideal in production, what a standing retrieval layer looks like, and how agents consume it.</p>
+<p>Classical/Naive RAG</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Here, we declare the input fields the tool expects using Pydantic. Descriptions are important since they help the agent prepare a tool call.</p>
+  <p>Naive RAG runs as a one-time pipeline inside a single app. A knowledge base gets chunked, embedded, and written to a vector DB.</p>
+<p>At query time, the user’s query hits that vector DB for a similarity search, and the retrieved chunks go to the LLM.</p>
 <p>​</p>
-<p>#2) Class for the actual tool</p>
+<p>This works when the answer lives in one corpus that rarely changes. It breaks on two fronts that show up immediately at scale.</p>
+<p>The first is staleness. The embeddings reflect the source at the moment of indexing. When a doc changes in Notion or a row updates in Postgres, the vectors still point at the old content until someone reruns the pipeline.</p>
+<p>The second is duplication. The retrieval logic is welded to one application. A second app, or an agent, that needs the same data has to rebuild the same connectors, chunking, and embedding from scratch.</p>
+<p>Retrieval as a standing layer</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Next, we define the CurrencyConverterTool by inheriting from BaseTool and declare attributes like name, description, arguments schema (which is the same as the input schema we defined above):</p>
+  <p>The fix is to stop treating retrieval as a step inside the app and start treating it as a standing layer underneath it. A retrieval layer separates ingestion from query, and runs ingestion continuously instead of once.</p>
+<p>On the ingest side, connectors pull from many sources, handle auth and extraction, chunk into entities, embed, and write to a vector store with a metadata store alongside it for source links and versions.</p>
 <p>​</p>
-<p>Every tool class has a _run method that implements the tool logic.</p>
-<p>​</p>
-<p>In the above code, we fetch live exchange rates using an API request. We also handle errors if the request fails or the currency code is invalid.</p>
-<p>Done!</p>
-<p>Now we build the Agent as usual and specify the tool we created above:</p>
-<p>​</p>
-<p>We define its Tasks:</p>
-<p>​</p>
-<p>We define the Crew and execute it:</p>
-<p>​</p>
-<p>Printing the response, we get this:</p>
-<p>​</p>
-<p>Works as expected!</p>
-<p>Here, note that we directly passed a structured input to the Crew.</p>
-<p>But real-world queries could look like this:</p>
-<p>How much is 100 dollars in euros today?</p>
-<p>We can introduce a Query Parser Agent (or even better…a regular LLM call) and produce structured outputs first. We can then pass the structured output like we did above.</p>
-<p>Consider that an assignment from today’s newsletter issue, and feel free to reach out with your solution.</p>
-<p>That said, we published a course to help you implement reliable Agentic systems, understand the underlying challenges, and develop expertise in building Agentic apps on LLMs, which every industry cares about now.</p>
-<p>* ​​ ​In Part 1 ​​ , we covered the fundamentals of Agentic systems, understanding how AI agents act autonomously to perform tasks.</p>
-<p>* ​​ ​In Part 2 ​​ , we extended Agent capabilities by integrating custom tools, using structured outputs, and we also built modular Crews.</p>
-<p>* ​​ ​In Part 3 ​​ , we focused on Flows, learning about state management, flow control, and integrating a Crew into a Flow.</p>
-<p>* ​​ ​In Part 4 ​​ , we extended these concepts into real-world multi-agent, multi-crew Flow projects.</p>
-<p>* In ​ ​Part 5 ​​  and ​ ​Part 6 ​​ , we moved into advanced techniques that make AI agents more robust, dynamic, and adaptable, like Guardrails, Async execution, Callbacks, Human-in-the-loop, Multimodal Agents, and more.</p>
-<p>* In ​ ​Part 7 ​​ , we covered Knowledge of agentic Systems.</p>
-<p>* In ​ ​Part 8 ​​  and ​ ​Part 9 ​​ , we primarily focused on 5 types of Memory for AI agents, which help agents “remember” and utilize past information.</p>
-<p>* In ​ ​Part 10 ​​ , we implemented the ReAct pattern from scratch.</p>
-<p>* In ​ ​Part 11 ​​ , we implemented the Planning pattern from scratch.</p>
-<p>* In ​ ​Part 12 ​​ , we implemented the Multi-agent pattern from scratch.</p>
-<p>* In Part 13  and Part 14 , we covered 10 practical steps to improve Agentic systems.</p>
-<p>* And in ​ ​Part 15 ​​ , ​ ​Part 16 ​​  and ​ ​Part 17 ​​ , we covered practical ways to optimize the Agent’s memory in production use cases.</p>
-<p>Of course, if you have never worked with LLMs, that’s okay. We cover everything in a practical and beginner-friendly way.</p>
-<p>deep learning</p>
+<p>A sync process watches for changes and updates only what changed, using content hashing so unchanged data is not re-embedded.</p>
+<p>On the query side, a request gets expanded, run through hybrid search that combines neural and keyword retrieval, then reranked before results come back with their source attribution.</p>
+<p>The key property is that this layer is owned by no single app. It is exposed over an API, so a RAG chatbot and an autonomous agent can both query the same index.</p>
+<p>How agents change the picture</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>In a neural network, the data undergoes a series of transformations at each hidden layer:</p>
+  <p>An agent does not run retrieval once at the start.</p>
+<p>It reasons, decides it needs context, calls search, reads the result, and decides whether to search again with a refined query. Retrieval becomes a tool inside a loop, not a fixed first step.</p>
+<p>And the tool the agent calls is the retrieval layer.</p>
 <p>​</p>
-<p>* Linear transformation of the data obtained from the previous layer</p>
-<p>* …followed by a non-linearity using an activation function — ReLU, Sigmoid, Tanh, etc.</p>
-<p>Assume a classification dataset.</p>
-<p>Once the data passes through the very last hidden layer of the neural network, the activations move to the output layer, which is entirely linear since all sources of non-linearity (activation functions) exist on or before the last hidden layer:</p>
-<p>​</p>
-<p>So there is no further scope for non-linearity left:</p>
-<p>​</p>
-<p>Thus, to make accurate predictions, the data received by the output layer from the last hidden layer MUST BE linearly separable.</p>
-<p>This is exactly what activation functions and hidden layers help achieve.</p>
-<p>While transforming the data through all its hidden layers and just before reaching the output layer, a neural network is constantly hustling to project the data to a space where it becomes linearly separable.</p>
-<p>If it does, the output layer becomes analogous to a logistic regression model, which can easily handle this linearly separable data.</p>
-<p>We can also verify this experimentally.</p>
-<p>Add a dummy hidden layer with just two neurons right before the output layer so that we can visualize the activations and train the network:</p>
-<p>​</p>
-<p>Next, we plot the input data and the activations of the 2D dummy hidden layer:</p>
-<p>​</p>
-<p>As shown above, while the input data was linearly inseparable, the input received by the output layer is linearly separable.</p>
-<p>This data can be easily handled by the output layer.</p>
-<p>That said, KANs are another recently introduced neural network paradigm that challenges the traditional neural network design and offers an exciting new approach to design and train them.</p>
-<p>​</p>
-<p>​We understood and implemented them from scratch here → ​</p>
+<p>The agent’s search function and the RAG app’s retrieval are the same query path into the same synced store.</p>
+<p>They were never separate systems. Instead, one was just drawn inside the app, and the other was pulled out and shared.</p>
+<p>If you want to see this whole layer in practice, Airweave  is an open-source implementation of it.</p>
+<p>It connects to 50+ sources, continuously syncs them with content-hash incremental updates so the index stays current, and exposes everything through one search endpoint over both REST and MCP. The MCP endpoint is what lets an agent treat the whole layer as a single search tool.</p>
+<p>👉 Over to you: Is moving retrieval out of the app and into a shared layer the right call for your stack?</p>
+<p>machine learning</p>
   
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>​Your Agent harness needs a harness too​</li>
-<li>[Hands-on] ​Building custom tools for AI Agents​.</li>
-<li>An intuitive perspective to understand neural networks.</li>
-<li>​​ ​In Part 1 ​​ , we covered the fundamentals of Agentic systems, understanding how AI agents act autonomously to perform tasks.</li>
-<li>​​ ​In Part 2 ​​ , we extended Agent capabilities by integrating custom tools, using structured outputs, and we also built modular Crews.</li>
-<li>​​ ​In Part 3 ​​ , we focused on Flows, learning about state management, flow control, and integrating a Crew into a Flow.</li>
-<li>​​ ​In Part 4 ​​ , we extended these concepts into real-world multi-agent, multi-crew Flow projects.</li></ul>
+  <ul><li>An open-weight agent that handles both work + code.</li>
+<li>The evolution of retrieval layer.</li>
+<li>A simple implementation of boosting algorithm.</li>
+<li>Claude Code lives in a separate interface from Claude.</li>
+<li>ChatGPT’s agent and Codex are different products.</li>
+<li>Code Mode takes a request from a prompt to a merged pull request. Sessions run in isolated sandboxes, in parallel, and end with a reviewable PR on GitHub.</li>
+<li>Anthropic’s MCP exposes retrieval as a tool an agent can call.</li></ul>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
@@ -561,7 +522,7 @@ open-source...</p>
   </div>
   <div class="tutor-hint">Ask me to <strong>explain any issue by number</strong> — e.g. "Explain issue #5"</div>
   <div class="tutor-body" id="tutorBody">
-    <div class="msg bot">👋 Hi! I know every Daily Dose of DS issue.<br><br>You are reading: <strong>Handson Building Custom Tools for AI Agents</strong></div>
+    <div class="msg bot">👋 Hi! I know every Daily Dose of DS issue.<br><br>You are reading: <strong>The Evolution of Retrieval Layer</strong></div>
   </div>
   <div class="chips">
     <span class="chip" data-q="Explain issue #1">Issue #1</span>
@@ -573,7 +534,7 @@ open-source...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #17 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #18 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
