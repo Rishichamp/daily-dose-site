@@ -66,7 +66,7 @@ jobs:
           # IMPORTANT: site_data.db must be committed alongside docs/ so the
           # roadmap's full history persists across every automated run.
           git add docs/ site_data.db
-          git diff --staged --quiet || git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') [v7]"
+          git diff --staged --quiet || git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') [v8]"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

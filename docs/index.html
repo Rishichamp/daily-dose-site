@@ -4,27 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Daily Dose of DS | Daily Dose of DS</title>
-<meta name="description" content="AI-enhanced study notes from Daily Dose of DS newsletter">
+<meta name="description" content="AI-powered learning roadmap generated automatically from Daily Dose of Data Science newsletters">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500;1,600&family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<style>:root{--ca:#7c6cf6;--cb:#c86dd7;}</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>:root{--ca:#5B8CFF;--cb:#7C5CFF;}</style>
 <style>
 @view-transition { navigation: auto; }
 
 :root{
-  --void:#040308;--deep:#0a0810;--card:rgba(255,255,255,.035);--card-h:rgba(255,255,255,.065);
-  --glass:rgba(255,255,255,.04);--border:rgba(255,255,255,.08);--border-h:rgba(255,255,255,.16);
-  --text:#f3f1ff;--text-2:rgba(210,205,235,.75);--text-3:rgba(160,155,195,.5);
-  --a:#7c6cf6;--b:#c86dd7;--c:#22d3ee;--d:#f472b6;--e:#34d399;--f:#fbbf24;
-  --ca:#7c6cf6;--cb:#c86dd7;
+  --void:#050816;--deep:#080b1c;--card:#0E1324;--card-glass:rgba(14,19,36,.55);
+  --border:rgba(255,255,255,.08);--border-h:rgba(91,140,255,.35);
+  --text:#f4f6ff;--text-2:rgba(210,215,240,.75);--text-3:rgba(155,162,200,.5);
+  --a:#5B8CFF;--b:#7C5CFF;--c:#22d3ee;--d:#a78bfa;--e:#34d399;--f:#fbbf24;
+  --ca:#5B8CFF;--cb:#7C5CFF;
   --r10:10px;--r16:16px;--r20:20px;--r24:24px;--r32:32px;
   --bounce:cubic-bezier(.22,1.4,.36,1);--smooth:cubic-bezier(.4,0,.2,1);
-  --serif:'Fraunces','Georgia',serif;--sans:'Inter','Segoe UI',system-ui,sans-serif;
+  --sans:'Inter','General Sans','Segoe UI',system-ui,sans-serif;
   --mono:'Fira Code','JetBrains Mono',monospace;
 }
-body.light{--void:#faf9ff;--deep:#ffffff;--card:rgba(124,108,246,.04);--card-h:rgba(124,108,246,.08);
-  --glass:rgba(255,255,255,.75);--border:rgba(124,108,246,.14);--border-h:rgba(124,108,246,.28);
-  --text:#1a1626;--text-2:rgba(35,28,60,.72);--text-3:rgba(60,50,90,.48);}
+body.light{--void:#f7f8fd;--deep:#ffffff;--card:#ffffff;--card-glass:rgba(255,255,255,.7);
+  --border:rgba(91,140,255,.14);--border-h:rgba(91,140,255,.35);
+  --text:#0c0f1e;--text-2:rgba(20,24,50,.72);--text-3:rgba(40,46,80,.48);}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -32,288 +32,355 @@ body{font-family:var(--sans);background:var(--void);color:var(--text);
   min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;cursor:none;}
 @media(pointer:coarse){body{cursor:auto;}}
 
-/* ── AMBIENT BACKGROUND MOTION ─────────────────────────────────── */
+/* ── AMBIENT BACKGROUND ────────────────────────────────────────── */
 .aurora{position:fixed;inset:0;z-index:-4;overflow:hidden;pointer-events:none;}
-.orb{position:absolute;filter:blur(110px);opacity:.16;
+.orb{position:absolute;filter:blur(120px);opacity:.18;
   animation:orbf 26s ease-in-out infinite,blobMorph 14s ease-in-out infinite;will-change:transform,border-radius;}
-.orb:nth-child(1){width:760px;height:760px;left:-18%;top:-22%;background:radial-gradient(circle,var(--a),transparent 70%);}
-.orb:nth-child(2){width:560px;height:560px;right:-12%;top:28%;background:radial-gradient(circle,var(--b),transparent 70%);animation-delay:-8s,-3s;opacity:.13;}
-.orb:nth-child(3){width:440px;height:440px;left:38%;bottom:-14%;background:radial-gradient(circle,var(--c),transparent 70%);animation-delay:-16s,-7s;opacity:.1;}
-.orb:nth-child(4){width:320px;height:320px;right:22%;top:8%;background:radial-gradient(circle,var(--d),transparent 70%);animation-delay:-5s,-11s;opacity:.07;}
+.orb:nth-child(1){width:780px;height:780px;left:-18%;top:-22%;background:radial-gradient(circle,var(--a),transparent 70%);}
+.orb:nth-child(2){width:580px;height:580px;right:-12%;top:26%;background:radial-gradient(circle,var(--b),transparent 70%);animation-delay:-8s,-3s;opacity:.15;}
+.orb:nth-child(3){width:440px;height:440px;left:38%;bottom:-14%;background:radial-gradient(circle,var(--c),transparent 70%);animation-delay:-16s,-7s;opacity:.12;}
+.orb:nth-child(4){width:320px;height:320px;right:22%;top:6%;background:radial-gradient(circle,var(--d),transparent 70%);animation-delay:-5s,-11s;opacity:.09;}
 @keyframes orbf{0%,100%{transform:translate(0,0) scale(1);}25%{transform:translate(4%,-5%) scale(1.1);}50%{transform:translate(-3%,4%) scale(.92);}75%{transform:translate(5%,2%) scale(1.05);}}
-/* Organic blob morphing — inspired by animated-gradient reference motion */
 @keyframes blobMorph{
   0%,100%{border-radius:58% 42% 63% 37%/41% 58% 42% 59%;}
   25%{border-radius:42% 58% 39% 61%/58% 43% 57% 42%;}
   50%{border-radius:63% 37% 47% 53%/33% 65% 35% 67%;}
   75%{border-radius:37% 63% 58% 42%/62% 38% 62% 38%;}
 }
-
 .dust{position:fixed;inset:0;z-index:-3;pointer-events:none;overflow:hidden;}
-.mote{position:absolute;border-radius:50%;background:rgba(200,190,255,.35);
-  animation:moteDrift linear infinite;}
-@keyframes moteDrift{
-  0%{transform:translate(0,100vh) scale(0);opacity:0;}
-  8%{opacity:.5;}
-  92%{opacity:.35;}
-  100%{transform:translate(var(--drift,20px),-10vh) scale(1);opacity:0;}
-}
-
+.mote{position:absolute;border-radius:50%;background:rgba(150,170,255,.35);animation:moteDrift linear infinite;}
+@keyframes moteDrift{0%{transform:translate(0,100vh) scale(0);opacity:0;}8%{opacity:.5;}92%{opacity:.35;}100%{transform:translate(var(--drift,20px),-10vh) scale(1);opacity:0;}}
 .grid-bg{position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background-image:linear-gradient(rgba(124,108,246,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(124,108,246,.025) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(91,140,255,.028) 1px,transparent 1px),linear-gradient(90deg,rgba(91,140,255,.028) 1px,transparent 1px);
   background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 40%,transparent 100%);}
 
 /* ── CURSOR ─────────────────────────────────────────────────────── */
 .cur-dot{position:fixed;width:9px;height:9px;border-radius:50%;background:var(--a);pointer-events:none;z-index:99999;
   transform:translate(-50%,-50%);box-shadow:0 0 14px var(--a),0 0 28px var(--a);transition:width .2s,height .2s,background .2s;}
-.cur-ring{position:fixed;width:38px;height:38px;border-radius:50%;border:1px solid rgba(124,108,246,.4);pointer-events:none;z-index:99998;
+.cur-ring{position:fixed;width:38px;height:38px;border-radius:50%;border:1px solid rgba(91,140,255,.4);pointer-events:none;z-index:99998;
   transform:translate(-50%,-50%);transition:transform .16s ease,width .2s,height .2s;}
 @media(pointer:coarse){.cur-dot,.cur-ring{display:none;}}
 
-/* ── ZOOM-LAUNCH (fallback bold transition for non-Chromium) ─────── */
-.card.zoom-launch{
-  position:relative;z-index:500;
-  animation:zoomLaunch .48s var(--smooth) forwards;
-}
-@keyframes zoomLaunch{
-  0%{transform:scale(1);opacity:1;filter:blur(0);}
-  60%{transform:scale(1.06);opacity:1;}
-  100%{transform:scale(2.4);opacity:0;filter:blur(6px);}
-}
+.card.zoom-launch{position:relative;z-index:500;animation:zoomLaunch .48s var(--smooth) forwards;}
+@keyframes zoomLaunch{0%{transform:scale(1);opacity:1;filter:blur(0);}60%{transform:scale(1.06);opacity:1;}100%{transform:scale(2.4);opacity:0;filter:blur(6px);}}
 body.page-entering{animation:pageZoomIn .55s var(--smooth) both;}
-@keyframes pageZoomIn{
-  0%{opacity:0;transform:scale(.96);filter:blur(4px);}
-  100%{opacity:1;transform:scale(1);filter:blur(0);}
-}
+@keyframes pageZoomIn{0%{opacity:0;transform:scale(.96);filter:blur(4px);}100%{opacity:1;transform:scale(1);filter:blur(0);}}
 
-/* ── SCROLL PROGRESS ────────────────────────────────────────────── */
 .scroll-bar{position:fixed;top:0;left:0;height:2px;z-index:9999;
-  background:linear-gradient(90deg,var(--a),var(--b),var(--d));box-shadow:0 0 10px var(--a);transition:width .1s linear;}
+  background:linear-gradient(90deg,var(--a),var(--b),var(--c));box-shadow:0 0 10px var(--a);transition:width .1s linear;}
 
 /* ── NAV ─────────────────────────────────────────────────────────── */
-.nav{position:sticky;top:0;z-index:100;background:rgba(10,8,16,.72);backdrop-filter:blur(26px) saturate(180%);
-  -webkit-backdrop-filter:blur(26px) saturate(180%);border-bottom:1px solid var(--border);}
-body.light .nav{background:rgba(255,255,255,.82);}
-.nav-in{max-width:1200px;margin:0 auto;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;}
-.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);font-weight:800;font-size:1.08rem;cursor:none;font-family:var(--serif);}
-.gem{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--a),var(--b));
-  display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 0 18px rgba(124,108,246,.4);
-  animation:gempulse 4s ease-in-out infinite;position:relative;overflow:hidden;
-  transform-style:preserve-3d;transition:transform .5s var(--bounce);}
+.nav{position:sticky;top:0;z-index:100;background:rgba(5,8,22,.55);backdrop-filter:blur(20px) saturate(160%);
+  -webkit-backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid transparent;transition:background .3s,border-color .3s;}
+.nav.scrolled{background:rgba(5,8,22,.85);border-bottom-color:var(--border);}
+body.light .nav{background:rgba(255,255,255,.6);}
+body.light .nav.scrolled{background:rgba(255,255,255,.88);}
+.nav-in{max-width:1240px;margin:0 auto;padding:0 24px;height:66px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.nav-logo{display:flex;align-items:center;gap:11px;text-decoration:none;color:var(--text);font-weight:800;font-size:1.05rem;cursor:none;flex-shrink:0;}
+.gem{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--b));
+  display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 18px rgba(91,140,255,.4);
+  animation:gempulse 4s ease-in-out infinite;position:relative;overflow:hidden;transform-style:preserve-3d;transition:transform .5s var(--bounce);}
 .nav-logo:hover .gem{transform:rotateY(20deg) rotateX(-8deg) scale(1.08);}
 .gem::after{content:'';position:absolute;top:-50%;left:-150%;width:60%;height:200%;
-  background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.55) 45%,transparent 65%);
-  transform:rotate(20deg);animation:gemShine 5s ease-in-out infinite;}
+  background:linear-gradient(115deg,transparent 20%,rgba(255,255,255,.55) 45%,transparent 65%);transform:rotate(20deg);animation:gemShine 5s ease-in-out infinite;}
 @keyframes gemShine{0%,100%{left:-150%;}50%{left:150%;}}
-@keyframes gempulse{0%,100%{box-shadow:0 0 14px rgba(124,108,246,.3);}50%{box-shadow:0 0 30px rgba(124,108,246,.6);}}
-.nav-links{display:flex;align-items:center;gap:4px;}
-.nav-link{padding:8px 15px;border-radius:100px;color:var(--text-2);text-decoration:none;font-size:.86rem;font-weight:500;transition:all .2s;cursor:none;}
-.nav-link:hover{color:var(--text);background:rgba(124,108,246,.08);}
-.nav-btn{padding:8px 15px;border-radius:100px;border:none;cursor:none;background:none;color:var(--text-2);font-size:.88rem;transition:all .2s;}
-.nav-btn:hover{color:var(--a);}
+@keyframes gempulse{0%,100%{box-shadow:0 0 14px rgba(91,140,255,.3);}50%{box-shadow:0 0 28px rgba(91,140,255,.6);}}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;justify-content:center;}
+.nav-link{padding:8px 14px;border-radius:100px;color:var(--text-2);text-decoration:none;font-size:.86rem;font-weight:500;transition:all .2s;cursor:none;white-space:nowrap;}
+.nav-link:hover{color:var(--text);background:rgba(91,140,255,.08);}
+.nav-right{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.nav-cta{padding:9px 20px;border-radius:100px;border:none;cursor:none;background:linear-gradient(135deg,var(--a),var(--b));
+  color:#fff;font-weight:700;font-size:.84rem;text-decoration:none;white-space:nowrap;transition:box-shadow .25s,transform .15s;
+  box-shadow:0 2px 14px rgba(91,140,255,.35);}
+.nav-cta:hover{box-shadow:0 4px 22px rgba(91,140,255,.5);transform:translateY(-1px);}
+@media(max-width:900px){.nav-links{display:none;}}
 
-/* Animated theme toggle switch — inspired by animated-toggle-switch ref */
-.theme-switch{position:relative;width:52px;height:28px;border-radius:100px;border:none;cursor:none;
-  background:linear-gradient(135deg,#1e1b2e,#2a2540);border:1px solid var(--border);
-  transition:background .4s;flex-shrink:0;overflow:hidden;}
-body.light .theme-switch{background:linear-gradient(135deg,#bfe0ff,#eaf4ff);}
-.theme-switch .stars{position:absolute;inset:0;opacity:1;transition:opacity .4s;}
-body.light .theme-switch .stars{opacity:0;}
-.theme-switch .stars::before,.theme-switch .stars::after{content:'';position:absolute;width:2px;height:2px;
-  background:#fff;border-radius:50%;box-shadow:8px 4px 0 #fff,16px 10px 0 rgba(255,255,255,.6);}
-.theme-switch .stars::before{top:6px;left:6px;}
-.theme-switch .stars::after{bottom:6px;left:22px;}
-.theme-switch .thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;
+.theme-switch{position:relative;width:50px;height:27px;border-radius:100px;cursor:none;
+  background:linear-gradient(135deg,#161b30,#1e2440);border:1px solid var(--border);transition:background .4s;flex-shrink:0;overflow:hidden;}
+body.light .theme-switch{background:linear-gradient(135deg,#cfe0ff,#eaf1ff);}
+.theme-switch .thumb{position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;
   background:linear-gradient(135deg,#fde68a,#fbbf24);box-shadow:0 2px 8px rgba(0,0,0,.3);
-  transition:transform .4s var(--bounce),background .4s;display:flex;align-items:center;justify-content:center;font-size:.7rem;}
-body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gradient(135deg,#fff9db,#fff3a0);}
+  transition:transform .4s var(--bounce),background .4s;display:flex;align-items:center;justify-content:center;font-size:.65rem;}
+body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gradient(135deg,#fff9db,#fff3a0);}
 
-/* ── HERO (roadmap landing) ─────────────────────────────────────── */
-.hero{position:relative;text-align:center;padding:clamp(70px,11vw,120px) 20px clamp(50px,7vw,80px);overflow:hidden;}
-#neural-canvas{position:absolute;inset:0;z-index:0;opacity:.28;pointer-events:none;}
-.hero-in{position:relative;z-index:1;}
-.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 18px;border-radius:100px;margin-bottom:26px;
-  background:rgba(124,108,246,.1);border:1px solid rgba(124,108,246,.25);color:var(--a);
-  font-size:.78rem;font-weight:700;letter-spacing:.9px;text-transform:uppercase;animation:fadeUp .8s var(--bounce) .1s both;}
+/* ── HERO ─────────────────────────────────────────────────────────── */
+.hero{position:relative;padding:clamp(70px,10vw,110px) 24px clamp(60px,8vw,90px);overflow:hidden;max-width:1240px;margin:0 auto;}
+#neural-canvas{position:absolute;inset:0;z-index:0;opacity:.22;pointer-events:none;}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;position:relative;z-index:1;}
+@media(max-width:960px){.hero-grid{grid-template-columns:1fr;}.hero-visual{display:none;}}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;margin-bottom:24px;
+  background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.25);color:var(--a);
+  font-size:.76rem;font-weight:700;letter-spacing:.7px;text-transform:uppercase;animation:fadeUp .8s var(--bounce) .1s both;}
 .dot-live{width:7px;height:7px;border-radius:50%;background:var(--e);animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
-.hero h1{font-family:var(--serif);font-size:clamp(2.6rem,6.5vw,5rem);font-weight:600;line-height:1.08;
-  letter-spacing:-.01em;margin-bottom:20px;animation:fadeUp .8s var(--bounce) .2s both;font-style:italic;}
-.shine{background:linear-gradient(135deg,#fff 0%,var(--a) 45%,var(--b) 75%,var(--d) 100%);
+.hero h1{font-size:clamp(2.4rem,4.6vw,3.6rem);font-weight:800;line-height:1.12;letter-spacing:-.02em;
+  margin-bottom:20px;animation:fadeUp .8s var(--bounce) .2s both;}
+.grad-text{background:linear-gradient(120deg,var(--a) 0%,var(--b) 50%,var(--c) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
   background-size:200% 200%;animation:shineMove 6s ease infinite;}
 @keyframes shineMove{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
-.hero-line{display:block;margin:0 auto 24px;animation:fadeUp .8s var(--bounce) .25s both;}
-.hero-line path{stroke-dasharray:340;stroke-dashoffset:340;animation:drawLine 1.6s var(--smooth) .5s forwards;}
-@keyframes drawLine{to{stroke-dashoffset:0;}}
-.hero-sub{font-size:clamp(1rem,2vw,1.15rem);color:var(--text-2);max-width:560px;margin:0 auto 32px;line-height:1.7;
+.hero-sub{font-size:clamp(1rem,1.6vw,1.15rem);color:var(--text-2);max-width:520px;margin:0 0 32px;line-height:1.65;
   animation:fadeUp .8s var(--bounce) .3s both;}
 @keyframes fadeUp{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
-
-.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;animation:fadeUp .8s var(--bounce) .4s both;}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;border-radius:100px;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.95rem;text-decoration:none;
-  box-shadow:0 4px 20px rgba(124,108,246,.4);transition:box-shadow .3s,transform .1s;position:relative;overflow:hidden;}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;animation:fadeUp .8s var(--bounce) .4s both;margin-bottom:36px;}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:12px;border:none;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.92rem;text-decoration:none;
+  box-shadow:0 4px 20px rgba(91,140,255,.4);transition:box-shadow .3s,transform .1s;position:relative;overflow:hidden;}
 .btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
   transform:translateX(-100%);transition:transform .5s;}
 .btn-primary:hover::before{transform:translateX(100%);}
-.btn-primary:hover{box-shadow:0 8px 30px rgba(124,108,246,.5);}
-.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:100px;
-  background:rgba(124,108,246,.08);border:1px solid rgba(124,108,246,.22);color:var(--a);
-  font-weight:600;font-size:.92rem;text-decoration:none;cursor:none;transition:all .25s;}
-.btn-ghost:hover{background:rgba(124,108,246,.16);border-color:rgba(124,108,246,.4);transform:translateY(-2px);}
+.btn-primary:hover{box-shadow:0 8px 30px rgba(91,140,255,.5);}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:13px 24px;border-radius:12px;
+  background:var(--card-glass);border:1px solid var(--border);color:var(--text);
+  font-weight:600;font-size:.9rem;text-decoration:none;cursor:none;transition:all .25s;backdrop-filter:blur(10px);}
+.btn-secondary:hover{border-color:var(--border-h);transform:translateY(-2px);}
+.btn-ghost{display:inline-flex;align-items:center;gap:6px;padding:13px 18px;border-radius:12px;
+  background:none;border:none;color:var(--text-2);font-weight:600;font-size:.9rem;cursor:none;transition:color .2s;}
+.btn-ghost:hover{color:var(--a);}
 
-/* ── STATS ───────────────────────────────────────────────────────── */
-.stats{display:flex;justify-content:center;gap:44px;flex-wrap:wrap;padding:8px 24px 50px;max-width:700px;margin:0 auto;
-  animation:fadeUp .8s var(--bounce) .5s both;}
-.stat{text-align:center;}
-.stat-n{font-family:var(--serif);font-size:2.3rem;font-weight:600;line-height:1;
-  background:linear-gradient(135deg,var(--a),var(--b));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.stat-sep{width:1px;background:var(--border);align-self:stretch;margin:4px 0;}
-.stat-l{font-size:.68rem;color:var(--text-3);text-transform:uppercase;letter-spacing:2px;margin-top:6px;}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap;animation:fadeUp .8s var(--bounce) .5s both;}
+.hstat-n{font-size:1.7rem;font-weight:800;background:linear-gradient(135deg,var(--a),var(--b));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.hstat-l{font-size:.72rem;color:var(--text-3);text-transform:uppercase;letter-spacing:1.4px;margin-top:4px;}
 
-/* ── ASK-BAR (roadmap only) ──────────────────────────────────────── */
-.ask-wrap{max-width:680px;margin:0 auto 12px;padding:0 24px;position:relative;animation:fadeUp .8s var(--bounce) .6s both;}
-.ask-shell{display:flex;align-items:center;gap:8px;background:var(--glass);border:1px solid var(--border);
-  border-radius:100px;padding:6px 8px 6px 20px;backdrop-filter:blur(14px);transition:border-color .25s,box-shadow .25s,transform .2s;}
-.ask-shell:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(124,108,246,.15),0 10px 34px rgba(0,0,0,.35);transform:translateY(-2px);}
-.ask-ico{color:var(--text-3);font-size:1.05rem;flex-shrink:0;}
-.ask-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:.98rem;padding:8px 4px;cursor:text;}
-.ask-input::placeholder{color:var(--text-3);}
-.ask-go{flex-shrink:0;padding:10px 20px;border-radius:100px;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.85rem;
-  transition:transform .2s,box-shadow .2s;white-space:nowrap;}
-.ask-go:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,108,246,.4);}
-.ask-go:disabled{opacity:.5;transform:none;}
-.ask-hint{text-align:center;color:var(--text-3);font-size:.78rem;margin-bottom:8px;}
-.ask-answer{max-width:680px;margin:0 auto 20px;padding:0 24px;}
-.ask-answer-box{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--a);
-  border-radius:var(--r16);padding:18px 22px;font-size:.92rem;color:var(--text-2);line-height:1.7;
-  display:none;animation:fadeUp .4s var(--bounce) both;}
-.ask-answer-box.show{display:block;}
-.ask-answer-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--a);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
-.search-count{text-align:center;color:var(--text-3);font-size:.8rem;margin-bottom:14px;opacity:0;transition:opacity .3s;}
-.search-count.show{opacity:1;}
+/* ── HERO VISUAL (AI dashboard mock) ─────────────────────────────── */
+.hero-visual{position:relative;height:440px;animation:fadeUp 1s var(--bounce) .4s both;}
+.dash-panel{position:absolute;background:var(--card-glass);border:1px solid var(--border);border-radius:var(--r20);
+  backdrop-filter:blur(16px);box-shadow:0 24px 60px rgba(0,0,0,.4);}
+.dash-main{top:0;left:0;right:60px;bottom:60px;padding:20px;animation:floatSlow 7s ease-in-out infinite;}
+.dash-main .dm-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.dash-main .dm-title{font-size:.8rem;font-weight:700;color:var(--text-2);}
+.dash-main .dm-dots{display:flex;gap:5px;}
+.dash-main .dm-dots span{width:7px;height:7px;border-radius:50%;background:var(--border-h);}
+#dash-graph{width:100%;height:220px;}
+.dm-legend{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;}
+.dm-chip{font-size:.66rem;padding:3px 9px;border-radius:100px;background:rgba(91,140,255,.1);border:1px solid rgba(91,140,255,.2);color:var(--a);}
+.dash-float{position:absolute;padding:14px 16px;border-radius:var(--r16);width:180px;z-index:2;}
+.dash-float-1{top:20px;right:0;animation:floatSlow 6s ease-in-out infinite .5s;}
+.dash-float-2{bottom:0;left:20px;animation:floatSlow 8s ease-in-out infinite 1s;}
+.df-cat{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--a);margin-bottom:5px;}
+.df-title{font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.3;}
+.df-bar{height:5px;border-radius:100px;background:rgba(255,255,255,.08);overflow:hidden;}
+.df-bar-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--a),var(--b));animation:barFill 2.4s var(--smooth) .8s both;}
+@keyframes barFill{from{width:0;}}
+@keyframes floatSlow{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
 
-/* ── ROADMAP (week-grouped timeline) ─────────────────────────────── */
-.roadmap-wrap{max-width:840px;margin:0 auto;padding:20px 24px 100px;position:relative;}
-.roadmap-line{position:absolute;left:calc(24px + 27px);top:0;bottom:100px;width:2px;
+/* ── STATS BAR (secondary, below hero) ────────────────────────────── */
+.stats-bar{max-width:1240px;margin:0 auto;padding:0 24px 40px;display:flex;justify-content:center;gap:0;
+  flex-wrap:wrap;border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.sb-item{flex:1;min-width:140px;text-align:center;padding:24px 16px;border-right:1px solid var(--border);}
+.sb-item:last-child{border-right:none;}
+.sb-n{font-size:2rem;font-weight:800;background:linear-gradient(135deg,var(--a),var(--b));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.sb-l{font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:1.6px;margin-top:6px;}
+@media(max-width:640px){.sb-item{border-right:none;border-bottom:1px solid var(--border);}}
+
+/* ── SECTION SHELL ─────────────────────────────────────────────────── */
+.section-shell{max-width:1240px;margin:0 auto;padding:90px 24px;}
+.section-head{text-align:center;max-width:640px;margin:0 auto 56px;}
+.section-kicker{display:inline-block;font-size:.72rem;font-weight:800;color:var(--a);text-transform:uppercase;
+  letter-spacing:1.8px;margin-bottom:12px;}
+.section-title{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:800;line-height:1.2;margin-bottom:14px;letter-spacing:-.01em;}
+.section-sub{color:var(--text-2);font-size:1rem;line-height:1.65;}
+
+/* ── FEATURE GRID ──────────────────────────────────────────────────── */
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
+.f-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r20);padding:28px;
+  position:relative;overflow:hidden;transition:transform .35s var(--bounce),border-color .3s,box-shadow .3s;
+  opacity:0;transform:translateY(30px);cursor:none;}
+.f-card.visible{opacity:1;transform:translateY(0);transition:opacity .6s ease,transform .6s var(--bounce),border-color .3s,box-shadow .3s;}
+.f-card::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(135deg,transparent,transparent);transition:background .35s;pointer-events:none;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;}
+.f-card:hover{transform:translateY(-6px);border-color:transparent;box-shadow:0 20px 44px rgba(91,140,255,.15);}
+.f-card:hover::before{background:linear-gradient(135deg,var(--a),var(--b),var(--c));}
+.f-icon{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,rgba(91,140,255,.15),rgba(124,92,255,.1));
+  border:1px solid rgba(91,140,255,.2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+  margin-bottom:18px;transition:transform .4s var(--bounce);}
+.f-card:hover .f-icon{transform:scale(1.1) rotate(-6deg);}
+.f-title{font-size:1.05rem;font-weight:700;margin-bottom:8px;}
+.f-desc{font-size:.87rem;color:var(--text-2);line-height:1.6;}
+
+/* ── TIMELINE (How It Works) ──────────────────────────────────────── */
+.timeline{max-width:640px;margin:0 auto;position:relative;}
+.tl-line{position:absolute;left:23px;top:8px;bottom:8px;width:2px;
+  background:linear-gradient(180deg,var(--a),var(--b) 50%,var(--c));opacity:.35;}
+.tl-step{display:flex;gap:20px;margin-bottom:36px;position:relative;opacity:0;transform:translateX(-24px);
+  transition:opacity .6s ease,transform .6s var(--bounce);}
+.tl-step.visible{opacity:1;transform:translateX(0);}
+.tl-step:last-child{margin-bottom:0;}
+.tl-num{width:48px;height:48px;border-radius:50%;background:var(--card);border:2px solid var(--a);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;z-index:1;
+  box-shadow:0 0 0 6px var(--void);}
+.tl-body{padding-top:6px;}
+.tl-title{font-size:1.02rem;font-weight:700;margin-bottom:4px;}
+.tl-desc{font-size:.86rem;color:var(--text-2);line-height:1.55;}
+
+/* ── CATEGORY FILTER CHIPS ─────────────────────────────────────────── */
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:32px;}
+.cat-chip{padding:7px 16px;border-radius:100px;font-size:.78rem;font-weight:600;cursor:none;
+  background:var(--card-glass);border:1px solid var(--border);color:var(--text-2);transition:all .25s;}
+.cat-chip:hover{border-color:var(--border-h);color:var(--text);}
+.cat-chip.active{background:linear-gradient(135deg,var(--a),var(--b));border-color:transparent;color:#fff;}
+
+/* ── ROADMAP (accordion, week-grouped) ────────────────────────────── */
+.roadmap-wrap{max-width:840px;margin:0 auto;position:relative;}
+.roadmap-line{position:absolute;left:calc(24px + 27px);top:0;bottom:60px;width:2px;
   background:linear-gradient(180deg,transparent,var(--border) 4%,var(--border) 96%,transparent);z-index:0;}
 @media(max-width:640px){.roadmap-line{display:none;}}
 
-.week-header{position:sticky;top:64px;z-index:20;padding:14px 0 14px 0;margin-top:8px;
-  background:linear-gradient(180deg,var(--void) 60%,transparent);}
-.week-header-inner{display:inline-flex;align-items:center;gap:10px;padding:7px 18px;border-radius:100px;
-  background:rgba(124,108,246,.1);border:1px solid rgba(124,108,246,.2);backdrop-filter:blur(10px);}
-.week-dot{width:7px;height:7px;border-radius:50%;background:var(--a);}
-.week-label{font-size:.78rem;font-weight:700;color:var(--a);text-transform:uppercase;letter-spacing:1.2px;font-family:var(--sans);}
+.week-block{position:relative;z-index:1;margin-bottom:6px;}
+.week-header{width:100%;text-align:left;border:none;background:none;cursor:none;padding:10px 0;
+  position:sticky;top:70px;z-index:20;}
+.week-header-inner{display:flex;align-items:center;gap:10px;padding:9px 20px;border-radius:100px;
+  background:rgba(91,140,255,.09);border:1px solid rgba(91,140,255,.2);backdrop-filter:blur(12px);
+  transition:background .25s,border-color .25s,transform .2s,box-shadow .35s;width:fit-content;}
+.week-header:hover .week-header-inner{background:rgba(91,140,255,.16);border-color:rgba(91,140,255,.35);transform:translateY(-1px);}
+.week-header.open .week-header-inner{box-shadow:0 0 0 3px rgba(91,140,255,.12),0 8px 24px rgba(91,140,255,.15);}
+.week-dot{width:7px;height:7px;border-radius:50%;background:var(--a);flex-shrink:0;}
+.week-label{font-size:.78rem;font-weight:700;color:var(--a);text-transform:uppercase;letter-spacing:1.2px;white-space:nowrap;}
+.week-count{font-size:.7rem;color:var(--text-3);font-weight:600;padding-left:8px;margin-left:2px;border-left:1px solid rgba(91,140,255,.25);}
+.week-chevron{margin-left:4px;font-size:.7rem;color:var(--a);transition:transform .35s var(--bounce);flex-shrink:0;}
+.week-header.open .week-chevron{transform:rotate(90deg);}
 
-.entry-row{display:flex;gap:20px;margin-bottom:18px;position:relative;z-index:1;
-  opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s var(--bounce);}
+.week-panel{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .5s var(--smooth),opacity .4s ease;}
+.week-panel.open{grid-template-rows:1fr;opacity:1;}
+.week-panel-inner{overflow:hidden;min-height:0;padding-top:14px;}
+
+.entry-row{display:flex;gap:20px;margin-bottom:16px;position:relative;z-index:1;
+  opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s var(--bounce);}
 .entry-row.visible{opacity:1;transform:translateY(0);}
+.week-panel.open .entry-row{transition-delay:calc(var(--i,0) * 0.05s);}
 .entry-dot-col{flex-shrink:0;width:54px;display:flex;flex-direction:column;align-items:center;padding-top:22px;}
-.entry-dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(135deg,var(--ca),var(--cb));
-  box-shadow:0 0 0 4px var(--void),0 0 16px color-mix(in srgb,var(--ca) 50%,transparent);flex-shrink:0;}
+.entry-dot{width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,var(--ca),var(--cb));
+  box-shadow:0 0 0 4px var(--void),0 0 14px color-mix(in srgb,var(--ca) 50%,transparent);flex-shrink:0;}
 
 .card{flex:1;display:block;text-decoration:none;color:var(--text);background:var(--card);border:1px solid var(--border);
-  border-radius:var(--r20);padding:24px 26px;position:relative;overflow:hidden;cursor:none;perspective:800px;
-  transform-style:preserve-3d;transition:transform .35s var(--bounce),border-color .3s,box-shadow .3s,background .3s;}
-.card::before{content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,color-mix(in srgb,var(--ca) 7%,transparent),color-mix(in srgb,var(--cb) 3%,transparent));
-  opacity:0;transition:opacity .3s;border-radius:inherit;pointer-events:none;}
-.card:hover{transform:translateY(-4px) scale(1.008);border-color:color-mix(in srgb,var(--ca) 30%,transparent);
-  box-shadow:0 18px 44px rgba(0,0,0,.45);background:var(--card-h);}
-.card:hover::before{opacity:1;}
-.card-issue{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.8px;color:var(--ca);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+  border-radius:var(--r20);padding:22px 24px;position:relative;overflow:hidden;cursor:none;
+  transition:transform .35s var(--bounce),border-color .3s,box-shadow .3s;}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--ca),var(--cb));transform:scaleX(0);transform-origin:left;transition:transform .4s var(--bounce);}
+.card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--ca) 35%,transparent);box-shadow:0 16px 40px rgba(0,0,0,.4);}
+.card:hover::after{transform:scaleX(1);}
+.card-issue{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.6px;color:var(--ca);margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;}
 .cat-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:.63rem;font-weight:700;
   text-transform:uppercase;letter-spacing:.6px;background:color-mix(in srgb,var(--ca) 12%,transparent);
   border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);color:var(--ca);}
-.card-title{font-family:var(--serif);font-size:1.28rem;font-weight:600;line-height:1.35;margin-bottom:8px;}
-.card:hover .card-title{background:linear-gradient(90deg,var(--ca),var(--cb));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.card-desc{font-size:.86rem;color:var(--text-2);line-height:1.6;margin-bottom:14px;}
+.card-title{font-size:1.1rem;font-weight:700;line-height:1.35;margin-bottom:8px;}
+.card-desc{font-size:.85rem;color:var(--text-2);line-height:1.55;margin-bottom:14px;}
 .card-foot{display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);}
-.card-date{font-size:.74rem;color:var(--text-3);}
-.arrow{width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--ca) 10%,transparent);
+.card-date{font-size:.73rem;color:var(--text-3);}
+.card-badges{display:flex;align-items:center;gap:8px;}
+.bookmark-btn{background:none;border:none;cursor:none;font-size:1rem;color:var(--text-3);transition:all .2s;padding:2px;}
+.bookmark-btn:hover{color:var(--f);transform:scale(1.15);}
+.bookmark-btn.on{color:var(--f);}
+.complete-badge{font-size:.7rem;color:var(--e);}
+.arrow{width:28px;height:28px;border-radius:50%;background:color-mix(in srgb,var(--ca) 10%,transparent);
   border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);color:var(--ca);
-  display:flex;align-items:center;justify-content:center;font-size:.85rem;transition:all .25s var(--bounce);}
+  display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .25s var(--bounce);}
 .card:hover .arrow{background:linear-gradient(135deg,var(--ca),var(--cb));border-color:transparent;color:#fff;transform:translateX(4px);}
 
-/* ── EMPTY ───────────────────────────────────────────────────────── */
 .empty{text-align:center;padding:100px 20px;}
 .empty-icon{font-size:5rem;margin-bottom:20px;animation:float 3s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-16px);}}
 
-/* ── CHAPTER (entry) PAGE ────────────────────────────────────────── */
-.entry-hero{padding:clamp(60px,10vw,100px) 20px 40px;text-align:center;position:relative;overflow:hidden;
-  view-transition-name:none;}
-.entry-hero::before{content:'';position:absolute;left:50%;top:-30%;width:600px;height:600px;border-radius:50%;
-  background:radial-gradient(circle,color-mix(in srgb,var(--ca) 9%,transparent),transparent 70%);transform:translateX(-50%);pointer-events:none;}
-.issue-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;margin-bottom:18px;
-  background:color-mix(in srgb,var(--ca) 10%,transparent);border:1px solid color-mix(in srgb,var(--ca) 25%,transparent);
-  color:var(--ca);font-size:.76rem;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;}
-.entry-title{font-family:var(--serif);font-size:clamp(1.9rem,4.2vw,3.4rem);font-weight:600;font-style:italic;
-  line-height:1.18;margin-bottom:16px;
-  background:linear-gradient(135deg,var(--text) 0%,var(--ca) 60%,var(--cb) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.entry-meta{color:var(--text-3);font-size:.86rem;display:flex;justify-content:center;align-items:center;gap:16px;flex-wrap:wrap;}
+/* ── AI SEARCH HERO SECTION ───────────────────────────────────────── */
+.search-hero{max-width:720px;margin:0 auto;text-align:center;}
+.ask-shell{display:flex;align-items:center;gap:8px;background:var(--card-glass);border:1px solid var(--border);
+  border-radius:16px;padding:8px 8px 8px 22px;backdrop-filter:blur(14px);transition:border-color .25s,box-shadow .25s,transform .2s;}
+.ask-shell:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(91,140,255,.15),0 10px 34px rgba(0,0,0,.35);transform:translateY(-2px);}
+.ask-ico{color:var(--text-3);font-size:1.1rem;flex-shrink:0;}
+.ask-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-size:1rem;padding:12px 4px;cursor:text;}
+.ask-input::placeholder{color:var(--text-3);}
+.ask-go{flex-shrink:0;padding:12px 24px;border-radius:11px;border:none;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.86rem;
+  transition:transform .2s,box-shadow .2s;white-space:nowrap;}
+.ask-go:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,140,255,.4);}
+.ask-go:disabled{opacity:.5;transform:none;}
+.ask-hint{color:var(--text-3);font-size:.78rem;margin-top:12px;}
+.ask-answer{max-width:720px;margin:20px auto 0;}
+.ask-answer-box{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--a);
+  border-radius:var(--r16);padding:18px 22px;font-size:.92rem;color:var(--text-2);line-height:1.7;text-align:left;
+  display:none;animation:fadeUp .4s var(--bounce) both;}
+.ask-answer-box.show{display:block;}
+.ask-answer-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;color:var(--a);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.search-count{text-align:center;color:var(--text-3);font-size:.8rem;margin-top:14px;opacity:0;transition:opacity .3s;}
+.search-count.show{opacity:1;}
+.suggest-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:16px;}
+.suggest-chip{padding:6px 14px;border-radius:100px;font-size:.76rem;cursor:none;
+  background:rgba(91,140,255,.07);border:1px solid rgba(91,140,255,.15);color:var(--text-2);transition:all .2s;}
+.suggest-chip:hover{background:rgba(91,140,255,.14);color:var(--a);border-color:rgba(91,140,255,.3);}
 
-.tldr-box{background:color-mix(in srgb,var(--ca) 6%,var(--card));border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);
-  border-left:3px solid var(--ca);border-radius:var(--r16);padding:18px 24px;margin-bottom:22px;
-  font-size:1rem;color:var(--text-2);line-height:1.7;
-  box-shadow:8px 8px 24px rgba(0,0,0,.28),-6px -6px 20px rgba(255,255,255,.02),inset 0 1px 0 rgba(255,255,255,.03);}
-.tldr-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ca);margin-bottom:8px;}
+/* ── CHAPTERS STRIP (preview) ─────────────────────────────────────── */
+.chap-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:18px;}
+.chap-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r20);padding:22px;
+  text-decoration:none;color:var(--text);transition:transform .3s var(--bounce),border-color .3s,box-shadow .3s;cursor:none;
+  display:flex;flex-direction:column;gap:10px;}
+.chap-card:hover{transform:translateY(-5px);border-color:color-mix(in srgb,var(--ca) 30%,transparent);box-shadow:0 14px 36px rgba(0,0,0,.35);}
+.chap-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.chap-diff{font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:2px 9px;border-radius:100px;
+  background:color-mix(in srgb,var(--ca) 12%,transparent);color:var(--ca);}
+.chap-time{font-size:.72rem;color:var(--text-3);}
+.chap-title{font-size:1rem;font-weight:700;line-height:1.4;}
+.chap-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.chap-tag{font-size:.68rem;padding:2px 9px;border-radius:100px;background:rgba(255,255,255,.05);color:var(--text-3);border:1px solid var(--border);}
 
-.entry-body{max-width:780px;margin:0 auto;padding:0 20px 90px;position:relative;}
+/* ── TESTIMONIALS ──────────────────────────────────────────────────── */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;}
+.testi-card{background:var(--card-glass);backdrop-filter:blur(14px);border:1px solid var(--border);border-radius:var(--r20);
+  padding:26px;transition:transform .3s var(--bounce),border-color .3s;}
+.testi-card:hover{transform:translateY(-4px);border-color:var(--border-h);}
+.testi-quote{font-size:.92rem;color:var(--text-2);line-height:1.65;margin-bottom:18px;}
+.testi-person{display:flex;align-items:center;gap:12px;}
+.testi-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;color:#fff;flex-shrink:0;}
+.testi-name{font-size:.86rem;font-weight:700;}
+.testi-role{font-size:.74rem;color:var(--text-3);}
 
-.sec{background:var(--card);border:1px solid var(--border);border-radius:var(--r24);padding:30px;margin-bottom:18px;
-  position:relative;overflow:hidden;z-index:1;opacity:0;transform:translateY(34px) scale(.98);filter:blur(4px);
-  transition:opacity .7s var(--smooth),transform .7s var(--bounce),filter .7s var(--smooth);}
-.sec.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
-.sec:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.4);}
-.sec h2{font-family:var(--serif);font-size:1.32rem;font-weight:600;color:var(--ca);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
-.sec-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--ca) 12%,transparent);
-  display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
-.sec p{color:var(--text-2);margin-bottom:14px;line-height:1.85;font-size:.98rem;}
-.sec ul,.sec ol{padding-left:22px;margin:12px 0;}
-.sec li{color:var(--text-2);margin-bottom:9px;line-height:1.7;font-size:.95rem;}
-.sec ul li::marker{color:var(--ca);}.sec ol li::marker{color:var(--cb);font-weight:700;}
+/* ── FINAL CTA ─────────────────────────────────────────────────────── */
+.final-cta{max-width:900px;margin:0 auto;text-align:center;background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r32);padding:clamp(50px,8vw,80px) clamp(24px,5vw,60px);position:relative;overflow:hidden;}
+.final-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(91,140,255,.12),transparent 60%);pointer-events:none;}
+.final-cta h2{font-size:clamp(1.7rem,3.6vw,2.6rem);font-weight:800;margin-bottom:16px;position:relative;z-index:1;}
+.final-cta p{color:var(--text-2);font-size:1rem;margin-bottom:32px;position:relative;z-index:1;}
 
-.code-wrap{background:#050208;border:1px solid rgba(124,108,246,.16);border-radius:var(--r16);margin:16px 0;overflow:hidden;}
-.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(124,108,246,.06);border-bottom:1px solid rgba(124,108,246,.1);}
-.code-lang{font-size:.7rem;color:var(--a);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
-.code-copy{background:none;border:1px solid var(--border);color:var(--text-3);padding:3px 12px;border-radius:6px;font-size:.76rem;cursor:none;transition:all .2s;}
-.code-copy:hover{border-color:var(--a);color:var(--a);}
-.code-copy.copied{border-color:var(--e);color:var(--e);}
-.code-wrap pre{padding:20px;margin:0;font-family:var(--mono);font-size:.84rem;line-height:1.72;overflow-x:auto;color:#c4b5fd;}
-
-.iq-q{padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);
-  margin-bottom:8px;font-size:.9rem;color:var(--text-2);transition:all .2s;}
-.iq-q:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);transform:translateX(4px);color:var(--text);}
+/* ── FOOTER ────────────────────────────────────────────────────────── */
+.footer{border-top:1px solid var(--border);background:rgba(3,4,12,.5);backdrop-filter:blur(12px);}
+.footer-in{max-width:1240px;margin:0 auto;padding:50px 24px 30px;}
+.footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;margin-bottom:36px;}
+@media(max-width:720px){.footer-top{grid-template-columns:1fr 1fr;}}
+.footer-brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--text);margin-bottom:10px;}
+.footer-desc{font-size:.85rem;color:var(--text-3);line-height:1.6;max-width:280px;}
+.footer-col h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-2);margin-bottom:14px;}
+.footer-col a{display:block;font-size:.85rem;color:var(--text-3);text-decoration:none;margin-bottom:10px;transition:color .2s;}
+.footer-col a:hover{color:var(--a);}
+.footer-bottom{padding-top:24px;border-top:1px solid var(--border);text-align:center;color:var(--text-3);font-size:.8rem;}
+.footer-bottom a{color:var(--a);text-decoration:none;}
 
 /* ── AI TUTOR (chapter/e-book pages) ─────────────────────────────── */
-.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:60px;height:60px;border-radius:50%;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-size:1.5rem;box-shadow:0 4px 24px rgba(124,108,246,.5);
+.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:58px;height:58px;border-radius:50%;border:none;cursor:none;
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-size:1.45rem;box-shadow:0 4px 24px rgba(91,140,255,.5);
   animation:fabPulse 3s ease-in-out infinite;transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
-@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(124,108,246,.4);}50%{box-shadow:0 4px 40px rgba(124,108,246,.7),0 0 60px rgba(124,108,246,.2);}}
+@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(91,140,255,.4);}50%{box-shadow:0 4px 40px rgba(91,140,255,.7);}}
 .fab:hover{transform:scale(1.12) rotate(8deg);}
 .fab.hidden{display:none!important;}
-.tutor{position:fixed;bottom:98px;right:24px;z-index:999;width:400px;height:540px;
-  background:rgba(10,8,16,.94);backdrop-filter:blur(32px) saturate(200%);border:1px solid var(--border);border-radius:var(--r24);
+.tutor{position:fixed;bottom:96px;right:24px;z-index:999;width:396px;height:534px;
+  background:rgba(5,8,22,.94);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--border);border-radius:var(--r24);
   box-shadow:0 32px 80px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;
   opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:all .3s var(--bounce);}
 .tutor.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
 @media(max-width:480px){.tutor{width:calc(100% - 32px);right:16px;bottom:88px;height:65vh;}}
 .tutor-head{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(135deg,rgba(124,108,246,.15),rgba(200,109,215,.1));border-bottom:1px solid var(--border);flex-shrink:0;}
-.tutor-title{font-weight:700;font-size:.92rem;display:flex;align-items:center;gap:8px;}
-.t-close{background:none;border:none;color:var(--text-3);font-size:1.15rem;cursor:none;}
+  background:linear-gradient(135deg,rgba(91,140,255,.15),rgba(124,92,255,.1));border-bottom:1px solid var(--border);flex-shrink:0;}
+.tutor-title{font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:8px;}
+.t-close{background:none;border:none;color:var(--text-3);font-size:1.1rem;cursor:none;}
 .t-close:hover{color:var(--text);}
-.tutor-hint{padding:10px 16px;background:rgba(124,108,246,.04);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.73rem;color:var(--text-3);}
+.tutor-hint{padding:10px 16px;background:rgba(91,140,255,.04);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.72rem;color:var(--text-3);}
 .tutor-hint strong{color:var(--a);}
 .tutor-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
 .tutor-body::-webkit-scrollbar{width:4px;}
-.tutor-body::-webkit-scrollbar-thumb{background:rgba(124,108,246,.3);border-radius:2px;}
-.msg{max-width:88%;padding:11px 15px;border-radius:15px;font-size:.86rem;line-height:1.55;word-wrap:break-word;animation:msgPop .35s var(--bounce);}
+.tutor-body::-webkit-scrollbar-thumb{background:rgba(91,140,255,.3);border-radius:2px;}
+.msg{max-width:88%;padding:11px 15px;border-radius:14px;font-size:.85rem;line-height:1.55;word-wrap:break-word;animation:msgPop .35s var(--bounce);}
 @keyframes msgPop{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
 .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-bottom-right-radius:4px;}
 .msg.bot{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
@@ -322,47 +389,87 @@ body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gra
 .typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
 @keyframes tyBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
 .chips{padding:0 16px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
-.chip{padding:5px 12px;border-radius:100px;font-size:.73rem;cursor:none;
-  background:rgba(124,108,246,.08);border:1px solid rgba(124,108,246,.15);color:var(--a);transition:all .2s;}
-.chip:hover{background:rgba(124,108,246,.18);border-color:rgba(124,108,246,.35);}
+.chip{padding:5px 12px;border-radius:100px;font-size:.72rem;cursor:none;
+  background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.15);color:var(--a);transition:all .2s;}
+.chip:hover{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.35);}
 .tutor-inp{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);flex-shrink:0;}
 .tutor-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;
-  padding:10px 15px;color:var(--text);font-size:.86rem;outline:none;cursor:text;transition:border-color .2s;}
-.tutor-input:focus{border-color:var(--a);box-shadow:0 0 0 2px rgba(124,108,246,.12);}
+  padding:10px 15px;color:var(--text);font-size:.85rem;outline:none;cursor:text;transition:border-color .2s;}
+.tutor-input:focus{border-color:var(--a);box-shadow:0 0 0 2px rgba(91,140,255,.12);}
 .tsend{padding:10px 17px;border:none;border-radius:11px;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.86rem;transition:transform .2s,box-shadow .2s;}
-.tsend:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(124,108,246,.4);}
+  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.85rem;transition:transform .2s,box-shadow .2s;}
+.tsend:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,140,255,.4);}
 .tsend:disabled{opacity:.5;transform:none;}
 
-/* ── READING RING ─────────────────────────────────────────────────── */
+/* ── ENTRY (chapter) PAGE ─────────────────────────────────────────── */
+.entry-hero{padding:clamp(56px,9vw,90px) 24px 36px;text-align:center;position:relative;overflow:hidden;}
+.entry-hero::before{content:'';position:absolute;left:50%;top:-30%;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--ca) 10%,transparent),transparent 70%);transform:translateX(-50%);pointer-events:none;}
+.issue-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 16px;border-radius:100px;margin-bottom:16px;
+  background:color-mix(in srgb,var(--ca) 10%,transparent);border:1px solid color-mix(in srgb,var(--ca) 25%,transparent);
+  color:var(--ca);font-size:.74rem;font-weight:800;text-transform:uppercase;letter-spacing:1.3px;}
+.entry-title{font-size:clamp(1.7rem,3.8vw,2.9rem);font-weight:800;line-height:1.2;margin-bottom:16px;
+  background:linear-gradient(135deg,var(--text) 0%,var(--ca) 60%,var(--cb) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.entry-meta{color:var(--text-3);font-size:.85rem;display:flex;justify-content:center;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+.entry-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.pill-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:100px;font-size:.8rem;font-weight:600;
+  cursor:none;border:1px solid var(--border);background:var(--card-glass);color:var(--text-2);transition:all .2s;}
+.pill-btn:hover{border-color:var(--border-h);color:var(--text);transform:translateY(-1px);}
+.pill-btn.on{color:var(--f);border-color:color-mix(in srgb,var(--f) 30%,transparent);}
+
+.tldr-box{background:color-mix(in srgb,var(--ca) 6%,var(--card));border:1px solid color-mix(in srgb,var(--ca) 20%,transparent);
+  border-left:3px solid var(--ca);border-radius:var(--r16);padding:18px 24px;margin-bottom:22px;
+  font-size:1rem;color:var(--text-2);line-height:1.7;}
+.tldr-label{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--ca);margin-bottom:8px;}
+.entry-body{max-width:780px;margin:0 auto;padding:0 20px 90px;position:relative;}
+
+.sec{background:var(--card);border:1px solid var(--border);border-radius:var(--r24);padding:30px;margin-bottom:18px;
+  position:relative;overflow:hidden;z-index:1;opacity:0;transform:translateY(30px) scale(.98);filter:blur(4px);
+  transition:opacity .7s var(--smooth),transform .7s var(--bounce),filter .7s var(--smooth);}
+.sec.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
+.sec:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.4);}
+.sec h2{font-size:1.28rem;font-weight:700;color:var(--ca);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+.sec-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--ca) 12%,transparent);
+  display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
+.sec p{color:var(--text-2);margin-bottom:14px;line-height:1.8;font-size:.97rem;}
+.sec ul,.sec ol{padding-left:22px;margin:12px 0;}
+.sec li{color:var(--text-2);margin-bottom:9px;line-height:1.7;font-size:.94rem;}
+.sec ul li::marker{color:var(--ca);}.sec ol li::marker{color:var(--cb);font-weight:700;}
+
+.code-wrap{background:#040611;border:1px solid rgba(91,140,255,.16);border-radius:var(--r16);margin:16px 0;overflow:hidden;}
+.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 16px;background:rgba(91,140,255,.06);border-bottom:1px solid rgba(91,140,255,.1);}
+.code-lang{font-size:.7rem;color:var(--a);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.code-copy{background:none;border:1px solid var(--border);color:var(--text-3);padding:3px 12px;border-radius:6px;font-size:.76rem;cursor:none;transition:all .2s;}
+.code-copy:hover{border-color:var(--a);color:var(--a);}
+.code-copy.copied{border-color:var(--e);color:var(--e);}
+.code-wrap pre{padding:20px;margin:0;font-family:var(--mono);font-size:.84rem;line-height:1.72;overflow-x:auto;color:#a5c4ff;}
+
+.iq-q{padding:12px 16px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid var(--border);
+  margin-bottom:8px;font-size:.89rem;color:var(--text-2);transition:all .2s;}
+.iq-q:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);transform:translateX(4px);color:var(--text);}
+
 .read-ring{position:fixed;top:16px;right:16px;z-index:101;width:46px;height:46px;opacity:0;transform:scale(.7);transition:all .3s;cursor:none;}
 .read-ring.show{opacity:1;transform:scale(1);}
 .read-ring svg{transform:rotate(-90deg);}
 .rr-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:3;}
 .rr-prog{fill:none;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .1s;}
 
-/* ── BACK TO TOP ─────────────────────────────────────────────────── */
-.btt{position:fixed;bottom:98px;right:24px;z-index:99;width:44px;height:44px;border-radius:50%;border:none;cursor:none;
-  background:rgba(124,108,246,.12);border:1px solid rgba(124,108,246,.2);color:var(--a);font-size:1.05rem;
+.btt{position:fixed;bottom:96px;right:24px;z-index:99;width:44px;height:44px;border-radius:50%;border:none;cursor:none;
+  background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.2);color:var(--a);font-size:1.02rem;
   display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(16px);pointer-events:none;transition:all .3s;}
 .btt.show{opacity:1;transform:translateY(0);pointer-events:auto;}
 .btt:hover{background:var(--a);color:#fff;border-color:var(--a);transform:translateY(-3px);}
 
-/* ── FOOTER ──────────────────────────────────────────────────────── */
-.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);color:var(--text-3);font-size:.8rem;
-  background:rgba(4,3,8,.5);backdrop-filter:blur(12px);}
-.footer a{color:var(--a);text-decoration:none;}
-
-/* ── CONFETTI / RIPPLE ───────────────────────────────────────────── */
 #confetti{position:fixed;inset:0;pointer-events:none;z-index:9998;}
-.ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:9990;border:2px solid rgba(124,108,246,.5);
+.ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:9990;border:2px solid rgba(91,140,255,.5);
   transform:translate(-50%,-50%) scale(0);animation:rippleExp .6s ease-out forwards;}
 @keyframes rippleExp{to{transform:translate(-50%,-50%) scale(4);opacity:0;}}
 
-/* ── RESPONSIVE ──────────────────────────────────────────────────── */
 @media(max-width:768px){
-  .stats{gap:24px;}.read-ring{display:none;}.entry-body{padding:0 12px 60px;}.sec{padding:20px;}
+  .stats-bar{gap:0;}.read-ring{display:none;}.entry-body{padding:0 12px 60px;}.sec{padding:20px;}
   .tutor{width:calc(100vw - 32px);right:16px;}.entry-row{gap:12px;}.entry-dot-col{width:32px;}
+  .section-shell{padding:60px 20px;}.footer-top{grid-template-columns:1fr;}
 }
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}
@@ -384,538 +491,275 @@ body.light .theme-switch .thumb{transform:translateX(24px);background:linear-gra
       <div class="gem">📚</div><span>Daily Dose of DS</span>
     </a>
     <div class="nav-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="index.html#roadmap" class="nav-link">Roadmap</a>
+      <a href="ebook.html" class="nav-link">Chapters</a>
+      <a href="index.html#features" class="nav-link">Features</a>
+      <a href="index.html#ai-search" class="nav-link">Search</a>
+      <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank" class="nav-link">GitHub</a>
       
+    </div>
+    <div class="nav-right">
       <button class="theme-switch" id="themeBtn" title="Toggle theme" aria-label="Toggle theme">
-        <span class="stars"></span>
         <span class="thumb">☀️</span>
       </button>
+      <a href="index.html#roadmap" class="nav-cta magnetic">Start Learning</a>
     </div>
   </div>
 </nav>
+
 <div class="hero">
   <canvas id="neural-canvas"></canvas>
-  <div class="hero-in">
-    <div class="badge"><span class="dot-live"></span>Auto-Updated Daily</div>
-    <h1><span class="shine">Your Learning Roadmap</span></h1>
-    <svg class="hero-line" width="180" height="16" viewBox="0 0 180 16" fill="none">
-      <path d="M4 8c20-10 40 10 60 0s40-10 60 0 30 8 50 0" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round"/>
-      <defs><linearGradient id="lineGrad" x1="0" y1="0" x2="180" y2="0">
-        <stop offset="0%" stop-color="#7c6cf6"/><stop offset="50%" stop-color="#c86dd7"/><stop offset="100%" stop-color="#f472b6"/>
-      </linearGradient></defs>
-    </svg>
-    <p class="hero-sub">Every Daily Dose of DS issue, refined by AI into a readable chapter — laid out chronologically as a journey through what you've learned.</p>
-    <div class="hero-actions">
-      <a href="#roadmap" class="btn-primary magnetic">Start the Journey ↓</a>
-      <a href="ebook.html" class="btn-ghost magnetic">📖 Read as E-Book</a>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="badge"><span class="dot-live"></span>Auto-Updated Daily</div>
+      <h1>Master AI &amp; Data Science <span class="grad-text">One Chapter at a Time</span></h1>
+      <p class="hero-sub">An AI-powered learning roadmap, automatically generated every morning from Daily Dose of Data Science newsletters — cleaned, structured, and organized into a chronological journey.</p>
+      <div class="hero-actions">
+        <a href="#roadmap" class="btn-primary magnetic">Start Learning →</a>
+        <a href="ebook.html" class="btn-secondary magnetic">📖 Browse Chapters</a>
+        <a href="#" class="btn-ghost magnetic">▶ View Latest Chapter</a>
+      </div>
+      <div class="hero-stats">
+        <div><div class="hstat-n" data-t="0">0</div><div class="hstat-l">Chapters</div></div>
+        <div><div class="hstat-n" data-t="0">0</div><div class="hstat-l">Topics</div></div>
+        <div><div class="hstat-n" data-date="true">—</div><div class="hstat-l">Latest</div></div>
+      </div>
+    </div>
+    
+<div class="hero-visual">
+  <div class="dash-panel dash-main">
+    <div class="dm-head">
+      <span class="dm-title">📈 Learning Progress</span>
+      <span class="dm-dots"><span></span><span></span><span></span></span>
+    </div>
+    <canvas id="dash-graph"></canvas>
+    <div class="dm-legend">
+      <span class="dm-chip">Machine Learning</span>
+      <span class="dm-chip">LLMs</span>
+      <span class="dm-chip">Deep Learning</span>
     </div>
   </div>
-</div>
-<div class="stats">
-  <div class="stat"><div class="stat-n" data-t="49">49</div><div class="stat-l">Chapters</div></div>
-  <div class="stat-sep"></div>
-  <div class="stat"><div class="stat-n" data-t="4">4</div><div class="stat-l">Topics</div></div>
-  <div class="stat-sep"></div>
-  <div class="stat"><div class="stat-n" data-date="true">2026-07-14</div><div class="stat-l">Latest</div></div>
-</div>
-<div class="ask-wrap">
-  <div class="ask-shell">
-    <span class="ask-ico">🔍</span>
-    <input class="ask-input" id="askIn" placeholder='Search chapters, or ask "Explain issue #5"...'>
-    <button class="ask-go" id="askGo">Ask AI</button>
+  <div class="dash-panel dash-float dash-float-1">
+    <div class="df-cat">Chapter #47</div>
+    <div class="df-title">How LLM Routing Works</div>
+    <div class="df-bar"><div class="df-bar-fill" style="width:82%"></div></div>
+  </div>
+  <div class="dash-panel dash-float dash-float-2">
+    <div class="df-cat">Chapter #12</div>
+    <div class="df-title">Function Approximation in RL</div>
+    <div class="df-bar"><div class="df-bar-fill" style="width:64%"></div></div>
   </div>
 </div>
-<div class="ask-hint">Press / to focus · type to search, or click Ask AI to query your AI tutor</div>
-<div class="ask-answer"><div class="ask-answer-box" id="askAns"></div></div>
-<div class="search-count" id="searchCount"></div>
-<div class="roadmap-wrap" id="roadmap">
-  <div class="roadmap-line"></div>
-  
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of May 11</span></div>
+  </div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-13_issue001_Heres-your-free-MCP-PDF.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#001<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Heres your free MCP PDF</div>
-    <div class="card-desc">Here's your free MCP PDF!...</div>
-    <div class="card-foot"><span class="card-date">📅 13 May 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="stats-bar">
+  <div class="sb-item"><div class="sb-n">100%</div><div class="sb-l">Automated</div></div>
+  <div class="sb-item"><div class="sb-n">7 AM</div><div class="sb-l">Daily Sync</div></div>
+  <div class="sb-item"><div class="sb-n">0</div><div class="sb-l">Chapters Built</div></div>
+  <div class="sb-item"><div class="sb-n">0</div><div class="sb-l">Manual Work</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-13_issue002_Welcome-550-Page-DSML-PDF.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#002<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Welcome 550 Page DSML PDF</div>
-    <div class="card-desc">Welcome + 550 Page DS/ML PDF!...</div>
-    <div class="card-foot"><span class="card-date">📅 13 May 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="section-shell" id="features">
+  <div class="section-head">
+    <span class="section-kicker">Features</span>
+    <h2 class="section-title">Everything runs itself</h2>
+    <p class="section-sub">From your inbox to a searchable knowledge base — no manual steps anywhere in the pipeline.</p>
+  </div>
+  <div class="feature-grid">
+<div class="f-card">
+  <div class="f-icon">📬</div>
+  <div class="f-title">Daily Newsletter Parsing</div>
+  <div class="f-desc">Every morning, your Gmail is checked automatically for the latest Daily Dose of Data Science issue — no manual copy-pasting, ever.</div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-13_issue003_Hermes-Agent-Masterclass.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#003<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Hermes Agent Masterclass</div>
-    <div class="card-desc">Hermes Agent Masterclass...</div>
-    <div class="card-foot"><span class="card-date">📅 13 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="f-card">
+  <div class="f-icon">🧠</div>
+  <div class="f-title">AI Topic Extraction</div>
+  <div class="f-desc">Gemini reads each newsletter, strips ads and tracking links, and identifies the core concepts worth learning.</div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-14_issue004_Claude-Codes-goal-Command.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#004<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Claude Codes goal Command</div>
-    <div class="card-desc">Claude Code's /goal Command...</div>
-    <div class="card-foot"><span class="card-date">📅 14 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="f-card">
+  <div class="f-icon">📖</div>
+  <div class="f-title">Automatic Chapter Generation</div>
+  <div class="f-desc">Every issue becomes a structured chapter — overview, deep-dive sections, code, key takeaways, and interview questions.</div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-15_issue005_Handson-Building-Custom-Tools-for-AI-Agents.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#005<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Handson Building Custom Tools for AI Agents</div>
-    <div class="card-desc">[Hands-on] ​Building Custom Tools for AI Agents​...</div>
-    <div class="card-foot"><span class="card-date">📅 15 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="f-card">
+  <div class="f-icon">🗺️</div>
+  <div class="f-title">Roadmap Builder</div>
+  <div class="f-desc">Chapters are organized chronologically into a week-by-week roadmap, so you can see your learning journey unfold.</div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-05-17_issue006_ModelFree-Learning-in-RL.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#006<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">ModelFree Learning in RL</div>
-    <div class="card-desc">Model-Free Learning in RL...</div>
-    <div class="card-foot"><span class="card-date">📅 17 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="f-card">
+  <div class="f-icon">🔍</div>
+  <div class="f-title">Smart Search</div>
+  <div class="f-desc">Instantly filter chapters by keyword or category, or ask the AI tutor a direct question about anything you've covered.</div>
 </div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of May 18</span></div>
+<div class="f-card">
+  <div class="f-icon">🔖</div>
+  <div class="f-title">Bookmark Lessons</div>
+  <div class="f-desc">Star any chapter to save it for later — bookmarks are stored right in your browser, no account needed.</div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#06b6d4;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-18_issue007_Implement-Knowledge-Distillation-from-Scratch.html" class="card" style="--ca:#06b6d4;--cb:#8b5cf6">
-    <div class="card-issue">#007<span class="cat-badge">Data Science</span></div>
-    <div class="card-title">Implement Knowledge Distillation from Scratch</div>
-    <div class="card-desc">​Implement Knowledge Distillation from Scratch​...</div>
-    <div class="card-foot"><span class="card-date">📅 18 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="f-card">
+  <div class="f-icon">✅</div>
+  <div class="f-title">Progress Tracking</div>
+  <div class="f-desc">Chapters you've read to the end are automatically marked complete, so you always know where you left off.</div>
+</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-19_issue008_The-top-Hermes-integrations.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#008<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The top Hermes integrations</div>
-    <div class="card-desc">The top Hermes integrations...</div>
-    <div class="card-foot"><span class="card-date">📅 19 May 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="section-shell">
+  <div class="section-head">
+    <span class="section-kicker">How It Works</span>
+    <h2 class="section-title">From newsletter to knowledge, automatically</h2>
+    <p class="section-sub">Every morning, this pipeline runs end-to-end with zero human involvement.</p>
+  </div>
+  <div class="timeline"><div class="tl-line"></div>
+<div class="tl-step">
+  <div class="tl-num">📧</div>
+  <div class="tl-body"><div class="tl-title">Daily Dose of DS Email Arrives</div><div class="tl-desc">Every morning around 5 AM, the newsletter lands in your inbox.</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-20_issue009_The-Anatomy-of-hermes-Folder.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#009<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The Anatomy of hermes Folder</div>
-    <div class="card-desc">The Anatomy of ~/.hermes Folder...</div>
-    <div class="card-foot"><span class="card-date">📅 20 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="tl-step">
+  <div class="tl-num">🤖</div>
+  <div class="tl-body"><div class="tl-title">AI Reads the Newsletter</div><div class="tl-desc">GitHub Actions wakes up at 7 AM and fetches the new email via the Gmail API.</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-05-21_issue010_Karpathys-Prediction-About-RL-is-Coming-True-Now.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#010<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Karpathys Prediction About RL is Coming True Now</div>
-    <div class="card-desc">Karpathy’s Prediction About RL is Coming True Now!...</div>
-    <div class="card-foot"><span class="card-date">📅 21 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="tl-step">
+  <div class="tl-num">🧹</div>
+  <div class="tl-body"><div class="tl-title">Extracts Resources</div><div class="tl-desc">Tracking links, ads, and footers are stripped out — only the educational content remains.</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-22_issue011_Agent-Memory-Is-Only-as-Good-as-Its-Schema.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#011<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Agent Memory Is Only as Good as Its Schema</div>
-    <div class="card-desc">Agent Memory Is Only as Good as Its Schema...</div>
-    <div class="card-foot"><span class="card-date">📅 22 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="tl-step">
+  <div class="tl-num">🧩</div>
+  <div class="tl-body"><div class="tl-title">Groups by Concepts</div><div class="tl-desc">Gemini identifies the core topics and structures them into logical sections.</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-05-24_issue012_Function-Approximation-in-RL.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#012<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Function Approximation in RL</div>
-    <div class="card-desc">Function Approximation in RL...</div>
-    <div class="card-foot"><span class="card-date">📅 24 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="tl-step">
+  <div class="tl-num">📚</div>
+  <div class="tl-body"><div class="tl-title">Builds Chapters</div><div class="tl-desc">A polished chapter page is generated — overview, explanations, code, takeaways, and interview questions.</div></div>
 </div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of May 25</span></div>
+<div class="tl-step">
+  <div class="tl-num">🗺️</div>
+  <div class="tl-body"><div class="tl-title">Generates the Roadmap</div><div class="tl-desc">The chapter is slotted into its week on the chronological roadmap, and the database is updated.</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-25_issue013_The-No-1-Deep-Researcher-Beats-Claude-and-ChatGPT-.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#013<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick</div>
-    <div class="card-desc">The No. 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick...</div>
-    <div class="card-foot"><span class="card-date">📅 25 May 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="tl-step">
+  <div class="tl-num">✨</div>
+  <div class="tl-body"><div class="tl-title">Displays the Learning Path</div><div class="tl-desc">Your site redeploys automatically — the new chapter is live, with zero manual work.</div></div>
+</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-26_issue014_Claude-Code-used-3x-fewer-tokens-with-just-one-cha.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#014<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Claude Code used 3x fewer tokens with just one change</div>
-    <div class="card-desc">​Claude Code used 3x fewer tokens with just one change!...</div>
-    <div class="card-foot"><span class="card-date">📅 26 May 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="section-shell" id="ai-search">
+  <div class="section-head">
+    <span class="section-kicker">AI Tutor</span>
+    <h2 class="section-title">Ask anything you've learned</h2>
+    <p class="section-sub">Search chapters instantly, or ask the AI tutor a direct question about any issue in your history.</p>
+  </div>
+  <div class="search-hero">
+    <div class="ask-shell">
+      <span class="ask-ico">🔍</span>
+      <input class="ask-input" id="askIn" placeholder="Search anything you've learned...">
+      <button class="ask-go" id="askGo">Ask AI</button>
+    </div>
+    <div class="ask-hint">Press / to focus · type to search, or click Ask AI to query your AI tutor</div>
+    <div class="suggest-row">
+      <span class="suggest-chip" data-q="Explain issue #1">Explain issue #1</span>
+      <span class="suggest-chip" data-q="What topics cover LLMs?">What topics cover LLMs?</span>
+      <span class="suggest-chip" data-q="Summarize the last 3 chapters">Summarize the last 3 chapters</span>
+    </div>
+    <div class="ask-answer"><div class="ask-answer-box" id="askAns"></div></div>
+  </div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-05-27_issue015_Hermes-Agent-Masterclass.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#015<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Hermes Agent Masterclass</div>
-    <div class="card-desc">Hermes Agent Masterclass...</div>
-    <div class="card-foot"><span class="card-date">📅 27 May 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="section-shell" id="roadmap">
+  <div class="section-head">
+    <span class="section-kicker">Roadmap Preview</span>
+    <h2 class="section-title">Your learning journey, week by week</h2>
+    <p class="section-sub">Click any week to expand its chapters. Filter by topic below.</p>
+  </div>
+  <div class="chip-row"></div>
+  <div class="search-count" id="searchCount"></div>
+  <div class="roadmap-wrap">
+    <div class="roadmap-line"></div>
+    <div class="empty">
+  <div class="empty-icon">📬</div>
+  <h2>No chapters yet</h2>
+  <p>Run <code>python build_site.py --first-run</code> to process your emails.</p>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-05-31_issue016_Introduction-to-Deep-RL-and-DQN.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#016<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Introduction to Deep RL and DQN</div>
-    <div class="card-desc">Introduction to Deep RL and DQN...</div>
-    <div class="card-foot"><span class="card-date">📅 31 May 2026</span><div class="arrow">→</div></div>
-  </a>
+  </div>
 </div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of June 01</span></div>
+
+<div class="section-shell">
+  <div class="section-head">
+    <span class="section-kicker">Latest Chapters</span>
+    <h2 class="section-title">Freshly generated</h2>
+    <p class="section-sub">The most recent additions to your knowledge base.</p>
+  </div>
+  <div class="chap-strip"></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-01_issue017_Handson-Build-a-3D-Weather-Globe-with-Claude-Code.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#017<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Handson Build a 3D Weather Globe with Claude Code</div>
-    <div class="card-desc">[Hands-on] Build a 3D Weather Globe with Claude Code...</div>
-    <div class="card-foot"><span class="card-date">📅 01 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="section-shell">
+  <div class="section-head">
+    <span class="section-kicker">Testimonials</span>
+    <h2 class="section-title">What learners are saying</h2>
+  </div>
+  <div class="testi-grid">
+<div class="testi-card">
+  <div class="testi-quote">"I stopped losing newsletter issues in my inbox. Everything's organized into a roadmap I actually revisit."</div>
+  <div class="testi-person">
+    <div class="testi-avatar">A</div>
+    <div><div class="testi-name">Aisha Rahman</div><div class="testi-role">ML Engineer</div></div>
+  </div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-02_issue018_Handson-Collapse-CRM-Pipelines-into-One-Table.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#018<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Handson Collapse CRM Pipelines into One Table</div>
-    <div class="card-desc">[Hands-on] Collapse CRM Pipelines into One Table...</div>
-    <div class="card-foot"><span class="card-date">📅 02 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="testi-card">
+  <div class="testi-quote">"The AI tutor answering questions about old issues is genuinely useful before interviews."</div>
+  <div class="testi-person">
+    <div class="testi-avatar">D</div>
+    <div><div class="testi-name">Daniel Cho</div><div class="testi-role">Data Scientist</div></div>
+  </div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-03_issue019_The-Evolution-of-Retrieval-Layer.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#019<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The Evolution of Retrieval Layer</div>
-    <div class="card-desc">The Evolution of Retrieval Layer...</div>
-    <div class="card-foot"><span class="card-date">📅 03 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
+<div class="testi-card">
+  <div class="testi-quote">"Turns a daily 5-minute read into a proper structured course I can search through later."</div>
+  <div class="testi-person">
+    <div class="testi-avatar">P</div>
+    <div><div class="testi-name">Priya Nandakumar</div><div class="testi-role">Grad Student</div></div>
+  </div>
+</div></div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-04_issue020_Researchers-Found-a-Way-to-Make-LLMs-85x-Faster.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#020<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Researchers Found a Way to Make LLMs 85x Faster</div>
-    <div class="card-desc">Researchers Found a Way to Make LLMs 8.5x Faster!...</div>
-    <div class="card-foot"><span class="card-date">📅 04 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
+
+<div class="section-shell">
+  <div class="final-cta">
+    <h2>Start Learning Smarter</h2>
+    <p>Your roadmap updates itself every morning. Jump back in anytime.</p>
+    <a href="#roadmap" class="btn-primary magnetic">Generate My Learning Roadmap →</a>
+  </div>
 </div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-05_issue021_Finally-Hermes-Agents-Desktop-App-is-Here.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#021<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Finally Hermes Agents Desktop App is Here</div>
-    <div class="card-desc">Finally, Hermes Agent's Desktop App is Here!...</div>
-    <div class="card-foot"><span class="card-date">📅 05 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-07_issue022_REINFORCE-and-Actorcritic-Methods-in-RL.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#022<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">REINFORCE and Actorcritic Methods in RL</div>
-    <div class="card-desc">REINFORCE and Actor-critic Methods in RL...</div>
-    <div class="card-foot"><span class="card-date">📅 07 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of June 08</span></div>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-08_issue023_Your-Agent-Harness-Should-Repair-Itself.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#023<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Your Agent Harness Should Repair Itself</div>
-    <div class="card-desc">Your Agent Harness Should Repair Itself...</div>
-    <div class="card-foot"><span class="card-date">📅 08 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-09_issue024_Loop-Engineering-Design-the-System-That-Prompts-Ag.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#024<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Loop Engineering Design the System That Prompts Agents</div>
-    <div class="card-desc">Loop Engineering: Design the System That Prompts Agents...</div>
-    <div class="card-foot"><span class="card-date">📅 09 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-10_issue025_Training-an-LLM-to-Generate-Reliable-Structured-Ou.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#025<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Training an LLM to Generate Reliable Structured Output</div>
-    <div class="card-desc">Training an LLM to Generate Reliable Structured Output...</div>
-    <div class="card-foot"><span class="card-date">📅 10 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-11_issue026_The-8-Layer-Engineering-Behind-a-Production-AI-Sys.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#026<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The 8 Layer Engineering Behind a Production AI Systems</div>
-    <div class="card-desc">The 8 Layer Engineering Behind a Production AI Systems...</div>
-    <div class="card-foot"><span class="card-date">📅 11 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-12_issue027_Schema-Guided-Agent-Memory-for-Production-Agents.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#027<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Schema Guided Agent Memory for Production Agents</div>
-    <div class="card-desc">Schema Guided Agent Memory for Production Agents...</div>
-    <div class="card-foot"><span class="card-date">📅 12 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-14_issue028_Deep-dive-on-proximal-policy-optimization-PPO-in-R.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#028<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Deep dive on proximal policy optimization PPO in RL</div>
-    <div class="card-desc">Deep dive on proximal policy optimization (PPO) in RL...</div>
-    <div class="card-foot"><span class="card-date">📅 14 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of June 15</span></div>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-15_issue029_Handson-Build-a-RealTime-Satellite-Tracker-with-Cl.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#029<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Handson Build a RealTime Satellite Tracker with Claude Code</div>
-    <div class="card-desc">[Hands-on] Build a Real-Time Satellite Tracker with Claude Code...</div>
-    <div class="card-foot"><span class="card-date">📅 15 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of June 22</span></div>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-22_issue030_RLHF-Aligning-Language-Models-with-Human-Feedback.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#030<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">RLHF Aligning Language Models with Human Feedback</div>
-    <div class="card-desc">RLHF: Aligning Language Models with Human Feedback...</div>
-    <div class="card-foot"><span class="card-date">📅 22 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-24_issue031_Loop-Engineering-Clearly-Explained.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#031<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Loop Engineering Clearly Explained</div>
-    <div class="card-desc">Loop Engineering, Clearly Explained!...</div>
-    <div class="card-foot"><span class="card-date">📅 24 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-24_issue032_Speculation-Is-All-You-Need.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#032<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Speculation Is All You Need</div>
-    <div class="card-desc">Speculation Is All You Need!...</div>
-    <div class="card-foot"><span class="card-date">📅 24 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-25_issue033_The-AI-Engineering-Master-Stack-for-2026.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#033<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The AI Engineering Master Stack for 2026</div>
-    <div class="card-desc">The AI Engineering Master Stack for 2026!...</div>
-    <div class="card-foot"><span class="card-date">📅 25 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-27_issue034_Prompt-Engineering-Loop-Engineering-Clearly-Explai.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#034<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Prompt Engineering Loop Engineering Clearly Explained</div>
-    <div class="card-desc">Prompt Engineering &amp; Loop Engineering, Clearly Explained!...</div>
-    <div class="card-foot"><span class="card-date">📅 27 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-06-28_issue035_Karpathys-Agentic-Engineering-Finally-Has-Proper-T.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#035<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Karpathys Agentic Engineering Finally Has Proper Tooling</div>
-    <div class="card-desc">Karpathy's Agentic Engineering Finally Has Proper Tooling...</div>
-    <div class="card-foot"><span class="card-date">📅 28 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of June 29</span></div>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-06-29_issue036_Verifiable-Rewards-and-GRPO-in-RL.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#036<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Verifiable Rewards and GRPO in RL</div>
-    <div class="card-desc">Verifiable Rewards and GRPO in RL...</div>
-    <div class="card-foot"><span class="card-date">📅 29 Jun 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-01_issue037_A-Better-Way-To-Build-LLMasaJudge-Pipelines.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#037<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">A Better Way To Build LLMasaJudge Pipelines</div>
-    <div class="card-desc">A Better Way To Build LLM-as-a-Judge Pipelines...</div>
-    <div class="card-foot"><span class="card-date">📅 01 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#06b6d4;--cb:#3b82f6"></div></div>
-  <a href="entries/2026-07-01_issue038_Handson-How-to-Build-Your-Own-AI-Company.html" class="card" style="--ca:#06b6d4;--cb:#3b82f6">
-    <div class="card-issue">#038<span class="cat-badge">Machine Learning</span></div>
-    <div class="card-title">Handson How to Build Your Own AI Company</div>
-    <div class="card-desc">[Hands-on] How to Build Your Own AI Company...</div>
-    <div class="card-foot"><span class="card-date">📅 01 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-02_issue039_How-to-Achieve-28x-Faster-Automatic-Speech-Recogni.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#039<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">How to Achieve 28x Faster Automatic Speech Recognition</div>
-    <div class="card-desc">How to Achieve 2.8x Faster Automatic Speech Recognition...</div>
-    <div class="card-foot"><span class="card-date">📅 02 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-03_issue040_Prompt-Context-Harness-Loop-Engineering.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#040<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Prompt Context Harness Loop Engineering</div>
-    <div class="card-desc">Prompt, Context, Harness &amp; Loop Engineering...</div>
-    <div class="card-foot"><span class="card-date">📅 03 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-05_issue041_How-to-Reduce-LLM-Costs-by-5060-Using-Model-Routin.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#041<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">How to Reduce LLM Costs by 5060 Using Model Routing</div>
-    <div class="card-desc">How to Reduce LLM Costs by 50-60% Using Model Routing...</div>
-    <div class="card-foot"><span class="card-date">📅 05 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of July 06</span></div>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-07-06_issue042_The-Reward-Signal-Problem-for-Agents.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#042<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">The Reward Signal Problem for Agents</div>
-    <div class="card-desc">The Reward Signal Problem for Agents...</div>
-    <div class="card-foot"><span class="card-date">📅 06 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-07_issue043_Rethinking-KV-Caching-For-Production-Inference.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#043<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Rethinking KV Caching For Production Inference</div>
-    <div class="card-desc">Rethinking KV Caching For Production Inference...</div>
-    <div class="card-foot"><span class="card-date">📅 07 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-08_issue044_Build-Your-Own-100-Local-AI-Second-Brain.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#044<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">Build Your Own 100 Local AI Second Brain</div>
-    <div class="card-desc">Build Your Own 100% Local AI Second Brain...</div>
-    <div class="card-foot"><span class="card-date">📅 08 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-07-09_issue045_How-to-Build-an-RL-Environment.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#045<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">How to Build an RL Environment</div>
-    <div class="card-desc">How to Build an RL Environment...</div>
-    <div class="card-foot"><span class="card-date">📅 09 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-10_issue046_RAG-Finetuning-in-LLMs.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#046<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">RAG Finetuning in LLMs</div>
-    <div class="card-desc">RAG &amp; Fine-tuning in LLMs...</div>
-    <div class="card-foot"><span class="card-date">📅 10 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-07-12_issue047_How-LLM-Routing-Actually-Works-in-Production.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#047<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">How LLM Routing Actually Works in Production</div>
-    <div class="card-desc">How LLM Routing Actually Works in Production...</div>
-    <div class="card-foot"><span class="card-date">📅 12 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="week-header">
-  <div class="week-header-inner"><span class="week-dot"></span><span class="week-label">Week of July 13</span></div>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#f97316;--cb:#ef4444"></div></div>
-  <a href="entries/2026-07-13_issue048_Agentic-RL-Environments-Trajectories-and-the-Train.html" class="card" style="--ca:#f97316;--cb:#ef4444">
-    <div class="card-issue">#048<span class="cat-badge">Reinforcement Learning</span></div>
-    <div class="card-title">Agentic RL Environments Trajectories and the Training Loop</div>
-    <div class="card-desc">Agentic RL: Environments, Trajectories, and the Training Loop...</div>
-    <div class="card-foot"><span class="card-date">📅 13 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-<div class="entry-row">
-  <div class="entry-dot-col"><div class="entry-dot" style="--ca:#ec4899;--cb:#8b5cf6"></div></div>
-  <a href="entries/2026-07-14_issue049_The-Four-Types-of-Agent-Loops.html" class="card" style="--ca:#ec4899;--cb:#8b5cf6">
-    <div class="card-issue">#049<span class="cat-badge">LLMs &amp; Agents</span></div>
-    <div class="card-title">The Four Types of Agent Loops</div>
-    <div class="card-desc">The Four Types of Agent Loops...</div>
-    <div class="card-foot"><span class="card-date">📅 14 Jul 2026</span><div class="arrow">→</div></div>
-  </a>
-</div>
-</div>
-<div class="footer">
-  Auto-generated from Daily Dose of DS emails · Updated daily at 7:00 AM IST ·
-  <a href="https://www.dailydoseofds.com" target="_blank">dailydoseofds.com</a>
-</div>
-<script>const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #17 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #18 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n\nIssue #19 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Summary: * An open-weight agent that handles both work + code.\r\n* The evolution of retrieval layer.\r\n* A simple implementation of boosting algorithm.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: An open-weight agent that handles both work + code. | The evolution of retrieval layer. | A simple implementation of boosting algorithm.\n\nIssue #20 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Summary: * Documentation that keeps pace with the codebase.\r\n* \u200bResearchers found a way to make LLMs 8.5x faster.\r\n* [LLM Interview question] Train LLMs using other LLMs.\r\n* Our AI Engineering, MCP, Agents, an\n  Key points: Documentation that keeps pace with the codebase. | \u200bResearchers found a way to make LLMs 8.5x faster. | [LLM Interview question] Train LLMs using other LLMs.\n\nIssue #21 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Summary: * Build your own Claude app with open-source tooling!\r\n* Finally, Hermes agent's desktop app is here!\r\n* What feature scaling is not used for?\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: Build your own Claude app with open-source tooling! | Finally, Hermes agent's desktop app is here! | What feature scaling is not used for?\n\nIssue #22 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Summary: * REINFORCE and actor-critic methods in RL.\r\n* \u200b15 LLM fine-tuning techniques.\r\n* [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI Engineering...\n  Key points: REINFORCE and actor-critic methods in RL. | \u200b15 LLM fine-tuning techniques. | [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\n\nIssue #23 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* [Hands-on] Your agent harness should repair itself.\r\n* An intuitive guide to non-linearity of ReLU.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-sou\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | [Hands-on] Your agent harness should repair itself. | An intuitive guide to non-linearity of ReLU.\n\nIssue #24 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Summary: * Strands Agents\r\n* Loop engineering: Design the system that prompts agents.\r\n* \u200bRAG & Fine-tuning, explained visually\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: Strands Agents | Loop engineering: Design the system that prompts agents. | \u200bRAG & Fine-tuning, explained visually\u200b.\n\nIssue #25 | 2026-06-10 | Training an LLM to Generate Reliable Structured Output | [Reinforcement Learning]\n  Summary: * CMU\u2019s new study is a must-read for coding agent users.\r\n* \u200bTraining an LLM to generate reliable structured output\u200b.* Introduction\r\n* Problems with SFT\r\n* How GRPO helps\r\n* Infra for GRPO\r\n* The full\n  Key points: CMU\u2019s new study is a must-read for coding agent users. | \u200bTraining an LLM to generate reliable structured output\u200b.* Introduction | Problems with SFT\n\nIssue #26 | 2026-06-11 | The 8 Layer Engineering Behind a Production AI Systems | [LLMs & Agents]\n  Summary: * \u200bBuilding inside the lines with Claude Fable 5\u200b.\r\n* The 8-layer engineering behind a production AI system.\r\n* [Demo] Build agentic workflows in plain English.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH RETOO\n  Key points: \u200bBuilding inside the lines with Claude Fable 5\u200b. | The 8-layer engineering behind a production AI system. | [Demo] Build agentic workflows in plain English.\n\nIssue #27 | 2026-06-12 | Schema Guided Agent Memory for Production Agents | [LLMs & Agents]\n  Summary: * The less your model thinks, the better it codes.\r\n* \u200bSchema-guided agent memory.\r\n* 4 parallel processing techniques in Python.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: The less your model thinks, the better it codes. | \u200bSchema-guided agent memory. | parallel processing techniques in Python.\n\nIssue #28 | 2026-06-14 | Deep dive on proximal policy optimization PPO in RL | [Reinforcement Learning]\n  Summary: * The strategy layer most AI engineers never see.\r\n* Deep dive on proximal policy optimization (PPO) in RL, with code.\r\n* [RECAP] 7 LLM generation parameters.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI STRATEGY BLUEPRINT\n  Key points: The strategy layer most AI engineers never see. | Deep dive on proximal policy optimization (PPO) in RL, with code. | [RECAP] 7 LLM generation parameters.\n\nIssue #29 | 2026-06-15 | Handson Build a RealTime Satellite Tracker with Claude Code | [LLMs & Agents]\n  Summary: * Mythos taught everyone a lesson this week.\r\n* [Hands-on] \u200bBuild a real-time satellite tracker with Claude Code.\r\n* From AGI \u2192 ASI, Google's latest research paper.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI STRATEGY...\n  Key points: Mythos taught everyone a lesson this week. | [Hands-on] \u200bBuild a real-time satellite tracker with Claude Code. | From AGI \u2192 ASI, Google's latest research paper.\n\nIssue #30 | 2026-06-22 | RLHF Aligning Language Models with Human Feedback | [Reinforcement Learning]\n  Summary: * RLHF: Aligning language models with human feedback.\r\n* \u200bPrevent data leakage in ML pipelines\u200b.\r\n* \u200bTrain neural nets 4-6x faster!\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nAI ENGINEERING...\n  Key points: RLHF: Aligning language models with human feedback. | \u200bPrevent data leakage in ML pipelines\u200b. | \u200bTrain neural nets 4-6x faster!\u200b\n\nIssue #31 | 2026-06-24 | Loop Engineering Clearly Explained | [Reinforcement Learning]\n  Summary: * Automated release docs for engineering teams.\r\n* Loop engineering, clearly explained!\r\n* Recursive language models.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH DOC HOLIDAY...\n  Key points: Automated release docs for engineering teams. | Loop engineering, clearly explained! | Recursive language models.\n\nIssue #32 | 2026-06-24 | Speculation Is All You Need | [LLMs & Agents]\n  Summary: * Free Claude Code course with Lydia Hallie, Anthropic & Master.dev.\r\n* Speculation is all you need!\r\n* [Hands-on] Build Agents that can learn like humans.\r\n\r\nTODAY'S ISSUE\r\n\r\nCOURSES\r\n-------...\n  Key points: Free Claude Code course with Lydia Hallie, Anthropic & Master.dev. | Speculation is all you need! | [Hands-on] Build Agents that can learn like humans.\n\nIssue #33 | 2026-06-25 | The AI Engineering Master Stack for 2026 | [LLMs & Agents]\n  Summary: * Skip the boilerplate. Go from prompt to deployed app fast.\r\n* \u200bThe AI engineering master stack for 2026!\u200b\r\n* 6 components of context engineering.\r\n\r\nTODAY'S ISSUE\r\n\r\nAGENTIC ENGINEERING...\n  Key points: Skip the boilerplate. Go from prompt to deployed app fast. | \u200bThe AI engineering master stack for 2026!\u200b | components of context engineering.\n\nIssue #34 | 2026-06-27 | Prompt Engineering Loop Engineering Clearly Explained | [Reinforcement Learning]\n  Summary: * \u200bAgent hackers to test your AI apps!\u200b\r\n* Prompt engineering & loop engineering, clearly explained!\r\n\r\n* [Hands-on] Corrective RAG agentic workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bAgent hackers to test your AI apps!\u200b | Prompt engineering & loop engineering, clearly explained! | [Hands-on] Corrective RAG agentic workflow.\n\nIssue #35 | 2026-06-28 | Karpathys Agentic Engineering Finally Has Proper Tooling | [LLMs & Agents]\n  Summary: * \u200bKarpathy's agentic engineering finally has proper tooling.\r\n* A tricky LLM interview question on KV cache compression.\r\n\r\nTODAY'S ISSUE\r\n\r\nCODING AGENTS...\n  Key points: \u200bKarpathy's agentic engineering finally has proper tooling. | A tricky LLM interview question on KV cache compression. | Claude Code scaffolded the project from the ADK agentic_rag template with Vector Search as the datastore.\n\nIssue #36 | 2026-06-29 | Verifiable Rewards and GRPO in RL | [Reinforcement Learning]\n  Summary: * Verifiable rewards and GRPO in RL.\r\n* Standard KG vs Zep\u2019s temporal KG.\r\n* \u200bContext engineering for MCP servers\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI ENGINEERING...\n  Key points: Verifiable rewards and GRPO in RL. | Standard KG vs Zep\u2019s temporal KG. | \u200bContext engineering for MCP servers\u200b.\n\nIssue #37 | 2026-07-01 | A Better Way To Build LLMasaJudge Pipelines | [LLMs & Agents]\n  Summary: * A better way to build LLM-as-a-Judge pipelines.\r\n* Hermes Mixture of Agents (MoA) explained.\r\n* SNE vs. tSNE Algorithm.\r\n* \u200bConnect any LLM to any MCP server\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHANDS-ON\r\n--------.\n  Key points: A better way to build LLM-as-a-Judge pipelines. | Hermes Mixture of Agents (MoA) explained. | SNE vs. tSNE Algorithm.\n\nIssue #38 | 2026-07-01 | Handson How to Build Your Own AI Company | [Machine Learning]\n  Summary: * [Hands-on] How to build your own AI company.\r\n* \u200b6 graph feature engineering techniques\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nHANDS-ON\r\n--------...\n  Key points: [Hands-on] How to build your own AI company. | \u200b6 graph feature engineering techniques\u200b. | Atlas (CEO) is the single point of contact for the human. It delegates tasks to Mara.\n\nIssue #39 | 2026-07-02 | How to Achieve 28x Faster Automatic Speech Recognition | [LLMs & Agents]\n  Summary: * Dependency monitoring for all codebases.\r\n* How to achieve 2.8x faster automatic speech recognition.\r\n* AI Agent deployment strategies.\r\n\r\nTODAY'S ISSUE\r\n\r\nCODING AGENTS...\n  Key points: Dependency monitoring for all codebases. | How to achieve 2.8x faster automatic speech recognition. | AI Agent deployment strategies.\n\nIssue #40 | 2026-07-03 | Prompt Context Harness Loop Engineering | [LLMs & Agents]\n  Summary: * Fine-tuning fails at data prep, not at training.\r\n* \u200bPrompt, context, harness & loop engineering\u200b.\r\n* 11 most important plots in DS/ML.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH FIREWORKS...\n  Key points: Fine-tuning fails at data prep, not at training. | \u200bPrompt, context, harness & loop engineering\u200b. | most important plots in DS/ML.\n\nIssue #41 | 2026-07-05 | How to Reduce LLM Costs by 5060 Using Model Routing | [LLMs & Agents]\n  Summary: * How to reduce LLM costs by 50-60% using model routing.\r\n* Stanford researchers built the agent-native version of Git.\r\n\r\nTODAY'S ISSUE\r\n\r\nHANDS-ON\r\n--------...\n  Key points: How to reduce LLM costs by 50-60% using model routing. | Stanford researchers built the agent-native version of Git. | The model on call 4 has no memory of decisions made in call 1.\n\nIssue #42 | 2026-07-06 | The Reward Signal Problem for Agents | [Reinforcement Learning]\n  Summary: * The reward signal problem for agents.\r\n* \u200bStrands Agents: The open source agent harness SDK\u200b.\r\n* Build a 3Blue1Brown Video Generator using Strands Agents.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI ENGINEERING...\n  Key points: The reward signal problem for agents. | \u200bStrands Agents: The open source agent harness SDK\u200b. | Build a 3Blue1Brown Video Generator using Strands Agents.\n\nIssue #43 | 2026-07-07 | Rethinking KV Caching For Production Inference | [LLMs & Agents]\n  Summary: * The pull request now fixes itself before anyone reads it.\r\n* Rethinking KV caching for production inference.\r\n* 4 LLM text generation strategies.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH SONAR...\n  Key points: The pull request now fixes itself before anyone reads it. | Rethinking KV caching for production inference. | LLM text generation strategies.\n\nIssue #44 | 2026-07-08 | Build Your Own 100 Local AI Second Brain | [LLMs & Agents]\n  Summary: * Karpathy\u2019s Agentic Engineering finally has proper tooling (built by Google).\r\n* Build your own 100% local AI second brain.\r\n* \u200bAccelerate tSNE with openTSNE\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: Karpathy\u2019s Agentic Engineering finally has proper tooling (built by Google). | Build your own 100% local AI second brain. | \u200bAccelerate tSNE with openTSNE\u200b.\n\nIssue #45 | 2026-07-09 | How to Build an RL Environment | [Reinforcement Learning]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* [Hands-on] How to build an RL environment.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | [Hands-on] How to build an RL environment. | and environments\n\nIssue #46 | 2026-07-10 | RAG Finetuning in LLMs | [LLMs & Agents]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* RAG & Fine-tuning, explained visually\u200b.\r\n* \u200bBuild a Browser Automation Agent\u200b.\r\n* \u200bANN search using an inverted file index\u200b.\r\n\r\n\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | RAG & Fine-tuning, explained visually\u200b. | \u200bBuild a Browser Automation Agent\u200b.\n\nIssue #47 | 2026-07-12 | How LLM Routing Actually Works in Production | [Reinforcement Learning]\n  Summary: * \u200bThe operating system for AI research labs!\u200b\r\n* \u200bHow LLM routing actually works in production\u200b.\r\n* \u200bWhat is Prompt caching?\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bThe operating system for AI research labs!\u200b | \u200bHow LLM routing actually works in production\u200b. | \u200bWhat is Prompt caching?\u200b\n\nIssue #48 | 2026-07-13 | Agentic RL Environments Trajectories and the Training Loop | [Reinforcement Learning]\n  Summary: * Instant H100 access. Fully on demand for AI teams.\r\n* \u200bAgentic RL: Environments, trajectories, and training loop\u200b.\r\n* \u200bSkill bundles in Hermes agent\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH LIGHTNING...\n  Key points: Instant H100 access. Fully on demand for AI teams. | \u200bAgentic RL: Environments, trajectories, and training loop\u200b. | \u200bSkill bundles in Hermes agent\u200b.\n\nIssue #49 | 2026-07-14 | The Four Types of Agent Loops | [LLMs & Agents]\n  Summary: * \u200bFine-tune any LLM directly from Claude!\u200b\r\n* The four types of agent loops.\r\n* NVIDIA researchers built a new transformer variant.\r\n\r\nTODAY'S ISSUE\r\n\r\nFINE-TUNING...\n  Key points: \u200bFine-tune any LLM directly from Claude!\u200b | The four types of agent loops. | NVIDIA researchers built a new transformer variant.\n";const GEMINI_KEY_JS='';</script>
+
+<footer class="footer">
+  <div class="footer-in">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand"><div class="gem" style="width:28px;height:28px;font-size:.85rem;">📚</div>Daily Dose of DS</div>
+        <p class="footer-desc">An AI-powered learning roadmap automatically generated every day from Daily Dose of Data Science newsletters.</p>
+      </div>
+      <div class="footer-col"><h4>Explore</h4>
+        <a href="#roadmap">Roadmap</a><a href="ebook.html">Chapters</a><a href="#features">Features</a><a href="#ai-search">Search</a>
+      </div>
+      <div class="footer-col"><h4>Project</h4>
+        <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank">GitHub</a>
+        <a href="https://github.com/Rishichamp/daily-dose-site#readme" target="_blank">About</a>
+        <a href="https://github.com/Rishichamp" target="_blank">Contact</a>
+      </div>
+      <div class="footer-col"><h4>Info</h4>
+        <a href="https://www.dailydoseofds.com" target="_blank">Daily Dose of DS</a>
+        <span style="display:block;font-size:.85rem;color:var(--text-3);margin-top:2px;">No personal data leaves your own GitHub repo.</span>
+      </div>
+    </div>
+    <div class="footer-bottom">Auto-generated daily at 7:00 AM IST · <a href="https://www.dailydoseofds.com" target="_blank">dailydoseofds.com</a></div>
+  </div>
+</footer>
+<script>const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n";const GEMINI_KEY_JS='';</script>
 
 
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
-// Reveal page entrance (fallback zoom-in continuation)
 document.body.classList.add('page-entering');
 
-// Theme (animated toggle switch)
+// Theme toggle
 (function(){
   const s=localStorage.getItem('dds-theme');
   if(s==='light') document.body.classList.add('light');
@@ -928,7 +772,11 @@ document.body.classList.add('page-entering');
   }
 })();
 
-// Cursor with mouse-parallax on ambient orbs (real-time feel)
+// Nav blur-on-scroll
+const navEl=document.querySelector('.nav');
+if(navEl){ window.addEventListener('scroll',()=>{ navEl.classList.toggle('scrolled', window.scrollY>10); },{passive:true}); }
+
+// Cursor with mouse-parallax ambient orbs
 (function(){
   if(window.matchMedia('(pointer:coarse)').matches) return;
   const d=document.querySelector('.cur-dot'),r=document.querySelector('.cur-ring');
@@ -938,13 +786,10 @@ document.body.classList.add('page-entering');
     mx=e.clientX;my=e.clientY;
     if(d){d.style.left=mx+'px';d.style.top=my+'px';}
     const nx=(mx/window.innerWidth-.5), ny=(my/window.innerHeight-.5);
-    orbs.forEach((o,i)=>{
-      const depth=(i+1)*6;
-      o.style.transform=`translate(${nx*depth}px,${ny*depth}px)`;
-    });
+    orbs.forEach((o,i)=>{ const depth=(i+1)*6; o.style.transform=`translate(${nx*depth}px,${ny*depth}px)`; });
   });
   if(r){(function a(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;r.style.left=rx+'px';r.style.top=ry+'px';requestAnimationFrame(a);})();}
-  document.querySelectorAll('a,button,.card,.chip').forEach(el=>{
+  document.querySelectorAll('a,button,.card,.chip,.f-card,.chap-card').forEach(el=>{
     el.addEventListener('mouseenter',()=>{if(d){d.style.width='17px';d.style.height='17px';}if(r){r.style.width='50px';r.style.height='50px';}});
     el.addEventListener('mouseleave',()=>{if(d){d.style.width='9px';d.style.height='9px';}if(r){r.style.width='38px';r.style.height='38px';}});
   });
@@ -957,12 +802,11 @@ document.addEventListener('click',e=>{
   document.body.appendChild(r);setTimeout(()=>r.remove(),700);
 });
 
-// Dust particles (ambient)
+// Dust particles
 (function(){
   const c=document.getElementById('dustField');
   if(!c) return;
-  const n=28;
-  for(let i=0;i<n;i++){
+  for(let i=0;i<26;i++){
     const m=document.createElement('div');
     const size=1+Math.random()*2.4;
     m.className='mote';
@@ -975,7 +819,7 @@ document.addEventListener('click',e=>{
   }
 })();
 
-// Neural / knowledge graph canvas (real-time rendering, roadmap hero)
+// Neural / knowledge-graph canvas (hero background)
 (function(){
   const cv=document.getElementById('neural-canvas');
   if(!cv) return;
@@ -984,39 +828,74 @@ document.addEventListener('click',e=>{
   function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
   function init(){
     resize();
-    nodes=Array.from({length:24},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:2+Math.random()*3,p:Math.random()*Math.PI*2}));
+    nodes=Array.from({length:22},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.28,vy:(Math.random()-.5)*.28,r:2+Math.random()*3,p:Math.random()*Math.PI*2}));
   }
   function draw(){
     ctx.clearRect(0,0,W,H);
     nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.p+=.022;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
     nodes.forEach((a,i)=>{
       nodes.slice(i+1).forEach(b=>{
-        const dist=Math.hypot(a.x-b.x,a.y-b.y);if(dist>180)return;
+        const dist=Math.hypot(a.x-b.x,a.y-b.y);if(dist>170)return;
         ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
-        ctx.strokeStyle=`rgba(124,108,246,${(1-dist/180)*.28})`;ctx.lineWidth=.7;ctx.stroke();
-        if(Math.sin(a.p)>.76){const t=(Math.sin(a.p)-.76)/.24,sx=a.x+(b.x-a.x)*t,sy=a.y+(b.y-a.y)*t;
-          ctx.beginPath();ctx.arc(sx,sy,2,0,Math.PI*2);ctx.fillStyle='rgba(200,109,215,.85)';ctx.fill();}
+        ctx.strokeStyle=`rgba(91,140,255,${(1-dist/170)*.26})`;ctx.lineWidth=.7;ctx.stroke();
       });
     });
     nodes.forEach(n=>{const g=.5+.5*Math.sin(n.p);ctx.beginPath();ctx.arc(n.x,n.y,n.r*(.8+.3*g),0,Math.PI*2);
-      ctx.fillStyle=`rgba(124,108,246,${.35+.4*g})`;ctx.shadowBlur=11*g;ctx.shadowColor='#7c6cf6';ctx.fill();ctx.shadowBlur=0;});
+      ctx.fillStyle=`rgba(91,140,255,${.35+.4*g})`;ctx.shadowBlur=10*g;ctx.shadowColor='#5B8CFF';ctx.fill();ctx.shadowBlur=0;});
     raf=requestAnimationFrame(draw);
   }
   init();draw();
   window.addEventListener('resize',()=>{cancelAnimationFrame(raf);init();draw();});
 })();
 
-// Scroll progress
+// Hero dashboard mini knowledge-graph
+(function(){
+  const cv=document.getElementById('dash-graph');
+  if(!cv) return;
+  const ctx=cv.getContext('2d');
+  let W,H,nodes=[],raf;
+  function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
+  function init(){
+    resize();
+    nodes=Array.from({length:14},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:2+Math.random()*2.6,p:Math.random()*Math.PI*2}));
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.p+=.03;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
+    nodes.forEach((a,i)=>{
+      nodes.slice(i+1).forEach(b=>{
+        const dist=Math.hypot(a.x-b.x,a.y-b.y);if(dist>90)return;
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle=`rgba(124,92,255,${(1-dist/90)*.4})`;ctx.lineWidth=.8;ctx.stroke();
+      });
+    });
+    nodes.forEach(n=>{const g=.5+.5*Math.sin(n.p);ctx.beginPath();ctx.arc(n.x,n.y,n.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(91,140,255,${.5+.4*g})`;ctx.shadowBlur=8*g;ctx.shadowColor='#5B8CFF';ctx.fill();ctx.shadowBlur=0;});
+    raf=requestAnimationFrame(draw);
+  }
+  init();draw();
+  window.addEventListener('resize',()=>{cancelAnimationFrame(raf);init();draw();});
+})();
+
+// Scroll progress bar
 const sb=document.getElementById('scrollBar');
 if(sb) window.addEventListener('scroll',()=>{const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight;sb.style.width=(h>0?(s/h)*100:0)+'%';},{passive:true});
 
-// Reading ring
+// Reading ring + auto mark-complete near bottom of chapter
 const rr=document.getElementById('readRing');
+let completedFired=false;
 if(rr){
   const c=rr.querySelector('.rr-prog'),rad=c.r.baseVal.value,ci=rad*2*Math.PI;
   c.style.strokeDasharray=`${ci} ${ci}`;c.style.strokeDashoffset=ci;
-  window.addEventListener('scroll',()=>{const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight,p=h>0?(s/h)*100:0;
-    c.style.strokeDashoffset=ci-(p/100)*ci;rr.classList.toggle('show',p>4);},{passive:true});
+  window.addEventListener('scroll',()=>{
+    const s=window.scrollY,h=document.documentElement.scrollHeight-window.innerHeight,p=h>0?(s/h)*100:0;
+    c.style.strokeDashoffset=ci-(p/100)*ci;rr.classList.toggle('show',p>4);
+    if(p>92 && !completedFired && typeof CURRENT_ISSUE!=='undefined'){
+      completedFired=true;
+      const done=JSON.parse(localStorage.getItem('dds-completed')||'[]');
+      if(!done.includes(CURRENT_ISSUE)){ done.push(CURRENT_ISSUE); localStorage.setItem('dds-completed',JSON.stringify(done)); }
+    }
+  },{passive:true});
 }
 
 // Back to top
@@ -1025,17 +904,80 @@ if(btt){window.addEventListener('scroll',()=>btt.classList.toggle('show',window.
 
 // Scrollytelling reveal
 const io=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('visible');io.unobserve(x.target);}});},{threshold:.1,rootMargin:'0px 0px -60px 0px'});
-document.querySelectorAll('.sec,.entry-row').forEach(el=>io.observe(el));
+document.querySelectorAll('.sec,.entry-row,.f-card,.tl-step').forEach(el=>io.observe(el));
 
-// Sticky week headers stay pinned naturally via CSS position:sticky (no JS needed)
+// Accordion: week header click-to-expand (LMS style)
+document.querySelectorAll('.week-header').forEach(h=>{
+  h.addEventListener('click',()=>{
+    const panel=h.nextElementSibling;
+    const willOpen=!panel.classList.contains('open');
+    panel.classList.toggle('open',willOpen);
+    h.classList.toggle('open',willOpen);
+    if(willOpen){
+      panel.querySelectorAll('.entry-row').forEach((r,i)=>{ r.style.setProperty('--i',i); r.classList.add('visible'); });
+    }
+  });
+});
+document.querySelectorAll('.week-panel.open .entry-row').forEach((r,i)=>{ r.style.setProperty('--i',i); r.classList.add('visible'); });
 
-// Bold click transition — native Cross-Document View Transitions handle Chromium.
-// For other browsers, do a manual zoom-launch before navigating.
+// Bookmarks (chapter cards on roadmap)
+function getBookmarks(){ try{return JSON.parse(localStorage.getItem('dds-bookmarks')||'[]');}catch{return [];} }
+function setBookmarks(arr){ localStorage.setItem('dds-bookmarks',JSON.stringify(arr)); }
+function refreshBookmarkUI(){
+  const marks=getBookmarks();
+  document.querySelectorAll('.bookmark-btn[data-issue]').forEach(btn=>{
+    const num=parseInt(btn.dataset.issue,10);
+    btn.classList.toggle('on', marks.includes(num));
+    btn.textContent = marks.includes(num) ? '★' : '☆';
+  });
+}
+document.querySelectorAll('.bookmark-btn[data-issue]').forEach(btn=>{
+  btn.addEventListener('click',e=>{
+    e.preventDefault(); e.stopPropagation();
+    const num=parseInt(btn.dataset.issue,10);
+    let marks=getBookmarks();
+    if(marks.includes(num)) marks=marks.filter(n=>n!==num); else marks.push(num);
+    setBookmarks(marks); refreshBookmarkUI();
+  });
+});
+refreshBookmarkUI();
+
+// Completed badges on roadmap cards
+(function(){
+  const done=JSON.parse(localStorage.getItem('dds-completed')||'[]');
+  document.querySelectorAll('.card[data-issue]').forEach(card=>{
+    const num=parseInt(card.dataset.issue,10);
+    if(done.includes(num)){
+      const foot=card.querySelector('.card-badges');
+      if(foot && !foot.querySelector('.complete-badge')){
+        const b=document.createElement('span'); b.className='complete-badge'; b.textContent='✓ Read';
+        foot.appendChild(b);
+      }
+    }
+  });
+})();
+
+// 3D tilt on cards
+(function(){
+  if(window.matchMedia('(pointer:coarse)').matches) return;
+  document.querySelectorAll('.card,.f-card,.chap-card').forEach(card=>{
+    card.addEventListener('mousemove',e=>{
+      const r=card.getBoundingClientRect();
+      const rx=((e.clientY-r.top)/r.height-.5)*-5;
+      const ry=((e.clientX-r.left)/r.width-.5)*5;
+      card.style.transform=`translateY(-4px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    });
+    card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
+  });
+})();
+
+// Bold click transition — native Cross-Document View Transitions on Chromium, JS zoom fallback elsewhere
 (function(){
   const supportsVT = CSS.supports && CSS.supports('selector(::view-transition)');
   document.querySelectorAll('.card[href]').forEach(card=>{
     card.addEventListener('click', e=>{
-      if(supportsVT) return; // let native cross-document view transition run
+      if(e.target.closest('.bookmark-btn')) return;
+      if(supportsVT) return;
       e.preventDefault();
       const href=card.getAttribute('href');
       card.classList.add('zoom-launch');
@@ -1044,55 +986,59 @@ document.querySelectorAll('.sec,.entry-row').forEach(el=>io.observe(el));
   });
 })();
 
-// Subtle 3D tilt on cards (pencil-turn inspired), skipped on touch
-(function(){
-  if(window.matchMedia('(pointer:coarse)').matches) return;
-  document.querySelectorAll('.card').forEach(card=>{
-    card.addEventListener('mousemove',e=>{
-      const r=card.getBoundingClientRect();
-      const rx=((e.clientY-r.top)/r.height-.5)*-6;
-      const ry=((e.clientX-r.left)/r.width-.5)*6;
-      card.style.transform=`translateY(-4px) scale(1.008) rotateX(${rx}deg) rotateY(${ry}deg)`;
-    });
-    card.addEventListener('mouseleave',()=>{ card.style.transform=''; });
-  });
-})();
-
 // Magnetic buttons
-document.querySelectorAll('.btn-primary,.btn-ghost,.magnetic').forEach(b=>{
-  b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);b.style.transform=`translate(${dx*.18}px,${dy*.18}px)`;});
+document.querySelectorAll('.btn-primary,.btn-secondary,.magnetic').forEach(b=>{
+  b.addEventListener('mousemove',e=>{const r=b.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);b.style.transform=`translate(${dx*.16}px,${dy*.16}px)`;});
   b.addEventListener('mouseleave',()=>b.style.transform='');
 });
 
-// Counter
-document.querySelectorAll('.stat-n[data-t]').forEach(el=>{
+// Count-up stat numbers
+document.querySelectorAll('[data-t]').forEach(el=>{
   const t=parseInt(el.dataset.t,10);if(isNaN(t)||el.dataset.date)return;
   let n=0;const st=Math.ceil(t/50),iv=setInterval(()=>{n=Math.min(n+st,t);el.textContent=n;if(n>=t)clearInterval(iv);},20);
 });
 
-// Ask-bar: search + Ask AI combined
+// Category filter chips + search combined
 const askIn=document.getElementById('askIn'), askGo=document.getElementById('askGo'), askAns=document.getElementById('askAns'), searchCount=document.getElementById('searchCount');
-let searchTO;
-function filterCards(q){
+let activeCategory=null, searchTO;
+function applyFilters(){
+  const q=(askIn?askIn.value.trim():'').toLowerCase();
   let v=0;
-  document.querySelectorAll('.entry-row').forEach(row=>{
-    const m=!q||row.innerText.toLowerCase().includes(q.toLowerCase());
-    row.style.display=m?'flex':'none';if(m)v++;
+  document.querySelectorAll('.week-block').forEach(block=>{
+    const header=block.querySelector('.week-header');
+    const panel=block.querySelector('.week-panel');
+    let anyMatch=false;
+    panel.querySelectorAll('.entry-row').forEach(row=>{
+      const cardCat=row.querySelector('.card')?.dataset.cat || '';
+      const textMatch=!q||row.innerText.toLowerCase().includes(q);
+      const catMatch=!activeCategory||cardCat===activeCategory;
+      const m=textMatch&&catMatch;
+      row.style.display=m?'flex':'none';
+      if(m){ anyMatch=true; v++; }
+    });
+    block.style.display=anyMatch?'block':'none';
+    if((q||activeCategory) && anyMatch && !panel.classList.contains('open')){
+      panel.classList.add('open'); header.classList.add('open');
+      panel.querySelectorAll('.entry-row').forEach((r,i)=>{ r.style.setProperty('--i',i); r.classList.add('visible'); });
+    }
   });
-  document.querySelectorAll('.week-header').forEach(wh=>{
-    let anyVisible=false;let sib=wh.nextElementSibling;
-    while(sib && !sib.classList.contains('week-header')){ if(sib.style.display!=='none') anyVisible=true; sib=sib.nextElementSibling; }
-    wh.style.display=anyVisible?'block':'none';
-  });
-  if(searchCount){searchCount.textContent=`${v} issue${v!==1?'s':''} found`;searchCount.classList.toggle('show',!!q);}
+  if(searchCount){searchCount.textContent=`${v} chapter${v!==1?'s':''} found`;searchCount.classList.toggle('show',!!(q||activeCategory));}
 }
 if(askIn){
-  askIn.addEventListener('input',()=>{clearTimeout(searchTO);searchTO=setTimeout(()=>filterCards(askIn.value.trim()),260);});
+  askIn.addEventListener('input',()=>{clearTimeout(searchTO);searchTO=setTimeout(applyFilters,260);});
   document.addEventListener('keydown',e=>{
     if(e.key==='/'&&document.activeElement!==askIn){e.preventDefault();askIn.focus();}
-    if(e.key==='Escape'&&document.activeElement===askIn){askIn.value='';askIn.blur();filterCards('');if(askAns)askAns.classList.remove('show');}
+    if(e.key==='Escape'&&document.activeElement===askIn){askIn.value='';askIn.blur();activeCategory=null;document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active'));applyFilters();if(askAns)askAns.classList.remove('show');}
   });
 }
+document.querySelectorAll('.cat-chip[data-cat]').forEach(chip=>{
+  chip.addEventListener('click',()=>{
+    const cat=chip.dataset.cat;
+    if(activeCategory===cat){ activeCategory=null; chip.classList.remove('active'); }
+    else{ activeCategory=cat; document.querySelectorAll('.cat-chip').forEach(c=>c.classList.remove('active')); chip.classList.add('active'); }
+    applyFilters();
+  });
+});
 if(askGo){
   askGo.addEventListener('click', async ()=>{
     const q=askIn.value.trim();
@@ -1101,11 +1047,32 @@ if(askGo){
     const ans = await callGemini(q);
     askGo.disabled=false; askGo.textContent='Ask AI';
     if(askAns){
-      askAns.innerHTML = ans ? `<div class="ask-answer-label">🧠 AI Tutor</div>${ans.replace(/\n/g,'<br>')}` : `<div class="ask-answer-label">🧠 AI Tutor</div>No API key set. Click the search box, then try again after entering a Gemini key when prompted.`;
+      askAns.innerHTML = ans ? `<div class="ask-answer-label">🧠 AI Tutor</div>${ans.replace(/\n/g,'<br>')}` : `<div class="ask-answer-label">🧠 AI Tutor</div>No API key set yet — click again and paste a free Gemini key when prompted.`;
       askAns.classList.add('show');
     }
   });
 }
+document.querySelectorAll('.suggest-chip[data-q]').forEach(s=>{
+  s.addEventListener('click',()=>{ if(askIn){ askIn.value=s.dataset.q; askIn.focus(); if(askGo) askGo.click(); } });
+});
+
+// Typewriter cycling placeholder for ask input (only if empty & unfocused)
+(function(){
+  if(!askIn) return;
+  const phrases=['Explain issue #5','What topics cover LLMs?','Search anything you\\'ve learned...','Compare RAG vs Agentic RAG','Summarize the last 3 chapters'];
+  let pi=0, ci=0, deleting=false;
+  function tick(){
+    if(document.activeElement===askIn || askIn.value){ setTimeout(tick,600); return; }
+    const full=phrases[pi];
+    ci += deleting ? -1 : 1;
+    askIn.setAttribute('placeholder', full.slice(0,ci));
+    let delay = deleting ? 30 : 55;
+    if(!deleting && ci===full.length){ delay=1400; deleting=true; }
+    else if(deleting && ci===0){ deleting=false; pi=(pi+1)%phrases.length; delay=400; }
+    setTimeout(tick,delay);
+  }
+  tick();
+})();
 
 // Copy code
 document.querySelectorAll('.code-copy').forEach(b=>{
@@ -1122,7 +1089,7 @@ window.addEventListener('scroll',()=>{if(cf)return;const s=window.scrollY,h=docu
 function fireConfetti(){
   const cv=document.getElementById('confetti');if(!cv)return;
   const ctx=cv.getContext('2d');cv.width=window.innerWidth;cv.height=window.innerHeight;
-  const cols=['#7c6cf6','#c86dd7','#22d3ee','#f472b6','#34d399','#fbbf24'];
+  const cols=['#5B8CFF','#7C5CFF','#22d3ee','#a78bfa','#34d399','#fbbf24'];
   const ps=Array.from({length:110},()=>({x:window.innerWidth/2,y:window.innerHeight/2,vx:(Math.random()-.5)*17,vy:(Math.random()-.5)*17-6,c:cols[Math.floor(Math.random()*cols.length)],s:Math.random()*6+2,l:1,d:.01+Math.random()*.01}));
   (function a(){ctx.clearRect(0,0,cv.width,cv.height);let al=false;ps.forEach(p=>{if(p.l<=0)return;al=true;p.x+=p.vx;p.y+=p.vy;p.vy+=.28;p.l-=p.d;ctx.globalAlpha=p.l;ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,p.s,0,Math.PI*2);ctx.fill();});
   if(al)requestAnimationFrame(a);else ctx.clearRect(0,0,cv.width,cv.height);})();
@@ -1155,7 +1122,23 @@ async function callGemini(msg){
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }
-document.querySelectorAll('.chip').forEach(c=>{c.addEventListener('click',()=>{const inp=document.getElementById('tutorIn')||document.getElementById('askIn');if(inp){inp.value=c.dataset.q||c.textContent;} if(document.getElementById('tutorIn')) tutorSend(); else if(askGo) askGo.click();});});
+document.querySelectorAll('.chip[data-q]').forEach(c=>{c.addEventListener('click',()=>{const inp=document.getElementById('tutorIn');if(inp){inp.value=c.dataset.q||c.textContent; tutorSend();}});});
 document.getElementById('tutorIn')?.addEventListener('keypress',e=>{if(e.key==='Enter')tutorSend();});
+
+// Chapter page: bookmark + mark-complete pill buttons
+(function(){
+  const bmBtn=document.getElementById('chapterBookmark');
+  const cmBtn=document.getElementById('chapterComplete');
+  if(typeof CURRENT_ISSUE==='undefined') return;
+  function refresh(){
+    const marks=getBookmarks();
+    if(bmBtn){ bmBtn.classList.toggle('on', marks.includes(CURRENT_ISSUE)); bmBtn.innerHTML = marks.includes(CURRENT_ISSUE) ? '★ Bookmarked' : '☆ Bookmark'; }
+    const done=JSON.parse(localStorage.getItem('dds-completed')||'[]');
+    if(cmBtn){ cmBtn.classList.toggle('on', done.includes(CURRENT_ISSUE)); cmBtn.innerHTML = done.includes(CURRENT_ISSUE) ? '✓ Completed' : '○ Mark Complete'; }
+  }
+  if(bmBtn){ bmBtn.addEventListener('click',()=>{ let m=getBookmarks(); if(m.includes(CURRENT_ISSUE)) m=m.filter(n=>n!==CURRENT_ISSUE); else m.push(CURRENT_ISSUE); setBookmarks(m); refresh(); }); }
+  if(cmBtn){ cmBtn.addEventListener('click',()=>{ let d=JSON.parse(localStorage.getItem('dds-completed')||'[]'); if(d.includes(CURRENT_ISSUE)) d=d.filter(n=>n!==CURRENT_ISSUE); else d.push(CURRENT_ISSUE); localStorage.setItem('dds-completed',JSON.stringify(d)); refresh(); }); }
+  refresh();
+})();
 </script>
 </body></html>
