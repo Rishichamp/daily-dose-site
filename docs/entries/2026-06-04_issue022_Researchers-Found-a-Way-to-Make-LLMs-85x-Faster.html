@@ -975,7 +975,7 @@ document.querySelectorAll('.suggest-chip[data-q]').forEach(s=>{
 // Typewriter cycling placeholder for ask input (only if empty & unfocused)
 (function(){
   if(!askIn) return;
-  const phrases=['Explain issue #5','What topics cover LLMs?','Search anything you\\'ve learned...','Compare RAG vs Agentic RAG','Summarize the last 3 chapters'];
+  const phrases=['Explain issue #5','What topics cover LLMs?',"Search anything you've learned...",'Compare RAG vs Agentic RAG','Summarize the last 3 chapters'];
   let pi=0, ci=0, deleting=false;
   function tick(){
     if(document.activeElement===askIn || askIn.value){ setTimeout(tick,600); return; }
