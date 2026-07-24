@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #13 · LLMs &amp; Agents · 7 min read</div>
+  <div class="issue-badge">Issue #13 · LLMs &amp; Agents · 3 min read</div>
   <h1 class="entry-title">The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick</h1>
   <div class="entry-meta"><span>📅 May 25, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,163 +527,80 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Innovative AI for everyone.
-* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.
-* ​Build portable ML models with ONNX​
-
-TODAY'S ISSUE
-
-Together with AWS...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Innovative AI for everyone.</p>
-<p>* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.</p>
-<p>* ​Build portable ML models with ONNX​</p>
-<p>TODAY'S ISSUE</p>
-<p>Together with AWS...</p>
+  <p>Building high-performing autonomous systems requires careful consideration of both agentic orchestration and production machine learning deployment. In agentic workflows, complex systems often fail when coordinator models are given too many simultaneous capabilities, leading to superficial task execution and low-value resource consumption. By enforcing strict structural constraints and limiting tool access, developers can significantly enhance the quality of multi-agent reasoning.</p>
+<p>Similarly, the transition from experimental model training to production inference introduces severe friction due to framework dependencies and target hardware variations. Machine learning models trained in PyTorch or TensorFlow frequently need to run across diverse serving environments, ranging from mobile devices to GPU-accelerated cloud clusters. Adopting standardized intermediate representations and optimized execution engines helps eliminate custom export engineering and ensures consistent model behavior across platforms.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​</p>
-<p>​Strands Agents , the open source agent harness SDK from AWS gives you a model-driven way to build production-ready agents in just a few lines of code.</p>
-<p>Any model, any cloud. You get context management, execution limits, and observability before writing a line of config.</p>
-<p>Swap backends when you scale, and your code stays the same.</p>
-<p>Hooks let you intercept any step in the agent loop to log, validate, or redirect it. Guardrails catch mistakes before they run.</p>
-<p>​Build your first agent harness → ​</p>
-<p>open-source</p>
+  <h2><span class="sec-icon">🔬</span>Architectural Design of High-Performing Deep Research Systems</h2>
+  <p>The No. 1 ranked deep research system on DeepResearch Bench, known as Onyx, utilizes a counterintuitive architectural strategy: the orchestrator agent running the entire research process has no direct web search or URL-opening access. In standard multi-agent systems, as well as in OpenAI's sequential chain-of-thought approach, coordinators are granted immediate tool access. This often causes the model to prematurely attempt answering user queries using the first available search snippets, bypassing rigorous task decomposition and generating surface-level reports.</p>
+<p>Stripping search capabilities from the orchestrator forces it to focus entirely on writing clear, self-contained, and coherent task briefs for downstream execution agents. Furthermore, the architecture maintains a strict two-level depth limit. Passing information through long chains of sequential sub-agents consistently introduces signal distortion through iterative summarization and reinterpretation. By keeping the hierarchy shallow, the system preserves original context fidelity across all operational threads.</p>
+<p>The underlying execution pipeline relies on a structured three-phase workflow. In Phase 1, the search-deprived orchestrator decomposes the primary user query into up to six distinct research directions without premature tool execution. Phase 2 dispatches three isolated research agents that run up to eight sub-cycles of searching, reading, and reasoning to produce intermediate reports with precise citations. These agents can also query internal enterprise repositories, such as Confluence or Slack, while enforcing strict document-level permission controls. Finally, Phase 3 executes a deterministic step that renumbers, deduplicates, and compiles the findings into a unified report with a cohesive citation map.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>The No. 1 deep researcher beats Claude and ChatGPT with a trick neither uses.</p>
-<p>We studied the open-source architecture behind it.</p>
-<p>A counterintuitive thing we found is that the orchestrator agent that runs the entire research strategy has no search access.</p>
-<p>It can’t query the web or open URLs.</p>
-<p>​</p>
-<p>This looks wrong at first glance. Every other deep research system gives its coordinator far more capability.</p>
-<p>For instance:</p>
-<p>* OpenAI’s approach trains a single model for many consecutive tool calls. It searches, reads, reasons, and writes the report in a long sequential chain.</p>
-<p>↳ The researchers behind the No. 1 system (Onyx; GitHub Repo ) observed that this causes the model to spend cycles on low-value searches instead of maintaining a high-level research strategy.</p>
-<p>* Anthropic and Google use an orchestrator-researcher pattern similar to Onyx’s system. The key difference is how aggressively Onyx constrains the orchestrator.</p>
-<p>Most orchestrators have access to search and retrieval tools alongside dispatch capabilities. And the moment an orchestrator can search, it will.</p>
-<p>So instead of decomposing a query into focused research threads, it starts answering the question itself.</p>
-<p>​</p>
-<p>It pulls a few results, skips proper task decomposition, and produces a surface-level report from whatever it found first.</p>
-<p>Stripping search from the orchestrator forces it to write self-contained and coherent task briefs for each research agent.</p>
-<p>The researchers also kept the architecture only two levels deep. When info passes through multiple agents, each one subtly distorts it through summarization/reinterpretation. Keeping it to two levels prevents this.</p>
-<p>These two constraints sit inside a larger three-phase pipeline (the visual below maps this):</p>
-<p>​</p>
-<p>* Phase 1 decomposes the query into up to 6 research directions. No tool access prevents the model from prematurely answering.</p>
-<p>* Phase 2 dispatches 3 isolated research agents. Each runs up to 8 sub-cycles of search, read, and think, to produce an intermediate report with citations. The agents can also search internal enterprise docs (Confluence, Slack, 100+ connectors) with document-level permissions enforced, unlike proprietary solutions.</p>
-<p>* Phase 3 runs a deterministic step that renumbers and deduplicates to produce a report with a unified citation map.</p>
-<p>This pattern has been ranked No. 1 on DeepResearch Bench. The whole implementation is available on GitHub, and you can try it yourself.</p>
-<p>​Here’s the Onyx Repo →  (don’t forget to star it ⭐ )</p>
-<p>--&gt;​Onyx GitHub Repo </p>
-<p>​Onyx GitHub Repo 👉 Over to you: Which one is your go-to deep researcher right now?</p>
-<p>Hands-on</p>
-<p>--------</p>
+  <h2><span class="sec-icon">💡</span>Bridging Training and Production with ONNX and ONNX Runtime</h2>
+  <p>The traditional disconnect between machine learning model training and production deployment creates substantial engineering bottlenecks. Teams frequently train models in dynamic frameworks like PyTorch or TensorFlow, while production serving stacks demand extreme speed, portability, and stability across heterogeneous hardware targets such as C++ services, mobile devices, and CPU-only environments. Without a framework-agnostic standard, engineering teams are forced to write custom export logic for every distinct deployment target, increasing maintenance overhead and the risk of runtime discrepancies.</p>
+<p>The Open Neural Network Exchange (ONNX) solves this integration challenge by acting as a neutral intermediate representation layer. An ONNX model consists of a saved computation graph containing standardized operators, explicit tensor shapes, metadata, and embedded weights. Because PyTorch and TensorFlow can export their architectures into this standardized format, ONNX acts as a universal bridge between training frameworks and diverse serving targets. Operator standardization ensures that framework-specific mathematical operations map cleanly onto a shared vocabulary.</p>
+<p>Once a model is exported to ONNX, the ONNX Runtime (ORT) execution engine takes over to drive high-performance inference. ORT loads the computation graph, applies automated graph-level optimizations, partitions subgraphs across available hardware backends, and executes operations efficiently. However, deploying ONNX models requires careful validation. Caveats include imperfect operator mapping across frameworks, variable execution provider coverage on specialized hardware, heuristic-based graph partitioning, potential increases in startup latency, and minor numerical drift introduced during mixed-precision inference.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative example of exporting a PyTorch model to ONNX format
+import torch
+import torchvision.models as models
+
+# Initialize a pre-trained ResNet model for evaluation/inference
+model = models.resnet18(pretrained=True)
+model.eval()
+
+# Create dummy input tensor matching the expected model input dimensions (Batch, Channels, Height, Width)
+dummy_input = torch.randn(1, 3, 224, 224)
+
+# Define output file path for the exported ONNX graph
+onnx_file_path = "resnet18.onnx"
+
+# Export the PyTorch model to ONNX
+torch.onnx.export(
+    model,
+    dummy_input,
+    onnx_file_path,
+    export_params=True,
+    opset_version=12,
+    do_constant_folding=True,
+    input_names=['input'],
+    output_names=['output'],
+    dynamic_axes={'input': {0: 'batch_size'}, 'output': {0: 'batch_size'}}
+)
+
+print(f"Model successfully exported to {onnx_file_path}")</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Most ML teams train models in PyTorch or TensorFlow, but production systems don’t care about it.</p>
-<p>They care about speed, portability, and stability.</p>
-<p>This disconnect between training and serving is where most deployment headaches begin.</p>
-<p>You might train a model in PyTorch, but your inference stack could be a C++ service, a mobile device, a GPU-optimized runtime, or a CPU-only production environment.</p>
-<p>​</p>
-<p>Without a common format, every framework-to-runtime transition becomes a custom engineering problem, and teams end up rewriting export logic for each deployment target.</p>
-<p>This is exactly the problem ONNX (Open Neural Network Exchange) was built to solve, and the visual below captures why it exists in the first place.</p>
-<p>​</p>
-<p>Let’s break it down.</p>
-<p>On a side note, we’ve already covered ONNX in depth as part of our 18-part MLOps course, where we walk through several such concepts and tools step-by-step.</p>
-<p>​</p>
-<p>​Learn deployment with ONNX in a hands-on manner here → ​</p>
-<p>*********************</p>
-<p>What ONNX actually is</p>
-<p>*********************</p>
-<p>ONNX acts as a framework-agnostic intermediate representation that sits between training and deployment.</p>
-<p>An ONNX model is essentially a saved computation graph with standardized operators, explicit tensor shapes, metadata, and all weights baked in.</p>
-<p>Think of it as a neutral language for neural networks.</p>
-<p>PyTorch and TensorFlow can export to ONNX, and production runtimes can consume from ONNX, which makes models portable across training frameworks and deployment targets.</p>
-<p>​</p>
-<p>************************************</p>
-<p>Why operator standardization matters</p>
-<p>************************************</p>
-<p>Every framework has its own internal representation for operations.</p>
-<p>ONNX defines a common operator set so exporters can map framework-specific ops to a shared vocabulary.</p>
-<p>​</p>
-<p>***************************</p>
-<p>Where ONNX Runtime comes in</p>
-<p>***************************</p>
-<p>ONNX by itself is just a format, a way to represent models.</p>
-<p>​</p>
-<p>ONNX Runtime (ORT) is the execution engine that turns that format into fast inference.</p>
-<p>Under the hood, ORT loads the ONNX graph, applies graph-level optimizations, partitions the graph across hardware backends, and executes each subgraph efficiently.</p>
-<p>All of this happens automatically once you load and run the model.</p>
-<p>​</p>
-<p>Here’s a glimpse of the output when we use ONNX and ORT for simple MNIST label prediction:</p>
-<p>​</p>
-<p>That said, ONNX isn’t magic since there are some important caveats to know about.</p>
-<p>* Not every framework op maps perfectly to ONNX operators</p>
-<p>* Execution Provider coverage varies across hardware targets</p>
-<p>* Graph partitioning is heuristic-based, not guaranteed optimal</p>
-<p>* Startup time can increase depending on model complexity</p>
-<p>* Mixed precision inference can introduce small numerical drift</p>
-<p>* Custom ops require additional engineering effort to support</p>
-<p>ONNX simplifies deployment significantly, but it doesn’t remove the need for careful validation before going to production.</p>
-<p>If you remember just one thing, remember this flow:</p>
-<p>​</p>
-<p>* Train model in PyTorch or TensorFlow</p>
-<p>* Export to ONNX</p>
-<p>* Run anywhere using ONNX Runtime</p>
-<p>That’s the bridge ONNX provides between the framework you love and the runtime you need.</p>
-<p>​To see this end-to-end with complete code and context, we’ve already covered ONNX as part of our MLOps course, including export, runtime execution, and trade-offs. Read here → ​</p>
-<p>​Also, to start from the foundations and build up to this ONNX stage (and beyond), you can begin here → ​</p>
-<p>👉 Over to you: Where did you use ONNX recently, and what’s stopping you from using it more?</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Innovative AI for everyone.</li>
-<li>The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.</li>
-<li>​Build portable ML models with ONNX​</li>
-<li>OpenAI’s approach trains a single model for many consecutive tool calls. It searches, reads, reasons, and writes the report in a long sequential chain.</li>
-<li>Anthropic and Google use an orchestrator-researcher pattern similar to Onyx’s system. The key difference is how aggressively Onyx constrains the orchestrator.</li>
-<li>Phase 1 decomposes the query into up to 6 research directions. No tool access prevents the model from prematurely answering.</li>
-<li>Phase 3 runs a deterministic step that renumbers and deduplicates to produce a report with a unified citation map.</li></ul>
+  <ul><li>Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition.</li>
+<li>Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization.</li>
+<li>ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.</li>
+<li>ONNX Runtime automates graph-level optimizations and hardware partitioning for accelerated inference.</li>
+<li>Production deployments using ONNX require validation due to potential operator mapping gaps and numerical drift.</li>
+<li>Enterprise-grade research agents must enforce document-level permissions when querying internal knowledge bases.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">Why might giving an orchestrator agent direct search access lead to lower-quality research outputs?</div>
+<div class="iq-q">How does limiting an agentic architecture to two levels of depth help maintain information fidelity?</div>
+<div class="iq-q">What are the primary components of an ONNX model file, and how does operator standardization facilitate portability?</div>
+<div class="iq-q">What underlying optimizations does ONNX Runtime perform when executing a computation graph?</div>
+<div class="iq-q">What are some common failure modes or caveats when deploying ONNX models to production environments?</div>
+<div class="iq-q">How do deterministic multi-phase pipelines improve the reliability of citation mapping in automated research systems?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced multi-agent orchestration patterns and guardrail integration</li>
+<li>Comprehensive model quantization techniques for resource-constrained edge devices</li>
+<li>Graph optimization and hardware acceleration strategies using ONNX Runtime</li>
+<li>Evaluating enterprise retrieval-augmented generation systems with permission controls</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -711,7 +628,7 @@ Together with AWS...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1076,7 +993,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="issue-badge">Issue #20 · Reinforcement Learning · 5 min read</div>
+  <div class="issue-badge">Issue #20 · Reinforcement Learning · 3 min read</div>
   <h1 class="entry-title">Handson Collapse CRM Pipelines into One Table</h1>
   <div class="entry-meta"><span>📅 June 02, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,123 +527,83 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#5B8CFF;--cb:#22d3ee">
   
-<div class="tldr-box" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Surya OCR: SOTA model for document intelligence.
-* ​Collapse CRM pipelines into one table.
-* The easiest way to find out which models you can run on your computer.
-
-TODAY'S ISSUE
-
-OPEN-SOURCE.</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Surya OCR: SOTA model for document intelligence.</p>
-<p>* ​Collapse CRM pipelines into one table.</p>
-<p>* The easiest way to find out which models you can run on your computer.</p>
-<p>TODAY'S ISSUE</p>
-<p>OPEN-SOURCE...</p>
+  <p>Data science workflows often suffer from extreme fragmentation, requiring developers to stitch together multiple external services, webhooks, and sync jobs just to enrich, score, and process table rows. Traditional database tables act merely as passive stores that expose reads and writes, lacking any native execution model for complex business logic. When operations like lead enrichment and scoring require multi-step dependencies, the resulting integration glue quickly becomes difficult to maintain.</p>
+<p>To solve this architectural overhead, modern open-source tooling is shifting the execution model directly onto the data storage layer. By turning database columns into dynamic agents that can run workflows, evaluate conditions, and trigger subsequent actions, engineers can eliminate external synchronization scripts entirely. This paradigm shift allows tables to actively process rows rather than passively hold them.</p>
+<p>Concurrently, advancements in document intelligence and hardware introspection are making advanced machine learning more accessible to practitioners. State-of-the-art OCR models can now process complex layouts and multilingual text at high speeds, while automated hardware checkers simplify the process of deploying local large language models. Together, these tools represent a broader trend toward streamlined, self-hosted, and agentic data architectures.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>Datalab has just released Surya OCR, a state-of-the-art OCR model that scores 83.3% on the olmocr benchmark (top under 3B).</p>
-<p>​</p>
-<p>* 650M params</p>
-<p>* supports 91 languages</p>
-<p>* 5 pages/s on RTX 5090</p>
-<p>* runs on CPU, GPU, MPS</p>
-<p>* 83.3% olmocr bench score (top under 3B)</p>
-<p>* Full layout information</p>
-<p>* Extracts + captions images and diagrams</p>
-<p>* Strong handwriting, math, form, and table support</p>
-<p>​Find the GitHub repo here →  (don’t forget to star it ⭐️)</p>
-<p>HANDS-ON</p>
-<p>--------</p>
+  <h2><span class="sec-icon">🔬</span>Surya OCR for Document Intelligence</h2>
+  <p>Surya OCR represents a major leap forward in document intelligence, offering state-of-the-art performance across a wide variety of document formats, languages, and structural elements. Scoring 83.3% on the olmocr benchmark, it currently stands as a leading model in the under-3 billion parameter category, combining compact size with exceptional accuracy. With 650 million parameters, the model is optimized to run efficiently on standard consumer hardware, achieving impressive processing speeds on modern GPUs while maintaining cross-platform compatibility across CPU, GPU, and MPS environments.</p>
+<p>Beyond standard text recognition, Surya OCR provides comprehensive layout analysis, allowing practitioners to extract structural information, tables, forms, and mathematical notation seamlessly. It is also capable of extracting and captioning images and diagrams embedded within documents, making it a versatile tool for unstructured data pipelines. Its robust support for 91 languages and strong performance on handwritten text ensures that it can handle diverse real-world document corpora without requiring extensive task-specific fine-tuning.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>A table is a passive store. It persists rows and exposes reads and writes, but it has no execution model of its own.</p>
-<p>Any logic that operates on a row runs in a separate process and writes the result back.</p>
-<p>​</p>
-<p>Enrichment pipelines are the clearest example of this, because once the table fills with data, everything useful has to happen outside it.</p>
-<p>Take a leads table. The rows can be easily enriched with emails, headcount, and tech stack.</p>
-<p>But the mechanisms to score a lead and trigger a follow-up run elsewhere. This requires standing up a service, registering a webhook, and writing a sync job to land the output back on the right row.</p>
-<p>Of course, the scoring logic is trivial. But the integration and glue around it is not. And it multiplies per step, since the follow-up adds another service, another webhook, another write path back into the table.</p>
-<p>​</p>
-<p>A smart implementation of this now actually exists in Sim (GitHub Repo ), which is an open-source (28k+ stars) visual AI workspace for building and running agentic workflows. You can self-host it on Docker.</p>
-<p>​</p>
-<p>It has three core pieces.</p>
-<p>* A visual canvas where you connect blocks into a workflow.</p>
-<p>* Tables that store data and keep it across runs.</p>
-<p>* Mothership, a natural-language layer that creates tables, wires up blocks, and builds workflows from a plain-English description.</p>
-<p>Tables hold typed columns and expose more than ten operations as workflow blocks, like query, insert, upsert, and update.</p>
-<p>The new part is that a column can also run a workflow, not just store a value.</p>
-<p>Instead of holding a static value, a column can run enrichment or a full workflow against its row, then write the output back into the same row. The execution model that was missing from the table now lives on the table.</p>
-<p>So there’s no external service to stand up, a webhook to register, or a sync job to reconcile, because the logic runs where the data already is.</p>
-<p>A column can also watch another column and fire when its value changes, so the steps that used to be glued together with webhooks become a chain inside one table.</p>
-<p>Let’s walk through how its enrichment columns and workflow columns work, and how one column can trigger the next.</p>
-<p>Enrichment columns</p>
+  <h2><span class="sec-icon">💡</span>Collapsing CRM Pipelines into Database Tables</h2>
+  <p>Traditional CRM pipelines rely on external microservices, webhooks, and synchronization jobs to enrich and score lead data after it lands in a database table. This decoupled architecture introduces significant maintenance overhead, as every incremental processing step requires additional integration code to write outputs back to the correct rows. By utilizing an open-source visual AI workspace with native table execution, developers can redefine table columns to act as active processing units rather than static data containers.</p>
+<p>In this unified approach, enrichment columns automatically query external data sources and write results directly back into the row in real time, eliminating the need for batch re-imports or manual sync scripts. Furthermore, workflow columns allow complex multi-step logic—such as evaluating target-customer criteria with an AI model—to execute directly using the full context of the row as input. Conditional execution parameters ensure that downstream workflows only trigger when prerequisite data fields are fully populated, preventing wasted compute cycles on incomplete records.</p>
+<p>Chaining column operations together allows teams to build sophisticated, multi-stage pipelines entirely within a single table interface. For example, an automated scoring column can write its reasoning to a row, prompting a human reviewer to flip an approval toggle that subsequently kicks off the next automated action. This reactivity removes the need for external glue code, ensuring that each step executes reliably only after the preceding column has completed its task on that exact row.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import subprocess
+import json
+
+def check_local_llm_compatibility(category: str = "coding"):
+    """
+    Simulates hardware detection and model recommendation workflow 
+    using the llm-checker utility logic.
+    """
+    print("Step 1: Checking llm-checker availability...")
+    # In practice: subprocess.run(["npm", "install", "-g", "llm-checker"])
+    
+    print("Step 2: Detecting local hardware capabilities...")
+    hardware_profile = {
+        "device": "Apple Silicon M3 Max",
+        "unified_memory_gb": 64,
+        "supports_mps": True
+    }
+    print(f"Detected Hardware: {json.dumps(hardware_profile, indent=2)}")
+    
+    print(f"Step 3: Fetching recommendations for category: {category}...")
+    # Simulated output based on hardware constraints
+    recommended_models = [
+        {"model": "qwen2.5-coder:7b", "quantization": "Q4_K_M", "estimated_tok_s": 42.5},
+        {"model": "deepseek-coder-v2:16b", "quantization": "Q4_K_M", "estimated_tok_s": 22.1}
+    ]
+    
+    return recommended_models
+
+if __name__ == "__main__":
+    results = check_local_llm_compatibility(category="coding")
+    print("Compatible Models Found:", results)</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>An enrichment column lives on the table itself. There is no separate tool to export the rows to and import them back from.</p>
-<p>You add it from the column menu, or you describe it to Mothership and let it set up the column. In the demo, Mothership suggests enriching a CRM table with work emails and company data, and the columns fill in row by row.</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/t8LbChRCBo4ZQ6B9yUYdDG/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>A few things make this practical day to day.</p>
-<p>* Each row shows its own live status, so partial results appear as they land instead of in one batch at the end.</p>
-<p>* The column header configures the output fields. A column can show headcount and hide the raw LinkedIn URL.</p>
-<p>* Several enrichment columns run on the same table at once.</p>
-<p>* Every result writes back in place, with no re-import and no sync job.</p>
-<p>The demo says Sim pulls from the same data sources Clay does. Treat that as a vendor claim until you test it on real records. The point that holds either way is that the enriched data lands in the table you already work in.</p>
-<p>Workflow columns</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Enrichment is the smaller idea. The workflow column is where the table starts doing real work.</p>
-<p>A workflow in Sim is a chain of blocks. A block can be an AI model call, a database write, a Slack message, or a condition. You build the workflow once on the canvas, then add it as a column type on a table.</p>
-<p>When a workflow runs as a column, it takes the full row as input. The column titles and their values get passed in, the workflow runs, and the outputs you pick get written back into columns on the same row.</p>
-<p>​</p>
-<p>In the demo below, the workflow scores each lead. It passes the company name and description in, runs an AI step against target-customer criteria, and writes back two columns, a short reasoning summary, and a qualified yes/no.</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/6PiwnNhBXuPYgTkEZgwCdg/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>You can also describe the workflow you want by chatting with the table, and Mothership builds it and adds it as a column. That is the part that saves the wiring. The logic that would normally live in a separate tool gets generated from a sentence and dropped onto the table.</p>
-<p>You can gate the run with auto-run conditions. In the demo, the scoring workflow fires only once both the industry and description are filled. Rows still waiting on enrichment never trigger, so no model calls are wasted on incomplete data.</p>
-<p>Chaining columns</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>A column’s output can trigger another workflow. One column watches another, and when its value changes, the next workflow runs.</p>
-<p>In the demo below, we wire this as an approval gate. The scoring column writes its reasoning and talking points, a reviewer reads them and flips an “approved” field, and that change triggers the next workflow on that row.</p>
-<p>Check this out:</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/r5mThmPU1T7JiZYgdDXY5e/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>​</p>
-<p>That gives you a full pipeline inside one table. Enrichment fills the row, an AI step scores it, a human approves it, and the approval kicks off the next action, with each step reacting to the column before it.</p>
-<p>When is this worth it?</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Surya OCR: SOTA model for document intelligence.</li>
-<li>​Collapse CRM pipelines into one table.</li>
-<li>The easiest way to find out which models you can run on your computer.</li>
-<li>supports 91 languages</li>
-<li>pages/s on RTX 5090</li>
-<li>runs on CPU, GPU, MPS</li>
-<li>% olmocr bench score (top under 3B)</li></ul>
+  <ul><li>Surya OCR achieves an 83.3% score on the olmocr benchmark while operating under 3 billion parameters.</li>
+<li>Traditional database tables act as passive stores, requiring external microservices and webhooks to execute row-level logic.</li>
+<li>Modern visual AI workspaces allow database columns to execute enrichment tasks and multi-step workflows natively.</li>
+<li>Auto-run conditions prevent downstream workflows from triggering until prerequisite columns are fully populated with data.</li>
+<li>Column chaining enables reactive pipelines where the output of one column automatically triggers the workflow of the next.</li>
+<li>The llm-checker command-line tool simplifies identifying which large language models can run efficiently on specific local hardware setups.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What are the primary performance advantages of deploying a compact OCR model like Surya OCR compared to larger, multi-billion parameter vision models?</div>
+<div class="iq-q">How does shifting execution logic into database columns alter the traditional architecture of data enrichment and lead-scoring pipelines?</div>
+<div class="iq-q">What architectural challenges arise when scaling webhooks and external synchronization jobs for multi-step data pipelines?</div>
+<div class="iq-q">How do auto-run conditions on database columns optimize compute resource utilization during automated AI workflows?</div>
+<div class="iq-q">What security and data governance considerations must be evaluated when self-hosting visual AI workspaces via Docker?</div>
+<div class="iq-q">How can hardware introspection tools assist developers in determining optimal quantization levels for local LLM deployment?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced document layout analysis and multilingual OCR optimization techniques</li>
+<li>Architectural patterns for migrating from decoupled microservices to in-table execution models</li>
+<li>Local large language model quantization strategies and hardware acceleration runtimes</li>
+<li>Designing human-in-the-loop approval gates within automated agentic workflows</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -671,7 +631,7 @@ OPEN-SOURCE.</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Summary: * Free hands-on virtual event on agentic AI at AWS Summit India Online.\r\n* RAG vs. Graph RAG vs. Agentic RAG.\r\n* \u200bAn animated guide to DBSCAN clustering\u200b.\r\n* [Hands-on] Tool calling in LLMs.\r\n\r\nTODAY'\n  Key points: Free hands-on virtual event on agentic AI at AWS Summit India Online. | RAG vs. Graph RAG vs. Agentic RAG. | \u200bAn animated guide to DBSCAN clustering\u200b.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Summary: * \u200bThe operating system for AI research labs!\r\n* Why agent crashes are nothing like database crashes.\r\n* [Hands-on] Deploy a Qwen 3 Agentic RAG.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bThe operating system for AI research labs! | Why agent crashes are nothing like database crashes. | [Hands-on] Deploy a Qwen 3 Agentic RAG.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Key points: Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface. | Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls. | Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Production debugging bottlenecks are usually caused by fragmented tool visibility across logs, monitoring traces, and team chat history rather than the complexity of the fix itself. | Integrated AI agents can bridge communication platforms with cloud infrastructure to automate trace retrieval, pull request analysis, and incident postmortem generation. | Independent variables act as inputs for prediction, while dependent variables represent the target outcome being modeled.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Key points: Standard RAG relies on vector similarity search, which excels at direct factual lookups but fails on multi-hop relationship queries. | Graph RAG uses knowledge graphs and explicit entity traversal to connect facts spread across multiple documents. | Agentic RAG utilizes runtime LLM decision-making to dynamically select tools, sources, and execution order based on query needs.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Key points: Database crashes allow deterministic recovery via write-ahead logs, whereas agent crashes face LLM non-determinism and decision drift. | Stateless restarts of multi-day agent workflows cause re-interpretation errors that cascade into faulty downstream decisions. | Agent reliability requires platform-level checkpoint-and-resume strategies rather than custom application-layer serialization.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Key points: Frontier LLM pipelines increasingly incorporate reinforcement learning techniques like RLHF and GRPO for post-training and alignment. | Replacing tables with neural networks in RL introduces instability caused by correlated sequential data and non-stationary targets. | Experience replay decorrelates training data by sampling random mini-batches from a historical transition buffer.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Key points: AI coding assistants can fully provision cloud databases, create hyper-tables, and seed production datasets using specialized MCP servers. | TimescaleDB automatically partitions time-series data by timestamp to ensure fast querying under heavy user interaction. | Continuous aggregates compute pre-rolled data summaries to instantly serve dashboard trend charts without rescanning raw records.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1036,7 +996,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

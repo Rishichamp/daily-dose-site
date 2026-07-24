@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #28 · LLMs &amp; Agents · 10 min read</div>
+  <div class="issue-badge">Issue #28 · LLMs &amp; Agents · 4 min read</div>
   <h1 class="entry-title">The 8 Layer Engineering Behind a Production AI Systems</h1>
   <div class="entry-meta"><span>📅 June 11, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,190 +527,87 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* ​Building inside the lines with Claude Fable 5​.
-* The 8-layer engineering behind a production AI system.
-* [Demo] Build agentic workflows in plain English.
-
-TODAY'S ISSUE
-
-TOGETHER WITH RETOO</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* ​Building inside the lines with Claude Fable 5​.</p>
-<p>* The 8-layer engineering behind a production AI system.</p>
-<p>* [Demo] Build agentic workflows in plain English.</p>
-<p>TODAY'S ISSUE</p>
-<p>TOGETHER WITH RETOOL...</p>
+  <p>When building production artificial intelligence systems, two engineering teams can utilize the exact same foundational model and still ship completely different products. This variance occurs because the base model is merely a fixed input that translates text into probabilities. The true differentiation of a robust AI application lies in the comprehensive engineering layers wrapped around that model, managing everything from token delivery and context windows to agentic loops and security guardrails. </p>
+<p>Autonomous agents introduce a distinct set of operational challenges that stretch far beyond the capabilities of the core language model. While modern models can run for hours, hold goals for days, and generate complex SQL or automation scripts independently, they lack the intrinsic architectural awareness to manage sensitive permissions or secure database write operations safely. Consequently, deciding who can access a tool, who can execute a critical function like a financial refund, and how to maintain an immutable audit log are responsibilities that belong strictly within the application runtime rather than the model itself.</p>
+<p>Engineering a production-ready system therefore requires shifting focus from raw model capability to comprehensive harness engineering, context management, and infrastructure control. By deploying agents into structured runtimes that provide company single sign-on, role-based access checks, and strict audit logging, developers can safely build inside the lines. Understanding these underlying layers allows engineers to construct AI workflows that are not only powerful and autonomous, but also secure, observable, and cost-effective.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>We spent enough time with Claude Fable 5, and it left us thinking about one thing, i.e., what an agent is allowed to do while it runs on its own.</p>
-<p>Fable 5 runs for hours, holds a goal for days, and takes action without checking in. So the question stopped being what an agent can build. It became what it can touch while it runs.</p>
-<p>We tested this with a plain internal tool.</p>
-<p>Fable 5 wrote the SQL, pulled real records, and added a button that issued a refund straight to the database, all in one pass.</p>
-<p>The build was easy, but deciding who can open it, who can run that refund, and keeping a record of what happened was the part the model could not handle on its own.</p>
-<p>That part lives in the runtime, not the model.</p>
-<p>​</p>
-<p>We deployed the same agent into Retool , and it picked up company SSO, a role check on the refund, and an audit log of every query and action. The app didn’t change, but where it ran did.</p>
-<p>Retool calls this building inside the lines, and you’ll notice the difference once you watch the same agent run both ways.</p>
-<p>​You can try it out yourself here → ​</p>
-<p>AI ENGINEERING</p>
+  <h2><span class="sec-icon">🔬</span>Model Foundations and Inference Engineering</h2>
+  <p>Model foundations govern how a language model ingests text, represents semantic meaning, and generates probabilities. Tokenization splits raw text into subword units, serving as the fundamental unit that drives both monetary costs and context window boundaries. Once tokenized, embeddings map these tokens into high-dimensional vector spaces where semantically similar concepts reside in close geographic proximity. Pretraining exposes the model to vast amounts of raw text to learn linguistic patterns, while post-training techniques like Supervised Fine-Tuning (SFT) and Reinforcement Learning from Human Feedback (RLHF) shape its behavior and alignment for end-user interaction. </p>
+<p>The context window establishes a strict, fixed token budget that the model attends to simultaneously, forcing a zero-sum allocation between prompt instructions, conversation history, and generated output. During inference, raw scores called logits are produced over the model's entire vocabulary. Sampling strategies, modulated by parameters like temperature and top-p, then translate these logits into actual output tokens by trading off deterministic choices for creative diversity. Inference infrastructure must optimize the dual phases of generation: the prefill phase, which processes the entire prompt in parallel and remains heavily compute-bound, and the decode phase, which generates tokens sequentially and is memory-bandwidth bound.</p>
+<p>To maximize inference speed and cost-efficiency, modern serving stacks rely on specialized optimizations. The Key-Value (KV) cache stores attention keys and values for past tokens, eliminating redundant computations across generation steps. Prompt and prefix caching takes this further by reusing the KV state of shared system prompts, making fixed instructions virtually free after the initial call. Speculative decoding accelerates generation by employing a smaller draft model to propose multiple tokens simultaneously, which the primary model then verifies in parallel. Furthermore, continuous batching dynamically populates GPU execution slots with incoming requests as older ones terminate, while quantization techniques like FP8 and AWQ compress model weights into fewer bits to drastically reduce memory footprints.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Two teams can build on the same base model and ship completely different products.</p>
-<p>The model is a fixed input. What differs is the eight layers of engineering wrapped around it, from how tokens get served to how the agent loop is controlled.</p>
-<p>We mapped the full set into a single diagram:</p>
-<p>​</p>
-<p>​Model foundations  cover how a model turns text into probabilities:</p>
-<p>* Tokenization splits text into subword unit before the model ever sees it, and token count drives both cost and context limits.</p>
-<p>* Embeddings map those tokens to high-dimensional vectors where similar meanings sit close together.</p>
-<p>* Pretraining learns language from raw text while post-training (SFT, RLHF) shapes behavior and alignment.</p>
-<p>* The context window is the fixed token budget the model attends to at once, shared across prompt, history, and output.</p>
-<p>* Logits are the raw scores over the vocabulary that sampling (explained below) turns into the actual output token.</p>
-<p>* Sampling controls how the next token is drawn from the distribution, with temperature and top-p trading determinism for diversity.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>​Inference and serving  cover the stack that turns weights into cheap/fast tokens:</p>
-<p>* Prefill processes the whole prompt in parallel and is compute-bound, while decode generates one token at a time and is memory-bound.</p>
-<p>* The KV cache  stores attention keys and values for past tokens so they aren’t recomputed at every step.</p>
-<p>​</p>
-<p>* Prompt and prefix caching reuses the KV state of a shared prefix, which makes fixed system prompts effectively free after the first call.</p>
-<p>* ​Speculative decoding  uses a small draft model to propose several tokens that the main model verifies in parallel for a net speedup.</p>
-<p>* Continuous batching fills GPU slots with new requests the moment others finish, instead of waiting for a whole batch to complete.</p>
-<p>* ​Quantization  stores weights in fewer bits (FP8, AWQ) to cut memory and speed up compute, with FP8 running natively on recent GPUs.</p>
-<p>* ​Paged Attention  applies OS-style paging to the KV cache to remove fragmentation, and it’s the core trick behind vLLM.</p>
-<p>* TTFT and TPOT measure prefill and decode speed respectively, and both trade against raw throughput.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>​Context engineering  involves managing what the model sees at the moment it acts:</p>
-<p>* Context budgeting treats the window as a finite resource and spends tokens only on what raises answer quality.</p>
-<p>* Context rot is the way output quality degrades as the window fills, often well before the hard limit.</p>
-<p>​</p>
-<p>* Lost in the middle describes how models attend most to the start and end of the context, so details buried in the middle get underweighted.</p>
-<p>* ​Compaction and summarization  condense old history into a high-fidelity summary so the agent can continue in a fresh window.</p>
-<p>* Context offloading pushes large details to external files or stores and keeps only a reference in the window.</p>
-<p>* Just-in-time retrieval loads data at the step that needs it rather than front-loading everything upfront.</p>
-<p>* Structured note-taking lets the agent write persistent notes outside the window and read them back as needed.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>​Agents and harness engineering  a stateless model into something that finishes tasks.</p>
-<p>​</p>
-<p>* The agent loop runs the think, act, observe cycle (ReAct or TAO) until the task is done.</p>
-<p>* Tool use and function calling let the model emit structured calls that the harness executes, feeding the results back to the model.</p>
-<p>* A thin harness trusts the model and keeps infrastructure minimal, while a thick harness encodes control in code and leaves less to the model.</p>
-<p>* Subagents and orchestration spin off focused agents with their own context so the main agent stays lean.</p>
-<p>* MCP is a standard interface connecting models to tools and data, replacing N×M custom integrations.</p>
-<p>​</p>
-<p>* Skills, hooks, and state add reusable capabilities, lifecycle triggers, and persisted memory that survive across steps.</p>
-<p>* Planning versus reacting is the choice between committing to a plan upfront and deciding each step live, with different speed and cost.</p>
-<p>* Verification loops use rules, tests, or an LLM judge to gate the agent’s output before it counts as done.</p>
-<p>​We covered the Anatomy of Agent Harness here → ​</p>
-<p>​Retrieval and memory  feed the model facts it was never trained on.</p>
-<p>* ​RAG pipelines  retrieve relevant chunks at query time and add them to the prompt before generation.</p>
-<p>​</p>
-<p>* Chunking and re-ranking split documents into units and then reorder retrieved candidates by true relevance.</p>
-<p>* A vector DB  stores embeddings and serves nearest-neighbor search at scale.</p>
-<p>* Hybrid search combines keyword and vector matching to catch both exact terms and semantic matches.</p>
-<p>* Knowledge graphs model entities and relationships so retrieval can follow connections, not just similarity.</p>
-<p>* Episodic and temporal memory keep what happened and when, so the agent recalls past sessions and how facts changed.</p>
-<p>* Agentic retrieval lets the agent issue and refine its own queries instead of running a single fixed lookup.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>​Adaptation and training  change the weights when prompting and context aren’t enough:</p>
-<p>​</p>
-<p>* Fine-tuning (SFT) trains the model on input-output examples to teach format and behavior.</p>
-<p>* ​LoRA and QLoRA (PEFT)  train small adapter weights instead of the full model, which cuts cost and memory sharply.</p>
-<p>* RLHF and DPO optimize against human preferences, with DPO skipping the separate reward model.</p>
-<p>* ​GRPO  and reward models train against a reward signal, which works when you have a scoring function but no preference labels.</p>
-<p>* ​Distillation  trains a smaller student to match a larger teacher, keeping most of the accuracy at lower cost.</p>
-<p>* Synthetic data generates training examples with a model when real labeled data is scarce.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>​Evaluation and observability  help track whether a change helped or quietly broke something.</p>
-<p>* Offline and online evals run fixed test sets before shipping and live metrics from real traffic after.</p>
-<p>* LLM-as-judge uses a model to score open-ended output that rules can’t grade.</p>
-<p>* Agent trajectory eval judges the full path an agent took, not just the final answer.</p>
-<p>* Tracing and spans record each step, tool call, and token so you can see where a run went wrong.</p>
-<p>* Token and cost tracking attributes spend per request and per step to find what’s expensive.</p>
-<p>* Regression testing re-runs a benchmark after a prompt or model change to catch silent breakage.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>​Safety, security and reliability  keep the system honest in front of real users.</p>
-<p>* Prompt injection is untrusted input that smuggles in instructions to hijack the model’s behavior.</p>
-<p>​</p>
-<p>* Jailbreaks are crafted prompts that get the model to bypass its own safety constraints.</p>
-<p>* Hallucination mitigation uses grounding, retrieval, and verification to catch confident wrong answers.</p>
-<p>* Structured outputs constrain generation to valid JSON or a schema so downstream code can parse it.</p>
-<p>* PII and data privacy controls detect and redact sensitive data before it enters or leaves the model.</p>
-<p>* Fallbacks and rate limits add multi-provider failover and request caps that keep the system up under load.</p>
-<p>* Guardrails are input and output filters that block unsafe or off-policy requests and responses.</p>
-<p>​We covered this layer in depth (with code) here → ​</p>
-<p>The inference layer is where most production cost hides.</p>
-<p>On an H100 running Llama 70B, a single request hits 92% GPU utilization during prefill, then drops to 28% during decode on the same hardware a moment later. The workload changed, not the GPU.</p>
-<p>No single technique moves that number much. Stacking eight or nine of them, across compression, attention, decoding, caching, and routing, is what closes a 5-8x cost gap against naive FP16 inference.</p>
-<p>​</p>
-<p>We broke down all 72 of these techniques, with the engineering logic behind each, in this issue  and across the full LLMOps crash course .</p>
-<p>For routing trivial queries to cheaper models, the advisor strategy  is another interesting path to start with.</p>
-<p>👉 Over to you: which of the eight layers do you spend the most time in?</p>
-<p>OPEN-SOURCE</p>
+  <h2><span class="sec-icon">💡</span>Context Engineering, Agents, and Production Guardrails</h2>
+  <p>Context engineering dictates how an application manages the information presented to a model at the exact moment of execution. Developers must treat the context window as a finite resource, utilizing context budgeting to spend tokens exclusively on data that directly enhances answer quality. As context windows fill up, models often suffer from context rot, where output quality degrades well before the hard token limit is reached. Additionally, the phenomenon known as "lost in the middle" reveals that models disproportionately attend to the beginning and end of a prompt, frequently underweighting critical details buried deep within the center. To mitigate these constraints, systems utilize compaction and summarization to condense historical interactions, context offloading to push large reference files into external storage, and just-in-time retrieval to fetch data precisely when a specific step demands it.</p>
+<p>To transition a stateless model into an autonomous system capable of multi-step execution, engineers rely on agentic harnesses and retrieval mechanisms. The agent loop coordinates a continuous think, act, and observe cycle, utilizing structured tool use and function calling to interact with external APIs. Thin harnesses keep infrastructure minimal and rely heavily on the model's native reasoning, whereas thick harnesses encode strict control logic directly into code. To feed models external facts they were never trained on, Retrieval-Augmented Generation (RAG) pipelines combine chunked document stores, vector databases, and hybrid keyword-vector search. Finally, production environments require rigorous safety layers, utilizing prompt injection defenses, structured JSON output constraints, PII redaction filters, and multi-provider fallbacks to ensure reliability under heavy user loads.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative example of an agent harness loop with basic tool execution
+import json
+
+class SimpleAgentHarness:
+    def __init__(self, model, available_tools):
+        self.model = model
+        self.tools = available_tools
+        self.history = []
+
+    def execute_step(self, prompt: str) -&gt; str:
+        # Append user prompt to state history
+        self.history.append({"role": "user", "content": prompt})
+        
+        # Query the model for next action (thinking phase)
+        response = self.model.generate(self.history)
+        self.history.append({"role": "assistant", "content": response})
+        
+        # Check if the model emitted a tool call instruction
+        if "TOOL_CALL:" in response:
+            tool_name, tool_args = self._parse_tool_call(response)
+            if tool_name in self.tools:
+                # Execute the tool (acting phase)
+                tool_result = self.tools[tool_name](**tool_args)
+                observation = f"OBSERVATION: {json.dumps(tool_result)}"
+                
+                # Feed observation back into history (observing phase)
+                self.history.append({"role": "system", "content": observation})
+                return self.execute_step("Continue based on observation.")
+                
+        return response
+
+    def _parse_tool_call(self, text: str):
+        # Placeholder parser for structured tool invocation
+        return "database_query", {"query": "SELECT * FROM records"}</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Sim's Copilot is like Cursor for agentic workflows!</p>
-<p>Here's how it works:</p>
-<p>* Describe what you want</p>
-<p>* Watch everything build in real-time</p>
-<p>* Easy to debug and refine</p>
-<p>It requires no complex frameworks, just plain English prompts.</p>
-<p>We recorded a live demo recently to show you how this works:</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/7krx6fDueTsmsecEnGB79y/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>Here's the Sim's open-source GitHub repo → ​</p>
-<p>It offers a drag-and-drop, user-friendly platform that makes creating AI agent workflows accessible to everyone.</p>
-<p>A powerful, 100% open-source alternative to n8n.</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-<p>Today’s email was brought to you by Avi Chawla and Akshay Pachaar.</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>​Building inside the lines with Claude Fable 5​.</li>
-<li>The 8-layer engineering behind a production AI system.</li>
-<li>[Demo] Build agentic workflows in plain English.</li>
-<li>Tokenization splits text into subword unit before the model ever sees it, and token count drives both cost and context limits.</li>
-<li>Embeddings map those tokens to high-dimensional vectors where similar meanings sit close together.</li>
-<li>Pretraining learns language from raw text while post-training (SFT, RLHF) shapes behavior and alignment.</li>
-<li>The context window is the fixed token budget the model attends to at once, shared across prompt, history, and output.</li></ul>
+  <ul><li>The base model is merely a fixed probabilistic input; the true differentiation of a production AI product lies in the surrounding eight engineering layers.</li>
+<li>Operational permissions, security checks, and audit logging must be enforced within the application runtime rather than left to the autonomous model.</li>
+<li>Inference serving must balance the compute-bound prefill phase with the memory-bound decode phase using optimizations like continuous batching and KV caching.</li>
+<li>Context engineering manages finite token budgets to prevent degradation issues such as context rot and the "lost in the middle" attention bias.</li>
+<li>Thick agentic harnesses encode explicit control logic in code, reducing reliance on the model's autonomous decision-making for high-stakes workflows.</li>
+<li>Retrieval-augmented generation and vector databases feed models external facts dynamically, supporting hybrid search and agentic query refinement.</li>
+<li>Comprehensive evaluation, tracing, and prompt injection defenses are vital to maintaining safety and reliability in production AI systems.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What is the fundamental difference between the prefill phase and the decode phase in model inference, and why do they impact hardware differently?</div>
+<div class="iq-q">How does the KV cache optimize generation speed, and how do prompt caching mechanisms leverage this structure?</div>
+<div class="iq-q">What causes the "lost in the middle" phenomenon in large language models, and what architectural strategies can mitigate it?</div>
+<div class="iq-q">Compare and contrast thin versus thick agent harnesses. When would you choose one over the other in a production setting?</div>
+<div class="iq-q">How do agent runtimes enforce security boundaries and role-based access control when executing database operations generated by an autonomous agent?</div>
+<div class="iq-q">Explain how speculative decoding achieves net speedups during text generation without sacrificing output accuracy.</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced KV Cache Management and Paged Attention Mechanisms</li>
+<li>Designing Resilient Agent Harnesses and State Management</li>
+<li>Production RAG Architectures and Hybrid Search Optimization</li>
+<li>Guardrails, Prompt Injection Defense, and PII Redaction in Enterprise AI</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -738,7 +635,7 @@ TOGETHER WITH RETOO</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Summary: * Free hands-on virtual event on agentic AI at AWS Summit India Online.\r\n* RAG vs. Graph RAG vs. Agentic RAG.\r\n* \u200bAn animated guide to DBSCAN clustering\u200b.\r\n* [Hands-on] Tool calling in LLMs.\r\n\r\nTODAY'\n  Key points: Free hands-on virtual event on agentic AI at AWS Summit India Online. | RAG vs. Graph RAG vs. Agentic RAG. | \u200bAn animated guide to DBSCAN clustering\u200b.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Summary: * \u200bThe operating system for AI research labs!\r\n* Why agent crashes are nothing like database crashes.\r\n* [Hands-on] Deploy a Qwen 3 Agentic RAG.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bThe operating system for AI research labs! | Why agent crashes are nothing like database crashes. | [Hands-on] Deploy a Qwen 3 Agentic RAG.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Summary: * An open-weight agent that handles both work + code.\r\n* The evolution of retrieval layer.\r\n* A simple implementation of boosting algorithm.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: An open-weight agent that handles both work + code. | The evolution of retrieval layer. | A simple implementation of boosting algorithm.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Summary: * Documentation that keeps pace with the codebase.\r\n* \u200bResearchers found a way to make LLMs 8.5x faster.\r\n* [LLM Interview question] Train LLMs using other LLMs.\r\n* Our AI Engineering, MCP, Agents, an\n  Key points: Documentation that keeps pace with the codebase. | \u200bResearchers found a way to make LLMs 8.5x faster. | [LLM Interview question] Train LLMs using other LLMs.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Summary: * Build your own Claude app with open-source tooling!\r\n* Finally, Hermes agent's desktop app is here!\r\n* What feature scaling is not used for?\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: Build your own Claude app with open-source tooling! | Finally, Hermes agent's desktop app is here! | What feature scaling is not used for?\n\nIssue #24 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Summary: * REINFORCE and actor-critic methods in RL.\r\n* \u200b15 LLM fine-tuning techniques.\r\n* [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI Engineering...\n  Key points: REINFORCE and actor-critic methods in RL. | \u200b15 LLM fine-tuning techniques. | [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\n\nIssue #25 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* [Hands-on] Your agent harness should repair itself.\r\n* An intuitive guide to non-linearity of ReLU.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-sou\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | [Hands-on] Your agent harness should repair itself. | An intuitive guide to non-linearity of ReLU.\n\nIssue #26 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Summary: * Strands Agents\r\n* Loop engineering: Design the system that prompts agents.\r\n* \u200bRAG & Fine-tuning, explained visually\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: Strands Agents | Loop engineering: Design the system that prompts agents. | \u200bRAG & Fine-tuning, explained visually\u200b.\n\nIssue #27 | 2026-06-10 | Training an LLM to Generate Reliable Structured Output | [Reinforcement Learning]\n  Summary: * CMU\u2019s new study is a must-read for coding agent users.\r\n* \u200bTraining an LLM to generate reliable structured output\u200b.* Introduction\r\n* Problems with SFT\r\n* How GRPO helps\r\n* Infra for GRPO\r\n* The full\n  Key points: CMU\u2019s new study is a must-read for coding agent users. | \u200bTraining an LLM to generate reliable structured output\u200b.* Introduction | Problems with SFT\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Key points: Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface. | Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls. | Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Production debugging bottlenecks are usually caused by fragmented tool visibility across logs, monitoring traces, and team chat history rather than the complexity of the fix itself. | Integrated AI agents can bridge communication platforms with cloud infrastructure to automate trace retrieval, pull request analysis, and incident postmortem generation. | Independent variables act as inputs for prediction, while dependent variables represent the target outcome being modeled.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Key points: Standard RAG relies on vector similarity search, which excels at direct factual lookups but fails on multi-hop relationship queries. | Graph RAG uses knowledge graphs and explicit entity traversal to connect facts spread across multiple documents. | Agentic RAG utilizes runtime LLM decision-making to dynamically select tools, sources, and execution order based on query needs.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Key points: Database crashes allow deterministic recovery via write-ahead logs, whereas agent crashes face LLM non-determinism and decision drift. | Stateless restarts of multi-day agent workflows cause re-interpretation errors that cascade into faulty downstream decisions. | Agent reliability requires platform-level checkpoint-and-resume strategies rather than custom application-layer serialization.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Key points: Frontier LLM pipelines increasingly incorporate reinforcement learning techniques like RLHF and GRPO for post-training and alignment. | Replacing tables with neural networks in RL introduces instability caused by correlated sequential data and non-stationary targets. | Experience replay decorrelates training data by sampling random mini-batches from a historical transition buffer.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Key points: AI coding assistants can fully provision cloud databases, create hyper-tables, and seed production datasets using specialized MCP servers. | TimescaleDB automatically partitions time-series data by timestamp to ensure fast querying under heavy user interaction. | Continuous aggregates compute pre-rolled data summaries to instantly serve dashboard trend charts without rescanning raw records.\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Key points: Surya OCR achieves an 83.3% score on the olmocr benchmark while operating under 3 billion parameters. | Traditional database tables act as passive stores, requiring external microservices and webhooks to execute row-level logic. | Modern visual AI workspaces allow database columns to execute enrichment tasks and multi-step workflows natively.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Key points: Fragmented AI tools create context loss when tasks cross the boundary between general work workflows and software engineering. | Classical RAG pipelines suffer from operational staleness and code duplication due to being tightly coupled to single applications. | A standing retrieval layer separates data ingestion from querying, utilizing content hashing for efficient, continuous synchronization.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Key points: Traditional speculative decoding uses a small autoregressive drafter to guess tokens, but the drafting step itself caps speedups at 2x-3x. | DFlash replaces autoregressive drafters with block diffusion models, generating entire token blocks in a single parallel shot. | Conditioning the DFlash drafter on multi-layer hidden features from the target model significantly improves guess accuracy without quality loss.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Key points: CopilotKit decouples agent logic from the frontend UI using the open-source AG-UI protocol. | Standardized protocols allow developers to change agent backends between LangGraph, CrewAI, and Google ADK without altering the frontend code. | Full-stack agent applications require real-time streaming, shared state synchronization, and persistent session history.\n\nIssue #24 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Key points: Policy gradient methods optimize decision-making parameters directly rather than deriving behavior exclusively from pre-calculated value functions. | The REINFORCE algorithm utilizes Monte Carlo trajectory sampling but suffers from high variance during training updates. | Actor-critic architectures combine an actor for policy updates and a critic for value estimation to stabilize reinforcement learning.\n\nIssue #25 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Key points: Production-grade voice agent applications require robust handling of real-time audio streaming, WebRTC capture, turn detection, and VAD chunking. | Traditional observability tools provide detailed execution traces but fail to automatically diagnose root causes or propose code fixes for agent failures. | Automated debugging frameworks like Opik utilize specialized coding agents to analyze traces, propose code diffs, and verify fixes against original inputs.\n\nIssue #26 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Key points: Loop engineering replaces manual human prompting and verification with automated system schedules, persistent state files, and checker agents. | The six essential components of an agent loop include automations, isolated worktrees, modular skills, MCP connectors, sub-agents, and external knowledge graphs. | The maker-checker split prevents models from grading their own work too leniently by using separate agents and independent validation signals.\n\nIssue #27 | 2026-06-10 | Training an LLM to Generate Reliable Structured Output | [Reinforcement Learning]\n  Key points: Standard SFT optimizes for token-level surface similarity rather than functional structural validity. | GRPO replaces static labeled examples with programmatic reward functions and group-relative scoring. | Intermediate reward scoring provides actionable optimization gradients for structurally incomplete outputs.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1103,7 +1000,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

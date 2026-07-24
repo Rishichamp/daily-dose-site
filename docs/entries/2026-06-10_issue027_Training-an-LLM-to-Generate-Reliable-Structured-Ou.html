@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="issue-badge">Issue #27 · Reinforcement Learning · 6 min read</div>
+  <div class="issue-badge">Issue #27 · Reinforcement Learning · 4 min read</div>
   <h1 class="entry-title">Training an LLM to Generate Reliable Structured Output</h1>
   <div class="entry-meta"><span>📅 June 10, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,140 +527,92 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#5B8CFF;--cb:#22d3ee">
   
-<div class="tldr-box" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* CMU’s new study is a must-read for coding agent users.
-* ​Training an LLM to generate reliable structured output​.* Introduction
-* Problems with SFT
-* How GRPO helps
-* Infra for GRPO
-* The full</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* CMU’s new study is a must-read for coding agent users.</p>
-<p>* ​Training an LLM to generate reliable structured output​.* Introduction</p>
-<p>* Problems with SFT</p>
-<p>* How GRPO helps</p>
-<p>* Infra for GRPO</p>
-<p>* The full training loop</p>
-<p>* Results on the held-out eval</p>
-<p>TODAY'S ISSUE</p>
-<p>TOGETHER WITH SONAR...</p>
+  <p>Large Language Models fundamentally lack an inherent concept of a syntax parser; they operate entirely by predicting the next token based on preceding contexts. Consequently, when tasked with generating structured formats such as JSON, well-formed syntax is treated as merely one of many possible token continuations. While prompt engineering and few-shot examples can reduce formatting errors up to a point, performance eventually plateaus because the underlying model still does not understand strict structural constraints.</p>
+<p>Traditionally, addressing this limitation required heavy investments in annotation pipelines, preference pairs, and manual human labeling. However, recent paradigms popularized by models like DeepSeek-R1 demonstrate that if correctness can be formally verified through code, manual preference data becomes entirely unnecessary. By swapping labeled datasets for a programmatic reward function, fine-tuning shifts from mimicking example outputs to optimizing directly against objective programmatic rules.</p>
+<p>Group Relative Policy Optimization (GRPO) operationalizes this insight by having the model generate a small group of candidate answers for every individual prompt. A custom reward function evaluates each candidate, returning granular scores that are normalized across the group to update the model weights. This ensures that the model learns relative superiority—what makes one output "more correct" than another—rather than simply trying to memorize stylistic patterns from static examples.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>They tracked 807 GitHub repos that adopted Cursor.</p>
-<p>Each was matched against a similar repo that did not, so the difference reflects the agent, not the project.</p>
-<p>In the first month after adoption, the agent-assisted repos added 3 to 5x more code. That gain was real but short-lived, and it faded within two months.</p>
-<p>​</p>
-<p>What did not fade was the hit to code quality.</p>
-<p>Static analysis warnings rose around 30% and code complexity around 41%, and both stayed elevated for the rest of the study.</p>
-<p>The obvious objection is that this is a skill problem, fixable with sharper prompts and review.</p>
-<p>But even after controlling for how much code was added, complexity still climbed faster in the agent-assisted repos than in the controls. The agent adds to the problem, not just the developer using it.</p>
-<p>The instinct is to have the agent review the code it just wrote, or add a second agent to check it.</p>
-<p>That does not work as well as expected because the model that wrote the code carries the same blind spots that produced the defects.</p>
-<p>A second model trained on similar data shares most of them, so an AI reviewer misses what the AI author missed.</p>
-<p>Catching this reliably needs deterministic code analysis, which applies fixed rules instead of another probabilistic guess.</p>
-<p>SonarQube actually implements this as a plugin inside Claude Code.</p>
-<p>It runs deterministic verification in the session, flagging issues, complexity, and exposed secrets after every edit across the project.</p>
-<p>For instance, in the video below, I typed a prompt with a GitHub token in it, and SonarQube blocked it before it reached Claude. The token never entered the context window.</p>
-<p>​</p>
-<p>To get started in Claude Code, run /plugin, find sonarqube, install it, then run /sonarqube:integrate.</p>
-<p>​You can find the Claude plugin here → ​</p>
-<p>​And here’s the CMU’s study → ​</p>
-<p>hands-on</p>
-<p>--------</p>
+  <h2><span class="sec-icon">🔬</span>Problems with Supervised Fine-Tuning</h2>
+  <p>Supervised Fine-Tuning (SFT) relies on training the model to mimic a collection of correct completion examples provided by human annotators or teacher models. The optimization process measures loss token by token, meaning that a completion with a single mismatched data type or broken syntax can score nearly identical to a perfectly formatted response. Because SFT optimizes for surface-level token patterns rather than structural validity, it teaches the model what valid JSON "looks like" rather than enforcing what valid JSON actually "is."</p>
+<p>As a result, adding more training examples to an SFT pipeline yields diminishing returns, eventually flattening out because the bottleneck is the objective function itself, not the dataset volume. The model learns to output text that structurally resembles the training distribution, but it frequently fails when encountering edge cases or novel prompts in production. Overcoming this ceiling requires a shift away from static imitation and toward active verification, where outputs are judged by their functional correctness rather than their superficial similarity to a reference text.</p>
+<p>GRPO addresses this limitation by replacing static reference completions with dynamic group-based evaluation. For each given prompt, the model generates a small batch of independent candidate answers, typically numbering between four and eight. A deterministic scoring function evaluates every candidate within the group, and the resulting scores are normalized relative to the group's average performance. </p>
+<p>This relative scoring mechanism provides a nuanced feedback loop where the model constantly evaluates its own varied outputs against one another. The reward function assigns distinct gradient signals—such as zero for unparseable text, partial credit for valid syntax that violates schema rules, and full credit for completely valid outputs. This intermediate grading scale gives the model an actionable gradient to climb during optimization, preventing training stagnation and steadily guiding it toward strict schema compliance.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>An LLM has no inherent concept of a parser. It predicts the next token from the ones before it, and well-formed JSON is only one of the continuations that fit this format.</p>
-<p>So a number written as a string fits just as well, and so does an object with a line of explanation in front of it.</p>
-<p>More examples and a tighter prompt do push the failure rate down, but then it stalls.</p>
-<p>DeepSeek-R1 showed a way around this. Training a strong model used to mean annotation pipelines, preference pairs, and a team of labelers.</p>
-<p>DeepSeek replaced all of it with one function that checks whether an answer is right. If you can define correctness via code, you do not need the rest.</p>
-<p>That is the idea behind GRPO. Instead of learning from examples, the model learns from a reward function you write.</p>
-<p>For each prompt, it generates a few candidate answers. The reward function scores them, and the model is pushed toward the ones that score higher.</p>
-<p>​</p>
-<p>Today, let’s use this idea to fine-tune Qwen3-8B for JSON extraction. The loop runs from a local notebook while the model trains on remote H200s.</p>
-<p>The reward function just checks whether each output parses and matches the schema.</p>
-<p>​</p>
-<p>Schema-valid output went from 62% on the base model to 82% after training, past GPT-4.1 on the same eval at 58%.</p>
-<p>Before we dive into code, let’s see why the obvious approach stalls.</p>
-<p>Problems with SFT</p>
+  <h2><span class="sec-icon">💡</span>Infrastructure and Implementation for GRPO</h2>
+  <p>Executing GRPO is computationally intensive compared to standard SFT, requiring robust hardware like H200 GPUs and multi-hour training runs because the model must generate multiple completions per prompt, score them, and update weights iteratively. Furthermore, reinforcement learning setups introduce a critical synchronization challenge between inference rollouts and weight updates. If the inference engine falls out of sync with the training loop, the model samples answers from a stale parameter state while training on completions generated by an outdated distribution, causing training instability.</p>
+<p>Specialized training infrastructure solves this by managing both the remote GPU provisioning and the delicate synchronization cycles between weight updates and inference rollouts. By separating local orchestration scripts from remote cluster execution, developers can define custom reward functions in Python while relying on managed APIs to handle forward passes, backward passes, checkpointing, and automatic inference deployment resets after every training step.</p>
+<p>Implementing a GRPO workflow involves writing a deterministic reward function, provisioning a diverse dataset of raw prompts, and configuring the training loop execution. The reward function acts as the sole definer of task success, utilizing schema validation libraries to grade structural outputs programmatically. By curating prompts that capture real-world variance rather than high-volume repetition, and configuring hyperparameters like group size and weight synchronization intervals, developers can reliably fine-tune base models to outperform much larger proprietary systems on targeted extraction tasks.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import json
+from jsonschema import validate, ValidationError
+
+# Define the target schema for invoice extraction
+SCHEMA = {
+    "type": "object",
+    "properties": {
+        "vendor": {"type": "string"},
+        "date": {"type": "string"},
+        "amount": {"type": "number"},
+        "currency": {"type": "string", "enum": ["USD", "EUR", "GBP"]}
+    },
+    "required": ["vendor", "date", "amount", "currency"]
+}
+
+def score(completion, row=None):
+    """
+    Grades model completion against JSON structure and schema rules.
+    Returns 0.0 for syntax failure, 0.5 for valid JSON but bad schema, 1.0 for full compliance.
+    """
+    try:
+        data = json.loads(completion)
+    except (json.JSONDecodeError, TypeError):
+        return 0.0
+    
+    try:
+        validate(instance=data, schema=SCHEMA)
+        return 1.0
+    except ValidationError:
+        return 0.5
+
+# Configure the GRPO training loop parameters
+training_config = {
+    "dataset": "invoice_prompts_v1",
+    "completions_per_prompt": 4,
+    "weight_sync_interval": 1,
+    "reward_fn": score
+}</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>SFT learns by copying examples. If you show it correct completions, it gets good at producing output that looks like them.</p>
-<p>Notice the word “looks.”</p>
-<p>This implies that looking like valid JSON and being valid JSON are different goals, and SFT only optimizes the first one.</p>
-<p>​</p>
-<p>The loss is measured token by token, and a completion with one field typed wrong scores almost the same as a perfect one.</p>
-<p>If you add more examples, the metrics do tick up, but then they flatten, because the limit is the objective, not the data.</p>
-<p>Once you see the problem this way, the fix becomes immediately clear. You can define what “correct” means in code, and train the model against that definition directly.</p>
-<p>This is what GRPO does.</p>
-<p>It swaps labeled examples for a reward function. For each prompt, the model generates a small group of answers (usually 4-8). And then the reward function scores every one of them.</p>
-<p>​</p>
-<p>The scores are normalized inside the group. The model update then reinforces the answers that scored above the group’s average.</p>
-<p>So the model is always comparing its own outputs against each other. It learns what “more correct” means for your task, not what “more similar to an example” means.</p>
-<p>Here is how the reward function scores three different outputs for the same prompt:</p>
-<p>​</p>
-<p>* Output that doesn’t parse as JSON scores 0.0.</p>
-<p>* Output that parses but fails the schema scores 0.5.</p>
-<p>* Output that parses and matches the schema scores 1.0.</p>
-<p>That middle score is important because without it, valid JSON with the wrong field types would score zero, the same as complete garbage.</p>
-<p>The model would lose an important signal that a valid structure is already progressing. The 0.5 is what gives training something to climb toward.</p>
-<p>Infra for GRPO</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>GRPO is heavier than SFT. On an 8B model, it needs H200s and runs for hours.</p>
-<p>Every step, it generates several completions per prompt, scores all of them, and updates the weights. That repeats across the whole dataset, many times over.</p>
-<p>So this is not something you can run on your laptop.</p>
-<p>There is also a timing problem that SFT never has.</p>
-<p>During rollout, the model samples answers from its current weights. During training, those same weights are changing underneath it.</p>
-<p>​</p>
-<p>If the inference side and the trainer fall out of sync, you sample from a stale model and train on answers that the current one would never give. This is where most custom RL setups fall apart.</p>
-<p>​Fireworks’ Training API  handles both sides. You can write the training logic in Python on your own machine, and the infrastructure handles the rest.</p>
-<p>It provisions the GPUs, runs the forward and backward passes, saves checkpoints, and resyncs the inference deployment after every step.</p>
-<p>The setup is three steps:</p>
-<p>* Write the reward function</p>
-<p>* Upload the dataset</p>
-<p>* And configure the run.</p>
-<p>Let’s go through each one.</p>
-<p>The training loop</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>Fireworks documents the full setup in their Training API docs . That includes rl_loop, the recipe that runs the entire GRPO loop.</p>
-<p>Clone the cookbook and install the training dependencies:</p>
-<p>​</p>
-<p>Step 1: Write the Reward Function</p>
-<p>This is the only place your task is defined. The SCHEMA says what a correct output looks like, and score() checks each completion against it.</p>
-<p>For invoice extraction, we pull four fields from raw text: vendor, date, amount, and currency.</p>
-<p>​</p>
-<p>jsonschema handles the type checks, the required fields, and any nested rules in a single call.</p>
-<p>For a different task, like SQL or tool-call formatting, you can swap in a new schema. The score() function stays the same.</p>
-<p>Step 2: Prepare the Dataset</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>CMU’s new study is a must-read for coding agent users.</li>
-<li>​Training an LLM to generate reliable structured output​.* Introduction</li>
-<li>Problems with SFT</li>
-<li>How GRPO helps</li>
-<li>Infra for GRPO</li>
-<li>The full training loop</li>
-<li>Results on the held-out eval</li></ul>
+  <ul><li>Standard SFT optimizes for token-level surface similarity rather than functional structural validity.</li>
+<li>GRPO replaces static labeled examples with programmatic reward functions and group-relative scoring.</li>
+<li>Intermediate reward scoring provides actionable optimization gradients for structurally incomplete outputs.</li>
+<li>Reinforcement learning pipelines require careful synchronization between inference rollouts and weight updates.</li>
+<li>Diverse prompt variation is more critical than dataset volume when training models for robust extraction.</li>
+<li>Deterministic verification via code eliminates the need for expensive human annotation pipelines.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">Why does Supervised Fine-Tuning (SFT) struggle with tasks requiring strict structural outputs like valid JSON?</div>
+<div class="iq-q">How does Group Relative Policy Optimization (GRPO) differ fundamentally from traditional reinforcement learning with human feedback (RLHF)?</div>
+<div class="iq-q">What is the purpose of assigning intermediate reward scores (e.g., 0.5) instead of binary pass/fail grading in reward functions?</div>
+<div class="iq-q">How does synchronization between inference rollouts and model weight updates impact the stability of RL training loops?</div>
+<div class="iq-q">Why is prompt diversity more impactful than dataset size when preparing training data for schema extraction tasks?</div>
+<div class="iq-q">What are the primary infrastructural challenges of running GRPO compared to standard SFT workflows?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Principles of programmatic reward design in reinforcement learning</li>
+<li>Managing weight synchronization and inference drift in distributed LLM training</li>
+<li>Advanced schema validation techniques using Python jsonschema libraries</li>
+<li>Evaluating open-source models on structured data extraction tasks</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -688,7 +640,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Summary: * Free hands-on virtual event on agentic AI at AWS Summit India Online.\r\n* RAG vs. Graph RAG vs. Agentic RAG.\r\n* \u200bAn animated guide to DBSCAN clustering\u200b.\r\n* [Hands-on] Tool calling in LLMs.\r\n\r\nTODAY'\n  Key points: Free hands-on virtual event on agentic AI at AWS Summit India Online. | RAG vs. Graph RAG vs. Agentic RAG. | \u200bAn animated guide to DBSCAN clustering\u200b.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Summary: * \u200bThe operating system for AI research labs!\r\n* Why agent crashes are nothing like database crashes.\r\n* [Hands-on] Deploy a Qwen 3 Agentic RAG.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bThe operating system for AI research labs! | Why agent crashes are nothing like database crashes. | [Hands-on] Deploy a Qwen 3 Agentic RAG.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Summary: * An open-weight agent that handles both work + code.\r\n* The evolution of retrieval layer.\r\n* A simple implementation of boosting algorithm.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: An open-weight agent that handles both work + code. | The evolution of retrieval layer. | A simple implementation of boosting algorithm.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Summary: * Documentation that keeps pace with the codebase.\r\n* \u200bResearchers found a way to make LLMs 8.5x faster.\r\n* [LLM Interview question] Train LLMs using other LLMs.\r\n* Our AI Engineering, MCP, Agents, an\n  Key points: Documentation that keeps pace with the codebase. | \u200bResearchers found a way to make LLMs 8.5x faster. | [LLM Interview question] Train LLMs using other LLMs.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Summary: * Build your own Claude app with open-source tooling!\r\n* Finally, Hermes agent's desktop app is here!\r\n* What feature scaling is not used for?\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: Build your own Claude app with open-source tooling! | Finally, Hermes agent's desktop app is here! | What feature scaling is not used for?\n\nIssue #24 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Summary: * REINFORCE and actor-critic methods in RL.\r\n* \u200b15 LLM fine-tuning techniques.\r\n* [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI Engineering...\n  Key points: REINFORCE and actor-critic methods in RL. | \u200b15 LLM fine-tuning techniques. | [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\n\nIssue #25 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* [Hands-on] Your agent harness should repair itself.\r\n* An intuitive guide to non-linearity of ReLU.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-sou\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | [Hands-on] Your agent harness should repair itself. | An intuitive guide to non-linearity of ReLU.\n\nIssue #26 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Summary: * Strands Agents\r\n* Loop engineering: Design the system that prompts agents.\r\n* \u200bRAG & Fine-tuning, explained visually\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: Strands Agents | Loop engineering: Design the system that prompts agents. | \u200bRAG & Fine-tuning, explained visually\u200b.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Key points: Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface. | Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls. | Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Production debugging bottlenecks are usually caused by fragmented tool visibility across logs, monitoring traces, and team chat history rather than the complexity of the fix itself. | Integrated AI agents can bridge communication platforms with cloud infrastructure to automate trace retrieval, pull request analysis, and incident postmortem generation. | Independent variables act as inputs for prediction, while dependent variables represent the target outcome being modeled.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Key points: Standard RAG relies on vector similarity search, which excels at direct factual lookups but fails on multi-hop relationship queries. | Graph RAG uses knowledge graphs and explicit entity traversal to connect facts spread across multiple documents. | Agentic RAG utilizes runtime LLM decision-making to dynamically select tools, sources, and execution order based on query needs.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Key points: Database crashes allow deterministic recovery via write-ahead logs, whereas agent crashes face LLM non-determinism and decision drift. | Stateless restarts of multi-day agent workflows cause re-interpretation errors that cascade into faulty downstream decisions. | Agent reliability requires platform-level checkpoint-and-resume strategies rather than custom application-layer serialization.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Key points: Frontier LLM pipelines increasingly incorporate reinforcement learning techniques like RLHF and GRPO for post-training and alignment. | Replacing tables with neural networks in RL introduces instability caused by correlated sequential data and non-stationary targets. | Experience replay decorrelates training data by sampling random mini-batches from a historical transition buffer.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Key points: AI coding assistants can fully provision cloud databases, create hyper-tables, and seed production datasets using specialized MCP servers. | TimescaleDB automatically partitions time-series data by timestamp to ensure fast querying under heavy user interaction. | Continuous aggregates compute pre-rolled data summaries to instantly serve dashboard trend charts without rescanning raw records.\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Key points: Surya OCR achieves an 83.3% score on the olmocr benchmark while operating under 3 billion parameters. | Traditional database tables act as passive stores, requiring external microservices and webhooks to execute row-level logic. | Modern visual AI workspaces allow database columns to execute enrichment tasks and multi-step workflows natively.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Key points: Fragmented AI tools create context loss when tasks cross the boundary between general work workflows and software engineering. | Classical RAG pipelines suffer from operational staleness and code duplication due to being tightly coupled to single applications. | A standing retrieval layer separates data ingestion from querying, utilizing content hashing for efficient, continuous synchronization.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Key points: Traditional speculative decoding uses a small autoregressive drafter to guess tokens, but the drafting step itself caps speedups at 2x-3x. | DFlash replaces autoregressive drafters with block diffusion models, generating entire token blocks in a single parallel shot. | Conditioning the DFlash drafter on multi-layer hidden features from the target model significantly improves guess accuracy without quality loss.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Key points: CopilotKit decouples agent logic from the frontend UI using the open-source AG-UI protocol. | Standardized protocols allow developers to change agent backends between LangGraph, CrewAI, and Google ADK without altering the frontend code. | Full-stack agent applications require real-time streaming, shared state synchronization, and persistent session history.\n\nIssue #24 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Key points: Policy gradient methods optimize decision-making parameters directly rather than deriving behavior exclusively from pre-calculated value functions. | The REINFORCE algorithm utilizes Monte Carlo trajectory sampling but suffers from high variance during training updates. | Actor-critic architectures combine an actor for policy updates and a critic for value estimation to stabilize reinforcement learning.\n\nIssue #25 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Key points: Production-grade voice agent applications require robust handling of real-time audio streaming, WebRTC capture, turn detection, and VAD chunking. | Traditional observability tools provide detailed execution traces but fail to automatically diagnose root causes or propose code fixes for agent failures. | Automated debugging frameworks like Opik utilize specialized coding agents to analyze traces, propose code diffs, and verify fixes against original inputs.\n\nIssue #26 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Key points: Loop engineering replaces manual human prompting and verification with automated system schedules, persistent state files, and checker agents. | The six essential components of an agent loop include automations, isolated worktrees, modular skills, MCP connectors, sub-agents, and external knowledge graphs. | The maker-checker split prevents models from grading their own work too leniently by using separate agents and independent validation signals.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1053,7 +1005,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#5B8CFF;--cb:#7C5CFF">
-  <div class="issue-badge">Issue #7 · Data Science · 7 min read</div>
+  <div class="issue-badge">Issue #7 · Data Science · 4 min read</div>
   <h1 class="entry-title">Implement Knowledge Distillation from Scratch</h1>
   <div class="entry-meta"><span>📅 May 18, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,191 +527,74 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#5B8CFF;--cb:#7C5CFF">
   
-<div class="tldr-box" style="--ca:#5B8CFF;--cb:#7C5CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Automated release docs for engineering teams.
-* Implement knowledge distillation from scratch.
-* Descriptors in Python​, explained with code.
-
-TODAY'S ISSUE
-
-together with Doc Holiday...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Automated release docs for engineering teams.</p>
-<p>* Implement knowledge distillation from scratch.</p>
-<p>* Descriptors in Python​, explained with code.</p>
-<p>TODAY'S ISSUE</p>
-<p>together with Doc Holiday...</p>
+  <p>Model performance is rarely the sole determinant of whether an artificial intelligence model will be successfully deployed into a production environment. Data scientists and machine learning engineers must carefully balance predictive accuracy against critical operational metrics such as inference latency, memory footprint, and model size. When deploying models to edge devices or high-throughput cloud services, massive neural networks often prove too slow or resource-intensive.</p>
+<p>Model compression techniques bridge the gap between high-performance research models and strict production constraints. Among these approaches, knowledge distillation stands out as an exceptionally effective method for transferring the learned representations of a large network into a smaller, faster architecture. By training a compact student model to mirror the output probability distribution of a complex teacher model, teams can achieve substantial inference speedups with only marginal drops in accuracy.</p>
+<p>Beyond model deployment, writing clean, maintainable infrastructure code is essential for data science projects. Python developers frequently encounter scenarios where instance attributes require rigorous validation, such as ensuring all numerical values remain positive. While traditional getters and setters solve this, they introduce massive code redundancy and fail to validate attributes upon initial object creation. Python descriptors offer a powerful object-oriented solution to encapsulate attribute access logic elegantly.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​Doc Holiday  solves one of engineering’s most persistent problems: knowledge degeneration.</p>
-<p>Every time code ships, the gap between what the product does and what the rest of the company knows widens. Documentation is usually the first thing to fall behind. The support team spends the next sprint answering questions that the last release already answered.</p>
-<p>​</p>
-<p>Drop it into your CI/CD pipeline and connect any upstream source, like Notion, Jira, Slack, Zendesk, Confluence, or Google Docs.</p>
-<p>When a PR merges, it reads the commit history, linked tickets, and connected specs, then generates the changelog, release notes, and documentation updates automatically.</p>
-<p>It keeps documentation in sync with the codebase without adding a step to the release process.</p>
-<p>​Get started with Doc Holiday here→ ​</p>
-<p>Hands-on</p>
-<p>--------</p>
+  <h2><span class="sec-icon">🔬</span>Knowledge Distillation Fundamentals and Implementation</h2>
+  <p>Knowledge distillation operates on the core principle of transferring dark knowledge from a large, complex model, known as the teacher, to a smaller, simpler architecture, known as the student. The process typically begins by fully training a high-capacity teacher model on a target dataset until it achieves optimal predictive performance. Once the teacher is trained, its weights are frozen, and a student model is initialized with a significantly reduced parameter count and simpler layer configurations. Famous real-world examples include DistilBERT, which compresses the original BERT architecture by roughly 40% while retaining approximately 97% of its original language understanding capabilities.</p>
+<p>Implementing knowledge distillation requires moving beyond standard hard-label cross-entropy loss. Because classification models output probability distributions over all available classes, the student can learn from the subtle relationships the teacher discovers between incorrect and correct classes. This soft probability matching is mathematically formalized using Kullback-Leibler (KL) divergence as the loss function. KL divergence quantifies the information lost when approximating the teacher's probability distribution ($P$) with the student's probability distribution ($Q$).</p>
+<p>The training loop minimizes this divergence alongside standard task losses. While the resulting student model usually experiences a minor performance drop compared to the heavyweight teacher, the operational benefits are immense. For instance, a simple feed-forward student network can achieve inference run-times that are significantly faster than a deep convolutional teacher network with only a 1% to 2% dip in validation accuracy. However, practitioners must account for one primary drawback: training a student model via distillation still requires the initial computational expense of training a large teacher model first.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Model performance is rarely the only factor in determining which model will be deployed.</p>
-<p>This is because we also consider several operational metrics, such as:</p>
-<p>​</p>
-<p>* Inference Latency: Time taken by the model to return a prediction.</p>
-<p>* Model size: The memory occupied by the model.</p>
-<p>* Ease of scalability, etc.</p>
-<p>Knowledge distillation is a common technique to compress ML models before deployment.</p>
-<p>Let’s learn how to implement it!</p>
-<p>We implemented 5 more techniques to compress ML models and reduce costs here: Model Compression: A Critical Step Towards Efficient Machine Learning .</p>
-<p>*******************************</p>
-<p>What is knowledge distillation?</p>
-<p>*******************************</p>
-<p>In a gist, the idea is to train a smaller/simpler model (called the “student” model) that mimics the behavior of a larger/complex model (called the “teacher” model).</p>
-<p>​</p>
-<p>This involves two steps:</p>
-<p>* Train the teacher model as we typically would.</p>
-<p>* Train a student model that matches the output of the teacher model (there are some other types of knowledge distillation techniques as well).</p>
-<p>​</p>
-<p>DistillBERT, for instance, is a student model of BERT.</p>
-<p>* DistilBERT is approximately 40% smaller than BERT.</p>
-<p>* But it retains approximately 97% of the BERT’s capabilities.</p>
-<p>Next, let’s look at the implementation.</p>
-<p>*************************************</p>
-<p>Knowledge distillation implementation</p>
-<p>*************************************</p>
-<p>Imagine we have already trained a CNN model on the MNIST dataset:</p>
-<p>​</p>
-<p>Its epoch-by-epoch training loss and validation accuracy are depicted below:</p>
-<p>​</p>
-<p>Let’s define a simpler model without any convolutional layers:</p>
-<p>​</p>
-<p>Since it’s a classification model, it will ouput a probability distribution over the classes.</p>
-<p>Thus, we can train the student to match the probability distribution of the teacher on all samples.</p>
-<p>KL divergence (also used to train tSNE ) can be used as a loss function.</p>
-<p>​</p>
-<p>It measures how much information is lost when we use distribution Q to approximate the distribution P.</p>
-<p>Thus, in our case:</p>
-<p>* P → probability distribution from teacher.</p>
-<p>* Q → probability distribution from student.</p>
-<p>The loss function is implemented below:</p>
-<p>​</p>
-<p>Finally, we train the student model:</p>
-<p>​</p>
-<p>The following image compares the training loss and validation accuracy of the two models:</p>
-<p>​</p>
-<p>The performance of the student model is not as good as the teacher model, which is expected.</p>
-<p>However, it is still promising since it’s a simple feed-forward network.</p>
-<p>Also, the student model is 35% faster than the teacher model, which is a significant increase in the inference run-time of the model for a 1-2% drop in the performance.</p>
-<p>​</p>
-<p>That said, one downside of knowledge distillation is that one must still train a larger teacher model first to train the student model.</p>
-<p>This may not be feasible in a resource-constrained environment.</p>
-<p>Today, we only covered knowledge distillation.</p>
-<p>We implemented 5 more techniques to compress ML models and reduce costs: Model Compression: A Critical Step Towards Efficient Machine Learning .</p>
-<p>👉 Over to you: What are some other ways to build cost-effective models?</p>
-<p>Python</p>
-<p>------</p>
+  <h2><span class="sec-icon">💡</span>Python Descriptors for Attribute Management</h2>
+  <p>Managing attribute validation in Python classes often leads to repetitive code when using traditional property decorators and methods. If a class requires multiple attributes to maintain specific constraints—such as staying strictly positive—writing individual getters and setters for each attribute scales linearly, creating unnecessary boilerplate. Furthermore, standard property setters are not automatically invoked during initial object instantiation unless explicitly called within the constructor, leaving room for invalid inputs to slip through the codebase during initialization.</p>
+<p>Python descriptors provide an elegant architectural pattern to solve this exact problem by decoupling attribute access logic into dedicated descriptor classes. A descriptor is any object that defines at least one of the special protocol methods: `__get__`, `__set__`, or `__delete__`. When a descriptor instance is assigned to a class attribute, Python automatically delegates attribute lookups, assignments, and deletions to the descriptor's internal methods rather than standard dictionary lookups. This allows developers to write centralized validation logic once and apply it across any number of class attributes.</p>
+<p>Three core magic methods govern descriptor behavior: `__set_name__`, `__set__`, and `__get__`. The `__set_name__` method automatically captures the name of the attribute within the owner class when the class is defined. The `__set__` method intercepts any assignment operations, allowing developers to inject custom validation checks—such as raising a `ValueError` if a negative number is supplied—before storing the value in the instance dictionary. Finally, the `__get__` method controls retrieval, returning the stored value whenever the attribute is accessed, thereby eliminating all redundant getter and setter code across the codebase.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>class PositiveNumber:
+    def __set_name__(self, owner, name):
+        self.name = name
+
+    def __set__(self, instance, value):
+        if value &lt; 0:
+            raise ValueError(f"{self.name} must be positive!")
+        instance.__dict__[self.name] = value
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return instance.__dict__.get(self.name, 0)
+
+class DummyClass:
+    number1 = PositiveNumber()
+    number2 = PositiveNumber()
+    
+    def __init__(self, number1, number2):
+        self.number1 = number1
+        self.number2 = number2</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Say we want to define a class where all instance-level attributes must be positive.</p>
-<p>Getters and setters are commonly used to do this.</p>
-<p>But the problem is that these getters and setters scale with the number of attributes in your class:</p>
-<p>​</p>
-<p>* 1 attribute → leads to 1 getter and 1 setter.</p>
-<p>* 2 attributes → lead to 2 getters and 2 setters.</p>
-<p>* 5 attributes → lead to 5 getters and 5 setters.</p>
-<p>Also, there's so much redundancy in this code:</p>
-<p>* All getters are almost the same—they just have a return statement.</p>
-<p>* All setters have similar validation checks.</p>
-<p>And to make things worse, the setters are not invoked while creating an object.</p>
-<p>​</p>
-<p>So you must add additional checks to ensure an object is created with valid inputs.</p>
-<p>Descriptors solve all these problems.</p>
-<p>Simply put, Descriptors are objects with methods (like __get__, __set__, etc.) that are used to manage access to the attributes of the class of interest.</p>
-<p>​</p>
-<p>Thus:</p>
-<p>* The attribute number1 → gets its own descriptor.</p>
-<p>* The attribute number2 → gets its own descriptor.</p>
-<p>* The attribute number3 → gets its own descriptor.</p>
-<p>A Descriptor class is implemented with three methods:</p>
-<p>​</p>
-<p>* The __set__ method is called when the attribute is assigned a new value. We can define all custom checks here.</p>
-<p>* The __set_name__ method is called when the descriptor object is assigned to a class attribute. It allows the descriptor to keep track of the name of the attribute it’s assigned to within the class.</p>
-<p>* The __get__ method is called when the attribute is accessed.</p>
-<p>If it’s unclear, let me give you a demonstration.</p>
-<p>****</p>
-<p>Demo</p>
-<p>****</p>
-<p>Consider this Descriptor class:</p>
-<p>​</p>
-<p>I’ll explain this implementation shortly, but before that, consider this usage:</p>
-<p>​</p>
-<p>Now, let’s go back to the DescriptorClass implementation:</p>
-<p>* __set_name__(self, owner, name): This method is called when the descriptor is assigned to a class attribute (line 3). It saves the name of the attribute in the descriptor for later use.</p>
-<p>* __set__(self, instance, value): When a value is assigned to the attribute (line 6), this method is called. It raises an error if the value is negative. Otherwise, it stores the value in the instance’s dictionary under the attribute name we defined earlier.</p>
-<p>* __get__(self, instance, owner): When the attribute is accessed, this method is called. It returns the value from the instance’s dictionary.</p>
-<p>Done!</p>
-<p>Now, see how this solution solves all the problems we discussed earlier.</p>
-<p>Creating an object of DummyClass with an invalid value raises an error:</p>
-<p>​</p>
-<p>Passing an invalid value during the initialization raises an error as well:</p>
-<p>​</p>
-<p>Moving on, let’s define multiple attributes in the DummyClass now:</p>
-<p>​</p>
-<p>Creating an object and setting an invalid value for any of the attributes raises an error:</p>
-<p>​</p>
-<p>Recall that we never defined multiple getters and setters for each attribute individually, like we did with the @property decorator earlier.</p>
-<p>I find descriptors to be massively helpful in reducing work and code redundancy while also making the entire implementation much more elegant.</p>
-<p>Here’s a deep dive into Python OOP if you want to learn advanced OOP in Python: Object-Oriented Programming with Python for Data Scientists .</p>
-<p>👉 Over to you: What are some cool things you know about Python OOP?</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Automated release docs for engineering teams.</li>
-<li>Implement knowledge distillation from scratch.</li>
-<li>Descriptors in Python​, explained with code.</li>
-<li>Inference Latency: Time taken by the model to return a prediction.</li>
-<li>Model size: The memory occupied by the model.</li>
-<li>Ease of scalability, etc.</li>
-<li>Train the teacher model as we typically would.</li></ul>
+  <ul><li>Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model.</li>
+<li>Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions.</li>
+<li>Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.</li>
+<li>Python descriptors eliminate boilerplate getter and setter code by centralizing attribute access and validation logic.</li>
+<li>The `__set__` descriptor method intercepts assignment operations to validate inputs and instantly catch invalid data, including during object initialization.</li>
+<li>A major limitation of knowledge distillation is the initial requirement to train a resource-heavy teacher model.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What is the primary difference between training a student model with hard labels versus soft probability distributions generated by a teacher model?</div>
+<div class="iq-q">Why is Kullback-Leibler divergence preferred over standard mean squared error for knowledge distillation loss calculations?</div>
+<div class="iq-q">What are the operational trade-offs when deploying a distilled student model compared to a quantized model?</div>
+<div class="iq-q">What constitutes a descriptor in Python, and which magic methods define its protocol?</div>
+<div class="iq-q">Explain the role of the `__set_name__` method in Python descriptors and why it is useful for attribute tracking.</div>
+<div class="iq-q">How do Python descriptors overcome the limitation of traditional property setters failing during object instantiation?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Model compression techniques beyond distillation, including network pruning and weight quantization</li>
+<li>Advanced object-oriented programming patterns and dunder methods in Python</li>
+<li>Information theory concepts underlying Kullback-Leibler divergence and cross-entropy loss</li>
+<li>Optimizing PyTorch data pipelines and training loops for edge device deployment</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -739,7 +622,7 @@ together with Doc Holiday...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1104,7 +987,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

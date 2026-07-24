@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="issue-badge">Issue #24 · Reinforcement Learning · 8 min read</div>
+  <div class="issue-badge">Issue #24 · Reinforcement Learning · 5 min read</div>
   <h1 class="entry-title">REINFORCE and Actorcritic Methods in RL</h1>
   <div class="entry-meta"><span>📅 June 07, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,189 +527,87 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#5B8CFF;--cb:#22d3ee">
   
-<div class="tldr-box" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* REINFORCE and actor-critic methods in RL.
-* ​15 LLM fine-tuning techniques.
-* [Hands-on] ​Fine-tuning Gemma 4 12B using Unsloth, 100% locally​.
-
-TODAY'S ISSUE
-
-AI Engineering...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* REINFORCE and actor-critic methods in RL.</p>
-<p>* ​15 LLM fine-tuning techniques.</p>
-<p>* [Hands-on] ​Fine-tuning Gemma 4 12B using Unsloth, 100% locally​.</p>
-<p>TODAY'S ISSUE</p>
-<p>AI Engineering...</p>
+  <p>Reinforcement learning forms the backbone of modern artificial intelligence engineering, particularly through alignment pipelines such as Reinforcement Learning from Human Feedback (RLHF), Proximal Policy Optimization (PPO), and Group Relative Policy Optimization (GRPO). While these frameworks are often consumed as simple library configurations or pipeline stages, their underlying machinery relies heavily on policy gradients, advantage estimation, and actor-critic architectures. Treating these components as black boxes leaves engineers ill-equipped when training instabilities, reward hacking, or mode collapse inevitably occur.</p>
+<p>Historically, reinforcement learning algorithms focused on learning value functions first and deriving behavior from those values. However, policy gradient methods take a direct approach by learning the decision-making process itself, scoring actions, and optimizing choices directly. By bridging traditional reinforcement learning paradigms with modern large language model alignment, practitioners can move beyond basic hyperparameter tuning and reason deeply about the forces driving successful model adaptation.</p>
+<p>Complementing reinforcement learning foundations, the landscape of large language model fine-tuning has evolved rapidly over the past two years. Techniques ranging from parameter-efficient adjustments like LoRA and QLoRA to advanced preference optimization methods provide diverse avenues for model customization. Whether adjusting a fraction of a model's parameters or utilizing relative reward ranking frameworks like RULER, mastering these methodologies is critical for tailoring models to specific downstream tasks efficiently.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>Part 7 of the Reinforcement Learning course  is here.</p>
-<p>--&gt;​Reinforcement Learning Nanodegree Part 7 </p>
-<p>​Reinforcement Learning Nanodegree Part 7 Every method up to this point learned a value function first and derived behavior from it. In this chapter, instead of scoring actions and picking the best one, we learn the choosing itself.</p>
-<p>​</p>
-<p>​You can read Part 7 of the course here → ​</p>
-<p>It covers:</p>
-<p>* Why learning the policy directly matters</p>
-<p>* The log-derivative trick</p>
-<p>* The REINFORCE algorithm</p>
-<p>* The variance problem</p>
-<p>* The advantage function</p>
-<p>* The actor-critic architecture</p>
-<p>* Generalized advantage estimation (GAE)</p>
-<p>* How LLMs are tuned with RL</p>
-<p>* And a hands-on comparison of REINFORCE vs. actor-critic on CartPole showing the variance difference in real training curves.</p>
-<p>Everything is covered from scratch, so no RL background is required.</p>
-<p>​You can read Part 7 of the course here → ​</p>
-<p>--&gt;​Reinforcement Learning Nanodegree Part 7 </p>
-<p>​Reinforcement Learning Nanodegree Part 7 </p>
-<p>Why care?</p>
-<p>---------</p>
-<p>Techniques like RLHF, PPO, GRPO, and DPO show up in every model release announcement.</p>
-<p>But the machinery underneath them is often treated as a black box.</p>
-<p>* PPO becomes a library call.</p>
-<p>* RLHF becomes a pipeline stage.</p>
-<p>* GRPO becomes a config option.</p>
-<p>All of them are built on policy gradients, advantage estimation, and actor-critic architectures.</p>
-<p>The policy gradient theorem, the variance-bias tradeoff, GAE, and baselines are the actual moving parts that determine whether post-training succeeds or fails.</p>
-<p>When things go wrong (through reward hacking, training instability, mode collapse), understanding these fundamentals is what lets you reason about why, instead of just tuning hyperparameters and hoping.</p>
-<p>This series builds that layer of understanding from the ground up.</p>
-<p>In the last seven chapters, we have covered bandits, MDPs, value functions, deep Q-learning, and now we have the policy gradient methods that power modern LLM alignment.</p>
-<p>* ​Part 1: Foundations of Reinforcement Learning → ​</p>
-<p>* ​Part 2: Markov Decision Processes and Value Functions → ​</p>
-<p>* ​Part 3: Bellman Equations and Dynamic Programming → ​</p>
-<p>* ​Part 4: Model-Free Learning in RL → ​</p>
-<p>* ​Part 5: Function Approximation in RL → ​</p>
-<p>* ​Part 6: Introduction to Deep RL and DQN → ​</p>
-<p>* ​Part 7: Policy Gradients: REINFORCE and Actor-Critic → ​</p>
-<p>Each concept builds on the last, and by this point, things like advantage-weighted policy updates feel like natural tools rather than abstract formulas.</p>
-<p>👉 Over to you: What topics would you like us to cover in this RL series?</p>
-<p>fine-tuning</p>
+  <h2><span class="sec-icon">🔬</span>REINFORCE and Actor-Critic Methods in Policy Optimization</h2>
+  <p>Policy gradient methods represent a fundamental shift in reinforcement learning by directly parameterizing the policy, denoted as $\pi_\theta(a|s)$. Instead of estimating the value of states or state-action pairs and selecting actions greedily, these methods optimize policy parameters directly via gradient ascent. The core objective is to maximize expected cumulative reward by increasing the probability of actions that yield high returns and decreasing the probability of those that lead to poor outcomes.</p>
+<p>The theoretical foundation of this approach relies on the Policy Gradient Theorem, which provides an analytical expression for the gradient of the expected return with respect to the policy parameters. Computing this gradient directly involves tracking trajectories, but a key mathematical hurdle is estimating gradients without knowing the true environmental transition probabilities. This is elegantly resolved using the log-derivative trick, which transforms an intractable expectation over trajectories into an expression involving the gradient of the log-policy multiplied by the trajectory return.</p>
+<p>The REINFORCE algorithm is the canonical Monte Carlo policy gradient method. It collects complete episodes, computes the total return from each time step onward, and updates the policy parameters accordingly. While conceptually straightforward, REINFORCE suffers from high variance because trajectory returns can fluctuate wildly due to stochastic environments and action choices. This high variance slows down training and requires large batch sizes or numerous episodes to achieve stable convergence.</p>
+<p>To mitigate the variance problem, modern architectures introduce baselines and advantage functions. A state-value baseline is subtracted from the return, which centers the updates without introducing bias, dramatically reducing variance. This evolution leads directly to the Actor-Critic architecture, where two models work in tandem: the actor updates the policy parameters, while the critic estimates the value function to compute the advantage. Generalized Advantage Estimation (GAE) further refines this balance by controlling the trade-off between bias and variance using exponential smoothing over temporal difference errors.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>We have been fine-tuning LLMs for over 2 years now!</p>
-<p>Here are the top 15 techniques we'd recommend learning if you to fine-tune them:</p>
-<p>​</p>
-<p>1) LoRA → Freezes the base weights and trains two low-rank matrices as the update, resulting in ~95-99% fewer params to fine-tune.</p>
-<p>2) QLoRA → LoRA on top of a 4-bit quantized base model, which drops a 70B fine-tune onto a single consumer GPU while holding accuracy close to full LoRA.</p>
-<p>3) Prefix tuning → Prepends trainable vectors to the keys and values at every transformer layer, leaving all original weights frozen. Built for generation tasks.</p>
-<p>4) Adapter tuning → Inserts small trainable modules between transformer layers and tunes only those. The original Houlsby approach that most PEFT methods trace back to.</p>
-<p>5) Instruction tuning → Supervised fine-tuning on (instruction, response) pairs so the model follows directions across tasks instead of just continuing text.</p>
-<p>​</p>
-<p>6) P-tuning → Optimizes continuous prompt embeddings at the input through a small encoder, mainly for natural-language-understanding tasks where discrete prompts are unstable.</p>
-<p>7) BitFit → Trains only the bias terms, roughly 0.08% of parameters, and still rivals full fine-tuning on small-to-medium datasets.</p>
-<p>8) Soft prompts → The umbrella idea behind 3 and 6. Steer a frozen model with learned continuous vectors instead of handcrafted text tokens.</p>
-<p>​</p>
-<p>9) RLHF → Trains a reward model on human preference rankings, then optimizes the policy against it with PPO. The pipeline behind the first ChatGPT.</p>
-<p>10) RLAIF → Swaps the human labeler for an LLM that judges outputs against a written constitution, hitting RLHF-level quality at a fraction of the labeling cost.</p>
-<p>​</p>
-<p>11) DPO (Direct Preference Optimization) → Skips the reward model entirely and optimizes preference pairs directly with a classification-style loss. Simpler and more stable than PPO.</p>
-<p>12) GRPO (Group Relative Policy Optimization) → Samples a group of responses per prompt and normalizes their rewards within the group for the advantage. It also drops the value network. DeepSeek R1 ran on it.</p>
-<p>13) RLVR (Reinforcement Learning with Verifiable Rewards) → Replaces the learned reward model with a checker or compiler that returns 0 or 1. This is a free signal that made DeepSeek R1's math and code training work.</p>
-<p>​</p>
-<p>14) Multi-task fine-tuning → Trains on several tasks at once, so one model generalizes across them and shares representations instead of overfitting to a single objective.</p>
-<p>15) Federated fine-tuning → Tunes across decentralized clients that share only weight updates, never raw data. The approach when the training data can't leave the device.</p>
-<p>GRPO needs exactly one scalar reward per response. RLVR (13) produces that for free on math and code by running the answer through a checker or compiler.</p>
-<p>But tasks like a RAG answer, a support reply, or a summary have no gold label to match against.</p>
-<p>The usual fallback is a hand-written reward function scoring faithfulness, hallucination, and completeness.</p>
-<p>It takes days to calibrate, rewards the wrong behavior when the weights are off, and breaks every time you add a tool or edit the system prompt.</p>
-<p>​RULER, implemented in OpenPipe's ART  (open-source), solves this.</p>
-<p>​</p>
-<p>During training, it passes the N sampled trajectories to a judge LLM, which ranks them relative to each other against the agent's system prompt and returns the scores.</p>
-<p>Relative ranking is more stable than absolute scoring, and GRPO normalizes within the group anyway, so the rankings feed straight into the pipeline like with RLVR.</p>
-<p>Here's the GitHub Repo: https://github.com/OpenPipe/ART ​</p>
-<p>(don't forget to star it ⭐ )</p>
-<p>We also wrote a full breakdown recently on how exactly this works, with the training loop and code.</p>
-<p>​You can find it here → ​</p>
-<p>Let's look at a fine-tuning demo below to understand better.</p>
-<p>Hands-on</p>
-<p>--------</p>
+  <h2><span class="sec-icon">💡</span>Advanced LLM Fine-Tuning and Preference Optimization</h2>
+  <p>Fine-tuning large language models has evolved from full-parameter updates to highly specialized, resource-efficient paradigms. Parameter-Efficient Fine-Tuning (PEFT) techniques like LoRA freeze base model weights and inject trainable low-rank matrices into transformer layers, preserving model performance while reducing trainable parameters by up to 99 percent. Building upon this, QLoRA combines low-rank adaptation with 4-bit quantization, enabling massive models to be fine-tuned locally on consumer-grade graphics processing units without significant degradation in accuracy.</p>
+<p>Beyond parameter efficiency, alignment and preference optimization methodologies dictate how base models transform into instruction-following assistants. Supervised fine-tuning establishes foundational capabilities using curated instruction-response pairs, while preference optimization techniques refine model behavior. Classical RLHF utilizes a learned reward model trained on human preferences, optimized via PPO. However, newer paradigms like Direct Preference Optimization bypass the reward model entirely, optimizing preference pairs directly through a classification-style loss for enhanced training stability.</p>
+<p>Recent advancements highlight the shift toward group-based and verifiable optimization strategies. Group Relative Policy Optimization samples multiple responses per prompt, normalizes rewards within the group to derive advantages, and eliminates the need for a separate value network. Furthermore, Reinforcement Learning with Verifiable Rewards replaces learned reward models with deterministic checkers or compilers, providing unambiguous binary signals for math and code generation tasks. For tasks lacking objective ground truths, frameworks like RULER utilize judge LLMs to compute relative rankings, feeding stable signals directly into optimization pipelines.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Google released Gemma 4 12B a few days back, which is a multimodal model that runs text, images, and audio on 8GB VRAM!</p>
-<p>Let's fine-tune it to master chess and predict the exact next move.</p>
-<p>Tech stack:</p>
-<p>* UnslothAI for efficient fine-tuning.</p>
-<p>* Huggingface transformers to run it locally.</p>
-<p>Here's the final outcome in action:</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/9NgUVyUZuhQefNUuF4E6ZS/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>We start by loading Gemma 4 12B and its tokenizer using Unsloth:</p>
-<p>​</p>
-<p>We'll use LoRA for efficient fine-tuning.</p>
-<p>To do this, we use Unsloth's PEFT and specify:</p>
-<p>​</p>
-<p>* The model</p>
-<p>* LoRA low-rank (r)</p>
-<p>* Layers for fine-tuning (finetune_language_layers, finetune_attention_modules)</p>
-<p>We'll fine-tune Gemma 4 12B to master chess.</p>
-<p>Given a set of previous move (one move missing) &amp; the final result it has to predict the missing move.</p>
-<p>In order to do this we're using the ChessInstruct dataset from HuggingFace:</p>
-<p>​</p>
-<p>Next, we use a conversation style dataset to fine-tune Gemma 4 12B.</p>
-<p>​</p>
-<p>The standardize_data_formats method converts the dataset to the correct format for finetuning purposes!</p>
-<p>Here, we create a Trainer object by specifying the training config, like learning rate, model, tokenizer, and more.</p>
-<p>​</p>
-<p>With that done, we initiate training:</p>
-<p>​</p>
-<p>The loss is generally decreasing with steps, which means the model is being fine-tuned correctly.</p>
-<p>Finally, the video shows prompting the LLM before and after fine-tuning.</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/9NgUVyUZuhQefNUuF4E6ZS/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>After fine-tuning, the model is able to find the exact missing chess move instead of randomly generating some moves.</p>
-<p>​You can find several such hands-on fine-tuning demos, along with demos for Agents, RAGs, and othe LLM apps in our AI engineering hub repo → ​</p>
-<p>Don't forget to star it.</p>
+  <h2><span class="sec-icon">⚙️</span>Local Fine-Tuning Practice with Unsloth and Gemma</h2>
+  <p>Executing local fine-tuning requires specialized software stacks designed to maximize memory efficiency and computational speed. UnslothAI provides optimized kernels that drastically reduce VRAM consumption during training, allowing developers to fine-tune multimodal architectures like Gemma 4 12B locally on modest hardware setups. The workflow begins by loading the target model and its corresponding tokenizer into memory using optimized quantization and precision settings.</p>
+<p>The fine-tuning process relies on configuring parameter-efficient adapters via PEFT libraries. Developers specify target modules such as attention layers and language projection layers, ensuring that only a small fraction of the network weights receive updates during backpropagation. Data preparation is equally critical; datasets must be standardized into conversational or structured formats that align with the model's expected prompt template. For domain-specific tasks like chess move prediction, datasets such as ChessInstruct provide historical move sequences paired with terminal outcomes.</p>
+<p>Once the dataset formatting and model configuration are complete, training is managed via Hugging Face's standard Trainer API, configured with appropriate learning rates, batch sizes, and gradient accumulation steps. Monitoring training curves ensures that the loss steadily decreases, indicating proper weight convergence. Post-training evaluation typically reveals a marked transformation in output quality, enabling the localized model to accurately predict complex sequences rather than generating random tokens.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative setup for loading a model and configuring LoRA with Unsloth
+from unsloth import FastLanguageModel
+import torch
+
+max_seq_length = 2048
+dtype = None
+load_in_4bit = True
+
+# Load model and tokenizer efficiently
+model, tokenizer = FastLanguageModel.from_pretrained(
+    model_name = "unsloth/gemma-4-12b",
+    max_seq_length = max_seq_length,
+    dtype = dtype,
+    load_in_4bit = load_in_4bit,
+)
+
+# Configure PEFT LoRA parameters
+model = FastLanguageModel.get_peft_model(
+    model,
+    r = 16,
+    target_modules = ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+    lora_alpha = 16,
+    lora_dropout = 0,
+    bias = "none",
+    use_gradient_checkpointing = "unsloth",
+)</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>REINFORCE and actor-critic methods in RL.</li>
-<li>​15 LLM fine-tuning techniques.</li>
-<li>[Hands-on] ​Fine-tuning Gemma 4 12B using Unsloth, 100% locally​.</li>
-<li>Why learning the policy directly matters</li>
-<li>The log-derivative trick</li>
-<li>The REINFORCE algorithm</li>
-<li>The variance problem</li></ul>
+  <ul><li>Policy gradient methods optimize decision-making parameters directly rather than deriving behavior exclusively from pre-calculated value functions.</li>
+<li>The REINFORCE algorithm utilizes Monte Carlo trajectory sampling but suffers from high variance during training updates.</li>
+<li>Actor-critic architectures combine an actor for policy updates and a critic for value estimation to stabilize reinforcement learning.</li>
+<li>Parameter-efficient fine-tuning techniques like LoRA and QLoRA drastically reduce memory overhead while maintaining model accuracy.</li>
+<li>Group Relative Policy Optimization eliminates the need for a separate value network by normalizing rewards within sampled response groups.</li>
+<li>Verifiable rewards and relative ranking frameworks provide stable optimization signals for complex reasoning and generation tasks.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">How does the Policy Gradient Theorem mathematically differentiate value-based methods from policy-based methods in reinforcement learning?</div>
+<div class="iq-q">What causes the high variance issue in the REINFORCE algorithm, and how do baseline subtractions mitigate it?</div>
+<div class="iq-q">Explain the role of the critic network in an actor-critic architecture and how Generalized Advantage Estimation balances bias and variance.</div>
+<div class="iq-q">How do LoRA and QLoRA achieve memory reduction during fine-tuning without updating full model weights?</div>
+<div class="iq-q">What are the operational differences between classical RLHF using PPO and Direct Preference Optimization (DPO)?</div>
+<div class="iq-q">How does Group Relative Policy Optimization (GRPO) function without a traditional value network, and why is relative ranking beneficial?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced Policy Gradient Theorems and Entropy Regularization</li>
+<li>Comparative Analysis of PPO, DPO, and GRPO in LLM Alignment</li>
+<li>Memory Optimization Techniques for Local Multi-Modal LLM Training</li>
+<li>Implementing Custom Verifiable Reward Checkers for Code Generation</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -737,7 +635,7 @@ AI Engineering...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Summary: * Free hands-on virtual event on agentic AI at AWS Summit India Online.\r\n* RAG vs. Graph RAG vs. Agentic RAG.\r\n* \u200bAn animated guide to DBSCAN clustering\u200b.\r\n* [Hands-on] Tool calling in LLMs.\r\n\r\nTODAY'\n  Key points: Free hands-on virtual event on agentic AI at AWS Summit India Online. | RAG vs. Graph RAG vs. Agentic RAG. | \u200bAn animated guide to DBSCAN clustering\u200b.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Summary: * \u200bThe operating system for AI research labs!\r\n* Why agent crashes are nothing like database crashes.\r\n* [Hands-on] Deploy a Qwen 3 Agentic RAG.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bThe operating system for AI research labs! | Why agent crashes are nothing like database crashes. | [Hands-on] Deploy a Qwen 3 Agentic RAG.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Summary: * An open-weight agent that handles both work + code.\r\n* The evolution of retrieval layer.\r\n* A simple implementation of boosting algorithm.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: An open-weight agent that handles both work + code. | The evolution of retrieval layer. | A simple implementation of boosting algorithm.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Summary: * Documentation that keeps pace with the codebase.\r\n* \u200bResearchers found a way to make LLMs 8.5x faster.\r\n* [LLM Interview question] Train LLMs using other LLMs.\r\n* Our AI Engineering, MCP, Agents, an\n  Key points: Documentation that keeps pace with the codebase. | \u200bResearchers found a way to make LLMs 8.5x faster. | [LLM Interview question] Train LLMs using other LLMs.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Summary: * Build your own Claude app with open-source tooling!\r\n* Finally, Hermes agent's desktop app is here!\r\n* What feature scaling is not used for?\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: Build your own Claude app with open-source tooling! | Finally, Hermes agent's desktop app is here! | What feature scaling is not used for?\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Key points: Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface. | Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls. | Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Production debugging bottlenecks are usually caused by fragmented tool visibility across logs, monitoring traces, and team chat history rather than the complexity of the fix itself. | Integrated AI agents can bridge communication platforms with cloud infrastructure to automate trace retrieval, pull request analysis, and incident postmortem generation. | Independent variables act as inputs for prediction, while dependent variables represent the target outcome being modeled.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Key points: Standard RAG relies on vector similarity search, which excels at direct factual lookups but fails on multi-hop relationship queries. | Graph RAG uses knowledge graphs and explicit entity traversal to connect facts spread across multiple documents. | Agentic RAG utilizes runtime LLM decision-making to dynamically select tools, sources, and execution order based on query needs.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Key points: Database crashes allow deterministic recovery via write-ahead logs, whereas agent crashes face LLM non-determinism and decision drift. | Stateless restarts of multi-day agent workflows cause re-interpretation errors that cascade into faulty downstream decisions. | Agent reliability requires platform-level checkpoint-and-resume strategies rather than custom application-layer serialization.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Key points: Frontier LLM pipelines increasingly incorporate reinforcement learning techniques like RLHF and GRPO for post-training and alignment. | Replacing tables with neural networks in RL introduces instability caused by correlated sequential data and non-stationary targets. | Experience replay decorrelates training data by sampling random mini-batches from a historical transition buffer.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Key points: AI coding assistants can fully provision cloud databases, create hyper-tables, and seed production datasets using specialized MCP servers. | TimescaleDB automatically partitions time-series data by timestamp to ensure fast querying under heavy user interaction. | Continuous aggregates compute pre-rolled data summaries to instantly serve dashboard trend charts without rescanning raw records.\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Key points: Surya OCR achieves an 83.3% score on the olmocr benchmark while operating under 3 billion parameters. | Traditional database tables act as passive stores, requiring external microservices and webhooks to execute row-level logic. | Modern visual AI workspaces allow database columns to execute enrichment tasks and multi-step workflows natively.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Key points: Fragmented AI tools create context loss when tasks cross the boundary between general work workflows and software engineering. | Classical RAG pipelines suffer from operational staleness and code duplication due to being tightly coupled to single applications. | A standing retrieval layer separates data ingestion from querying, utilizing content hashing for efficient, continuous synchronization.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Key points: Traditional speculative decoding uses a small autoregressive drafter to guess tokens, but the drafting step itself caps speedups at 2x-3x. | DFlash replaces autoregressive drafters with block diffusion models, generating entire token blocks in a single parallel shot. | Conditioning the DFlash drafter on multi-layer hidden features from the target model significantly improves guess accuracy without quality loss.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Key points: CopilotKit decouples agent logic from the frontend UI using the open-source AG-UI protocol. | Standardized protocols allow developers to change agent backends between LangGraph, CrewAI, and Google ADK without altering the frontend code. | Full-stack agent applications require real-time streaming, shared state synchronization, and persistent session history.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1102,7 +1000,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #5 · LLMs &amp; Agents · 6 min read</div>
+  <div class="issue-badge">Issue #5 · LLMs &amp; Agents · 3 min read</div>
   <h1 class="entry-title">Handson Building Custom Tools for AI Agents</h1>
   <div class="entry-meta"><span>📅 May 15, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,146 +527,95 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* ​Your Agent harness needs a harness too​
-* [Hands-on] ​Building custom tools for AI Agents​.
-* An intuitive perspective to understand neural networks.
-
-TODAY'S ISSUE
-
-open-source...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* ​Your Agent harness needs a harness too​</p>
-<p>* [Hands-on] ​Building custom tools for AI Agents​.</p>
-<p>* An intuitive perspective to understand neural networks.</p>
-<p>TODAY'S ISSUE</p>
-<p>open-source...</p>
+  <p>AI agent quality is fundamentally tied to the harness surrounding the model rather than solely relying on the underlying LLM weights. Improving this harness often requires tedious manual intervention, such as tuning context windows, classifying errors, and writing regression tests. Open-source patterns and debugging agents are modernizing this workflow by automatically growing test suites from production failures, verifying traces against plain English assertions, and packaging configurations for safe deployment.</p>
+<p>Beyond the agent harness, real-world agentic applications frequently demand custom tools that go beyond native framework capabilities. When an agent needs access to external APIs—such as real-time financial data or conversion metrics—developers must define explicit input schemas and functional execution loops. Using libraries like CrewAI, engineers can seamlessly integrate these capabilities by defining Pydantic-based validation models and custom tool classes that handle execution and error recovery.</p>
+<p>On the deep learning side, understanding how neural networks transform data provides deep architectural intuition. As data flows through hidden layers, it undergoes alternating linear transformations and non-linear activation functions. By the time this data reaches the final classification layer, the network has warped the input space so that complex, linearly inseparable datasets become linearly separable, allowing the final output layer to function effectively like logistic regression.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​</p>
-<p>Agent quality doesn’t live in the model. It lives in the harness. The same model with a better harness will be faster, smarter, and more efficient.</p>
-<p>But maintaining that harness is still manual work in most teams. Someone is tuning the context window, classifying tool errors, tracking degradations, and manually repairing them.</p>
-<p>​Opik (open-source with 19.3k stars)  implements patterns to solve this problem:</p>
-<p>​</p>
-<p>Test suites grow organically from real production failures.</p>
-<p>You can write assertions in plain English (something like “the response must not hallucinate facts absent from the retrieved context”) and Opik evaluates traces against them.</p>
-<p>Also, the whole regression suite builds itself over time from actual bugs.</p>
-<p>Opik also ships with a debugging agent called Ollie. It reads the full span tree of a failing trace, reads the source code through opik connect, proposes a fix as a diff, reruns the agent with the same inputs, and saves the fix as a test case.</p>
-<p>Agent configurations like prompts, tools, models, and params are versioned together as one unit with one-click rollback. The Agent Playground runs the full instrumented graph before deploying anything.</p>
-<p>​You can find the official documentation here → ​</p>
-<p>​And here’s the GitHub repo → ​</p>
-<p>We are working on a hands-on demo on this. Stay tuned!</p>
-<p>Agents</p>
-<p>------</p>
+  <h2><span class="sec-icon">🔬</span>Optimizing AI Agent Harnesses and Automated Debugging</h2>
+  <p>Agent performance depends heavily on the surrounding engineering harness. Without proper infrastructure, teams waste considerable effort manually tuning context windows, diagnosing tool errors, and tracking performance degradations over time. Modern open-source platforms solve this by automating regression testing directly from real production failures, evaluating execution traces against plain-English assertions to catch subtle hallucinations and reasoning mistakes.</p>
+<p>Automated debugging agents further streamline this maintenance loop by inspecting the full span tree of a failing execution trace. By analyzing source code, proposing code diffs, and automatically rerunning agents with identical inputs, these systems can validate fixes before deployment. Additionally, versioning prompts, tools, models, and parameters as a unified configuration enables instant rollbacks and robust pre-deployment testing through dedicated agent playgrounds.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Agentic frameworks provide native support for several tools.</p>
-<p>For instance, here are some powerful tools provided by CrewAI:</p>
-<p>​</p>
-<p>However, you may need to build custom tools at times.</p>
-<p>Today, let us show how it’s done!</p>
-<p>We’ll build a real-time currency conversion tool. Instead of making an Agent guess exchange rates, we will integrate a custom tool to help the Agent get live exchange rates.</p>
-<p>Let’s begin!</p>
-<p>First, get an exchange rate API key  (it's free) and specify it in the .env file:</p>
-<p>​</p>
-<p>Next, we have some standard import statements:</p>
-<p>​</p>
-<p>To build a custom tool in CrewAI, you need to implement two classes:</p>
-<p>#1) Class for input schema</p>
+  <h2><span class="sec-icon">💡</span>Building Custom Tools for Agent Frameworks</h2>
+  <p>Agentic frameworks typically provide a set of native utilities, but custom business logic often requires developers to write tailored tools from scratch. For example, integrating a live currency conversion service prevents the LLM from guessing exchange rates and ensures deterministic accuracy. To accomplish this, developers must implement two primary components: an input schema using data validation libraries and a concrete tool class inheriting from the framework's base tool architecture.</p>
+<p>The input schema specifies the exact parameters the agent needs to collect, complete with detailed descriptions that guide the LLM on how and when to invoke the tool. The tool class itself defines metadata like the name and description, alongside a core execution method containing the actual API request logic and error handling. Once registered, these custom tools can be passed directly to autonomous agents and collaborative crews to solve complex multi-step user requests.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Here, we declare the input fields the tool expects using Pydantic. Descriptions are important since they help the agent prepare a tool call.</p>
-<p>​</p>
-<p>#2) Class for the actual tool</p>
+  <h2><span class="sec-icon">⚙️</span>Geometric Intuition of Neural Networks and Linear Separability</h2>
+  <p>Neural networks process information by passing data through a series of hidden layers, where each layer applies a linear transformation followed by a non-linear activation function such as ReLU, Sigmoid, or Tanh. Because the output layer of a classification network is strictly linear and lacks any subsequent activation functions, it cannot introduce new sources of non-linearity. Consequently, the data arriving at the output layer from the final hidden layer must already be linearly separable for the network to make accurate predictions.</p>
+<p>Throughout training, the hidden layers act as geometric transformation engines, continuously warping and projecting the input data into a new vector space. If successful, this projection makes previously entangled, linearly inseparable classes easy to separate. Visualizing the activations of a dummy hidden layer right before the output layer confirms this behavior, demonstrating how internal representations evolve from complex topologies into cleanly separable geometries that a simple logistic regression-style output layer can easily classify.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import os
+import requests
+from crewai.tools import BaseTool
+from pydantic import BaseModel, Field
+
+# 1) Class for input schema
+class CurrencyConverterInput(BaseModel):
+    """Input schema for CurrencyConverterTool."""
+    base_currency: str = Field(..., description="The currency to convert from (e.g., USD).")
+    target_currency: str = Field(..., description="The currency to convert to (e.g., EUR).")
+    amount: float = Field(..., description="The amount of money to convert.")
+
+# 2) Class for the actual tool
+class CurrencyConverterTool(BaseTool):
+    name: str = "Currency Converter"
+    description: str = "Useful to get live exchange rates and convert amounts between different currencies."
+    args_schema: type[BaseModel] = CurrencyConverterInput
+
+    def _run(self, base_currency: str, target_currency: str, amount: float) -&gt; str:
+        api_key = os.getenv("EXCHANGE_RATE_API_KEY")
+        if not api_key:
+            return "Error: Exchange rate API key not found in environment variables."
+        
+        url = f"https://v6.exchangerate-api.com/v6/{api_key}/pair/{base_currency}/{target_currency}/{amount}"
+        
+        try:
+            response = requests.get(url)
+            data = response.json()
+            
+            if response.status_code != 200 or data.get("result") != "success":
+                return f"Error fetching exchange rate: {data.get('error-type', 'Unknown error')}"
+                
+            converted_amount = data.get("conversion_result")
+            return f"{amount} {base_currency} is equal to {converted_amount} {target_currency}."
+            
+        except Exception as e:
+            return f"An error occurred while connecting to the exchange rate service: {str(e)}"</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Next, we define the CurrencyConverterTool by inheriting from BaseTool and declare attributes like name, description, arguments schema (which is the same as the input schema we defined above):</p>
-<p>​</p>
-<p>Every tool class has a _run method that implements the tool logic.</p>
-<p>​</p>
-<p>In the above code, we fetch live exchange rates using an API request. We also handle errors if the request fails or the currency code is invalid.</p>
-<p>Done!</p>
-<p>Now we build the Agent as usual and specify the tool we created above:</p>
-<p>​</p>
-<p>We define its Tasks:</p>
-<p>​</p>
-<p>We define the Crew and execute it:</p>
-<p>​</p>
-<p>Printing the response, we get this:</p>
-<p>​</p>
-<p>Works as expected!</p>
-<p>Here, note that we directly passed a structured input to the Crew.</p>
-<p>But real-world queries could look like this:</p>
-<p>How much is 100 dollars in euros today?</p>
-<p>We can introduce a Query Parser Agent (or even better…a regular LLM call) and produce structured outputs first. We can then pass the structured output like we did above.</p>
-<p>Consider that an assignment from today’s newsletter issue, and feel free to reach out with your solution.</p>
-<p>That said, we published a course to help you implement reliable Agentic systems, understand the underlying challenges, and develop expertise in building Agentic apps on LLMs, which every industry cares about now.</p>
-<p>* ​​ ​In Part 1 ​​ , we covered the fundamentals of Agentic systems, understanding how AI agents act autonomously to perform tasks.</p>
-<p>* ​​ ​In Part 2 ​​ , we extended Agent capabilities by integrating custom tools, using structured outputs, and we also built modular Crews.</p>
-<p>* ​​ ​In Part 3 ​​ , we focused on Flows, learning about state management, flow control, and integrating a Crew into a Flow.</p>
-<p>* ​​ ​In Part 4 ​​ , we extended these concepts into real-world multi-agent, multi-crew Flow projects.</p>
-<p>* In ​ ​Part 5 ​​  and ​ ​Part 6 ​​ , we moved into advanced techniques that make AI agents more robust, dynamic, and adaptable, like Guardrails, Async execution, Callbacks, Human-in-the-loop, Multimodal Agents, and more.</p>
-<p>* In ​ ​Part 7 ​​ , we covered Knowledge of agentic Systems.</p>
-<p>* In ​ ​Part 8 ​​  and ​ ​Part 9 ​​ , we primarily focused on 5 types of Memory for AI agents, which help agents “remember” and utilize past information.</p>
-<p>* In ​ ​Part 10 ​​ , we implemented the ReAct pattern from scratch.</p>
-<p>* In ​ ​Part 11 ​​ , we implemented the Planning pattern from scratch.</p>
-<p>* In ​ ​Part 12 ​​ , we implemented the Multi-agent pattern from scratch.</p>
-<p>* In Part 13  and Part 14 , we covered 10 practical steps to improve Agentic systems.</p>
-<p>* And in ​ ​Part 15 ​​ , ​ ​Part 16 ​​  and ​ ​Part 17 ​​ , we covered practical ways to optimize the Agent’s memory in production use cases.</p>
-<p>Of course, if you have never worked with LLMs, that’s okay. We cover everything in a practical and beginner-friendly way.</p>
-<p>deep learning</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>In a neural network, the data undergoes a series of transformations at each hidden layer:</p>
-<p>​</p>
-<p>* Linear transformation of the data obtained from the previous layer</p>
-<p>* …followed by a non-linearity using an activation function — ReLU, Sigmoid, Tanh, etc.</p>
-<p>Assume a classification dataset.</p>
-<p>Once the data passes through the very last hidden layer of the neural network, the activations move to the output layer, which is entirely linear since all sources of non-linearity (activation functions) exist on or before the last hidden layer:</p>
-<p>​</p>
-<p>So there is no further scope for non-linearity left:</p>
-<p>​</p>
-<p>Thus, to make accurate predictions, the data received by the output layer from the last hidden layer MUST BE linearly separable.</p>
-<p>This is exactly what activation functions and hidden layers help achieve.</p>
-<p>While transforming the data through all its hidden layers and just before reaching the output layer, a neural network is constantly hustling to project the data to a space where it becomes linearly separable.</p>
-<p>If it does, the output layer becomes analogous to a logistic regression model, which can easily handle this linearly separable data.</p>
-<p>We can also verify this experimentally.</p>
-<p>Add a dummy hidden layer with just two neurons right before the output layer so that we can visualize the activations and train the network:</p>
-<p>​</p>
-<p>Next, we plot the input data and the activations of the 2D dummy hidden layer:</p>
-<p>​</p>
-<p>As shown above, while the input data was linearly inseparable, the input received by the output layer is linearly separable.</p>
-<p>This data can be easily handled by the output layer.</p>
-<p>That said, KANs are another recently introduced neural network paradigm that challenges the traditional neural network design and offers an exciting new approach to design and train them.</p>
-<p>​</p>
-<p>​We understood and implemented them from scratch here → ​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>​Your Agent harness needs a harness too​</li>
-<li>[Hands-on] ​Building custom tools for AI Agents​.</li>
-<li>An intuitive perspective to understand neural networks.</li>
-<li>​​ ​In Part 1 ​​ , we covered the fundamentals of Agentic systems, understanding how AI agents act autonomously to perform tasks.</li>
-<li>​​ ​In Part 2 ​​ , we extended Agent capabilities by integrating custom tools, using structured outputs, and we also built modular Crews.</li>
-<li>​​ ​In Part 3 ​​ , we focused on Flows, learning about state management, flow control, and integrating a Crew into a Flow.</li>
-<li>​​ ​In Part 4 ​​ , we extended these concepts into real-world multi-agent, multi-crew Flow projects.</li></ul>
+  <ul><li>Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone.</li>
+<li>Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously.</li>
+<li>Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.</li>
+<li>Pydantic field descriptions are critical because they instruct the LLM on when and how to populate tool parameters correctly.</li>
+<li>Neural network hidden layers perform continuous geometric transformations to turn linearly inseparable inputs into separable features.</li>
+<li>The final output layer of a neural network is entirely linear, meaning all non-linear shaping must happen across the hidden layers.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">Why is the software harness considered more critical for agent quality than the base LLM, and what components make up a robust harness?</div>
+<div class="iq-q">How do debugging agents leverage execution trace span trees to automatically diagnose and propose code fixes?</div>
+<div class="iq-q">What are the structural requirements for building a custom tool inside an agentic framework like CrewAI?</div>
+<div class="iq-q">Why are descriptive field definitions within Pydantic input schemas vital for reliable tool invocation by LLMs?</div>
+<div class="iq-q">Explain the geometric role of hidden layers and activation functions in preparing data for a neural network's linear output layer.</div>
+<div class="iq-q">How can you experimentally verify that hidden layers successfully project non-linear data into a linearly separable space?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced evaluation frameworks and assertion-based testing for large language model traces</li>
+<li>Design patterns for multi-agent workflows, state management, and orchestration flows</li>
+<li>Model Context Protocols and their integration into agentic tool architectures</li>
+<li>The mathematics of Kolmogorov-Arnold Networks (KANs) and alternative neural network paradigms</li>
+<li>Techniques for implementing query parsers and structured output generation before tool execution</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -694,7 +643,7 @@ open-source...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1059,7 +1008,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #11 · LLMs &amp; Agents · 4 min read</div>
+  <div class="issue-badge">Issue #11 · LLMs &amp; Agents · 5 min read</div>
   <h1 class="entry-title">Agent Memory Is Only as Good as Its Schema</h1>
   <div class="entry-meta"><span>📅 May 22, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,123 +527,81 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* An open-source alternative to Claude (29k+ stars)!
-* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning
-* Where extraction fits in the pipelin</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* An open-source alternative to Claude (29k+ stars)!</p>
-<p>* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning</p>
-<p>* Where extraction fits in the pipeline</p>
-<p>* Defining the schema with Pydantic</p>
-<p>* Under the hood</p>
-<p>* The output in practice</p>
-<p>* Context templates</p>
-<p>* The 10/10/10 constraint</p>
-<p>TODAY'S ISSUE</p>
-<p>open-source...</p>
+  <p>Autonomous AI agents require sophisticated memory systems to maintain context over long horizons and execute complex, multi-step workflows. Traditional memory implementations heavily rely on vector databases, which store facts as flat text chunks and retrieve them via semantic similarity. While effective for simple lookups, this approach fails when an agent needs to reason across disconnected pieces of information that lack shared keywords or explicit co-occurrence in the source text.</p>
+<p>To bridge this gap, modern agent architectures increasingly turn to knowledge graphs, where entities are represented as nodes and relationships as edges. However, allowing an LLM to dynamically determine graph structures without guidance leads to generic schemas filled with ambiguous node types and uninformative edges. This lack of structure collapses graph retrieval back into simple semantic similarity and strips away crucial domain constraints.</p>
+<p>The solution lies in enforcing strict schema discipline through structured extraction models. By utilizing frameworks like Zep's Graphiti alongside Pydantic models, developers can pre-define exact entity types, edge labels, and source-target constraints. This ensures that the extraction pipeline consistently populates rich, queryable, and temporally valid nodes and edges, transforming raw agent memory into a precise reasoning boundary.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​Onyx  is a self-hostable AI chat platform that works with any LLM, like Claude, GPT, Gemini, Llama, or any open-weight model you want.</p>
-<p>--&gt;Onyx GitHub Repo​ </p>
-<p>Onyx GitHub Repo​ </p>
-<p>​</p>
-<p>Here’s what it ships with:</p>
-<p>* Agents that chain multiple tools in sequence</p>
-<p>* RAG with full indexing across 40+ connectors (Slack, Drive, Confluence, Jira, GitHub, email, call transcripts)</p>
-<p>* Deep research ranked #1 on DeepResearchBench, above every proprietary alternative</p>
-<p>* MCP support for connecting to external systems</p>
-<p>* Code interpreter for data analysis and file generation</p>
-<p>* Self-host on your own infrastructure via Docker in a few mins</p>
-<p>Unlike Claude’s MCP-based connectors that query your tools at runtime, Onyx actually indexes all your data. That means faster, more reliable search across everything your team has ever written.</p>
-<p>The entire code is open-source under MIT license, so you can see the full implementation on GitHub and try it yourself.</p>
-<p>​Find the GitHub repo here →  (don’t forget to star it ⭐️)</p>
-<p>Hands-on</p>
-<p>--------</p>
+  <h2><span class="sec-icon">🔬</span>The Limitations of Flat Vector Retrieval in Multi-Hop Reasoning</h2>
+  <p>Vector-based memory systems excel at retrieving standalone facts based on semantic alignment with a user prompt. However, they fundamentally break down during multi-hop reasoning tasks that demand the synthesis of disparate information pieces. Consider a scenario involving three distinct facts: Alice manages Project Atlas, Project Atlas runs on PostgreSQL, and the PostgreSQL cluster experienced an outage on Tuesday. A query investigating whether Alice's project was impacted requires connecting all three pieces of information in sequence.</p>
+<p>Standard vector search will typically retrieve facts one and three because both contain terms directly relevant to the query's subjects. Fact two, which acts as the critical logical bridge connecting Alice to PostgreSQL through Project Atlas, is frequently missed because it explicitly mentions neither Alice nor Tuesday. Semantic similarity measures the closeness of phrasing rather than structural relationships, causing the retrieval pipeline to drop the vital connecting link.</p>
+<p>Knowledge graphs resolve this limitation by replacing text matching with graph traversal. Instead of relying on isolated chunks, a graph explicitly models entities as nodes and relationships as directed edges. The traversal chain representing Alice managing Project Atlas, which in turn runs on PostgreSQL, preserves the logical pathway necessary for multi-hop reasoning. This structural connectivity remains entirely invisible to flat vector retrieval methods, highlighting why graph-based memory structures are essential for advanced agent workflows.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>When you give an agent a knowledge graph for memory, the default behavior is that the LLM handling extraction decides the structure on its own.</p>
-<p>It picks the entity types, the relationship labels, and the attributes.</p>
-<p>The results are generic.</p>
-<p>Everything becomes a Topic or Object and every connection is labeled RELATES_TO, resulting in a graph that can’t be queried meaningfully.</p>
-<p>​Zep’s Graphiti (open-source with 26k+ GitHub stars)  fixes this with a prescribed ontology.</p>
-<p>​</p>
-<p>You can define entity types and edge types as Pydantic models, and the extraction model classifies against these definitions instead of guessing.</p>
-<p>Let’s look at why this matters, how the extraction pipeline works, with code!</p>
-<p>Why flat retrieval breaks on multi-hop reasoning</p>
+  <h2><span class="sec-icon">💡</span>Schema-Driven Extraction and the Pydantic Integration</h2>
+  <p>Every graph-based memory system relies on an extraction pipeline where an LLM parses raw text to identify entities and relationships. When this extraction process operates without a predefined structure, the LLM arbitrarily assigns generic labels like Topic or Object to nodes, connecting them all with generic RELATES_TO edges. This unstructured approach destroys domain specificity and prevents meaningful programmatic querying.</p>
+<p>To fix this, developers can apply the same structural design patterns used in FastAPI endpoints and LLM function calling: Pydantic models. By defining custom entity types as subclasses of Pydantic's BaseModel, complete with descriptive text fields and concrete examples, engineers provide the extraction model with the exact vocabulary it needs. These detailed docstrings and field constraints teach the model how to accurately classify domain-specific entities rather than guessing.</p>
+<p>Furthermore, edge types can also be structured using dedicated models and coupled with source-target constraints. These constraints strictly dictate which entity types are allowed to connect through specific edges, preventing the creation of nonsensical relationships. For instance, a WORKS_ON edge can be programmatically restricted to connect only a User node to a Project node, ensuring the resulting memory graph remains clean, reliable, and tightly aligned with domain logic.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Vector-based memory stores facts as text chunks and retrieves them by semantic similarity. That works until a query requires connecting facts that don’t appear in the same chunk.</p>
-<p>Consider three facts stored about a project.</p>
-<p>* Alice manages Project Atlas</p>
-<p>* Project Atlas runs on PostgreSQL</p>
-<p>* The PostgreSQL cluster went down Tuesday</p>
-<p>A query like “was Alice’s project affected by Tuesday’s outage” needs all three.</p>
-<p>​</p>
-<p>Vector search will retrieve just facts 1 and 3 because both mention relevant terms. Fact 2 is the bridge connecting Alice to PostgreSQL through Project Atlas, but it mentions neither Alice nor Tuesday. Similarity search misses it.</p>
-<p>A knowledge graph stores entities as nodes and relationships as edges. Instead of matching text, it traverses connections.</p>
-<p>That chain (Alice → manages → Project Atlas → runs on → PostgreSQL) is what makes multi-hop reasoning work, and it is invisible to flat vector retrieval.</p>
-<p>Where extraction fits in the pipeline</p>
+  <h2><span class="sec-icon">⚙️</span>Under the Hood of Graphiti and Temporal Memory</h2>
+  <p>When a conversation is ingested into a structured memory system like Zep's Graphiti, the underlying pipeline executes a rigorous five-step process. First, entity extraction identifies named entities in the raw text and classifies them against the prescribed Pydantic types. Second, entity resolution automatically merges duplicates, ensuring variations like "Nexus" and "the Nexus project" resolve to a single canonical node. </p>
+<p>Third, fact extraction identifies relationships and outputs them as typed edges that strictly adhere to the defined source-target constraints. Fourth, fact resolution detects contradictions and invalidates outdated information. Rather than destructively deleting old data, the system preserves historical context through a bi-temporal model that tracks both event time and ingestion time. Finally, temporal extraction parses time references and maps them to validity windows on each edge.</p>
+<p>Every edge carries explicit validity intervals defined by start and end timestamps. When information changes in the real world—such as an engineer transitioning between different projects—the system invalidates the old fact without erasing it. This architecture allows developers to query what is currently true or reconstruct the exact state of the system at any arbitrary point in the past, providing a robust temporal foundation for autonomous agents.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Every graph-based memory system follows the same pipeline. LLM accepts the raw data and extracts entities and relationships.</p>
-<p>These get stored as nodes and edges, and at query time, the system searches the graph and injects relevant facts into the agent’s prompt.</p>
-<p>The extraction step determines everything downstream. It decides what the graph contains, how it’s structured, and what can be queried.</p>
-<p>When extraction is unstructured, the LLM picks entity types and relationship labels on its own.</p>
-<p>​</p>
-<p>A developer conversation about building a web app called Nexus with Python, TypeScript, React, and Docker produces nodes labeled Topic and Object with RELATES_TO edges across the board.</p>
-<p>Two things break without proper structure:</p>
-<p>* Retrieval collapses to semantic similarity because it can’t filter by type when everything shares the same label.</p>
-<p>* Domain constraints disappear because there are no structured attributes like status or category to distinguish “active vs. completed” or “frontend framework vs. database.”</p>
-<p>Defining the schema with Pydantic</p>
+  <h2><span class="sec-icon">🏗️</span>Context Templates and the 10/10/10 Design Constraint</h2>
+  <p>Once a structured memory graph is populated, the final step involves assembling those typed facts into a prompt-ready block via context templates. Developers can specify which exact entity types and edge types should be included, allowing the system to format them with temporal annotations into a cohesive string injected directly into the agent's prompt. Every entry in this context block carries rich domain attributes, ensuring the agent operates with structured, reliable historical awareness.</p>
+<p>To maintain system performance and prevent over-engineering, Zep enforces a strict design boundary known as the 10/10/10 constraint. This hard limit restricts developers to a maximum of 10 custom entity types, 10 custom edge types, and 10 fields per type. This constraint deliberately forces engineers to focus exclusively on the core domain logic that genuinely matters rather than attempting to model every trivial detail.</p>
+<p>These structural boundaries act as essential guardrails on what an agent is permitted to remember and reason about. If a schema intentionally omits an edge type connecting a Project to a Competitor, the extraction model will refuse to create that relationship, even if both entities appear frequently in a conversation. The schema effectively defines the entire space of valid memories, applying the same predictive safety found in typed function calling directly to agent state management.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>from pydantic import BaseModel, Field
+
+class ProjectEntity(BaseModel):
+    project_name: str = Field(description="The formal name of the software project or initiative.")
+    project_status: str = Field(description="Current operational status: active, archived, or completed.")
+    project_type: str = Field(description="The architectural category, such as web app, CLI tool, or service.")
+
+class UserEntity(BaseModel):
+    username: str = Field(description="The handle or full name of the team member.")
+    role: str = Field(description="Primary engineering responsibility, e.g., lead developer, QA, DevOps.")
+
+class WorksOnEdge(BaseModel):
+    role: str = Field(description="The specific capacity in which the user contributes to the project.")
+    allocation_percentage: int = Field(description="Estimated time commitment percentage.")</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>The fix is the same pattern used everywhere in the AI stack.</p>
-<p>* FastAPI endpoints get Pydantic response models.</p>
-<p>* Function calling tools get Pydantic schemas.</p>
-<p>* Agent memory works the same way in Zep.</p>
-<p>Define custom entity types using EntityModel (a subclass of Pydantic’s BaseModel) with EntityText fields and descriptions that guide the extraction model.</p>
-<p>​</p>
-<p>The docstrings and field descriptions are important here because good descriptions with concrete examples give the extractor enough signal to classify accurately.</p>
-<p>The Pydantic descriptions above aren’t just classification instructions. They teach the extractor vocabulary it doesn’t know.</p>
-<p>A Technology entity follows the same pattern.</p>
-<p>​</p>
-<p>Edge types use EdgeModel and carry their own attributes.</p>
-<p>​</p>
-<p>Finally, wire these into the graph with source/target constraints using EntityEdgeSourceTarget, which defines which entity types can connect through which edge types:</p>
-<p>​</p>
-<p>The code enforces that:</p>
-<p>* WORKS_ON can only connect a User to a Project</p>
-<p>* USES_TECHNOLOGY can only connect a User to a Technology.</p>
-<p>* Any relationship that doesn't match these constraints won't produce a typed edge.</p>
-<p>Under the hood</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>An open-source alternative to Claude (29k+ stars)!</li>
-<li>[Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning</li>
-<li>Where extraction fits in the pipeline</li>
-<li>Defining the schema with Pydantic</li>
-<li>Under the hood</li>
-<li>The output in practice</li>
-<li>Context templates</li></ul>
+  <ul><li>Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms.</li>
+<li>Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying.</li>
+<li>Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.</li>
+<li>Source-target constraints act as guardrails, ensuring agents only store valid relationships defined by the system designer.</li>
+<li>Bi-temporal memory tracking preserves history by invalidating outdated facts rather than permanently deleting them.</li>
+<li>The 10/10/10 constraint forces developers to focus on core domain logic and prevents messy, over-engineered memory schemas.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">Why do vector-based memory retrieval systems often fail during multi-hop reasoning tasks involving multiple connected facts?</div>
+<div class="iq-q">How do Pydantic models improve the reliability and accuracy of LLM-based entity and relationship extraction?</div>
+<div class="iq-q">What are the primary differences between unstructured knowledge graph extraction and schema-prescribed ontology extraction?</div>
+<div class="iq-q">Explain how bi-temporal data modeling works in graph memory systems and why invalidating facts is preferred over deletion.</div>
+<div class="iq-q">How do source-target constraints function as guardrails for autonomous agent memory and reasoning boundaries?</div>
+<div class="iq-q">What is the purpose of the 10/10/10 constraint in graph schema design, and how does it benefit application maintainability?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced Vector Search vs Graph Traversal Architectures</li>
+<li>Bi-Temporal Database Modeling for AI State Tracking</li>
+<li>Typed Function Calling and Output Space Constraints in LLMs</li>
+<li>Designing Scalable Ontologies for Enterprise Autonomous Agents</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -671,7 +629,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1036,7 +994,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

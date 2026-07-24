@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #8 · LLMs &amp; Agents · 7 min read</div>
+  <div class="issue-badge">Issue #8 · LLMs &amp; Agents · 3 min read</div>
   <h1 class="entry-title">The top Hermes integrations</h1>
   <div class="entry-meta"><span>📅 May 19, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,184 +527,86 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* ​Drag-and-drop UI to build AI agent workflows​.
-* The top Hermes integrations
-* ​Platt Scaling for model calibration​, explained visually.​
-
-TODAY'S ISSUE
-
-Open-source...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* ​Drag-and-drop UI to build AI agent workflows​.</p>
-<p>* The top Hermes integrations</p>
-<p>* ​Platt Scaling for model calibration​, explained visually.​</p>
-<p>TODAY'S ISSUE</p>
-<p>Open-source...</p>
+  <p>Modern artificial intelligence development relies heavily on building resilient agentic workflows and ensuring that model outputs are trustworthy. As developers move beyond simple prompt-response interactions, managing complex pipelines requires specialized tools and user-friendly interfaces. Platforms like Sim bridge this gap by offering drag-and-drop UI capabilities powered by ReactFlow, enabling real-time execution and seamless integration with local models through Ollama. </p>
+<p>Beyond workflow construction, the utility of an autonomous agent depends heavily on its external tools and data connectivity. The Hermes agent architecture exemplifies this by utilizing specialized integrations ranging from second-brain knowledge vaults like Obsidian to real-time communication tools like Discord and voice services like Bland. These connections transform standalone language models into context-aware engineering teammates and business intelligence layers.</p>
+<p>Finally, deploying models into production requires rigorous evaluation, particularly regarding model calibration. Many modern machine learning architectures produce overconfident probability estimates that do not reflect true empirical accuracy. Techniques like Platt scaling provide a straightforward mathematical approach to map raw model logits to well-calibrated probabilities using a validation dataset, ensuring downstream decision-making systems rely on accurate risk assessments.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​</p>
-<p>​Sim  is a lightweight, user-friendly platform for building AI agent workflows in minutes.</p>
-<p>--&gt;​Sim GitHub repo </p>
-<p>​Sim GitHub repo Key features:</p>
-<p>* Real-time workflow execution</p>
-<p>* Connects with your favorite tools</p>
-<p>* Works with local models via Ollama</p>
-<p>* Intuitive drag-and-drop interface using ReactFlow</p>
-<p>* Multiple deployment options (NPM, Docker, Dev Containers)</p>
-<p>Based on our testing, Sim is a better alternative to n8n with:</p>
-<p>* An intuitive interface</p>
-<p>* A much better copilot for faster builds</p>
-<p>* AI-native workflows for intelligent agents</p>
-<p>​GitHub repo →  (don’t forget to star)</p>
-<p>Machine learning</p>
+  <h2><span class="sec-icon">🔬</span>Building AI Agent Workflows with Sim</h2>
+  <p>Sim is a lightweight platform designed for rapidly constructing AI agent workflows through an intuitive interface. Built with ReactFlow, it provides a visual drag-and-drop environment that simplifies the process of chaining prompts, tools, and execution steps together. Unlike traditional enterprise automation tools like n8n, Sim is built from the ground up to be AI-native, featuring an integrated copilot that accelerates the building process and supports intelligent agent orchestration.</p>
+<p>One of Sim's key strengths is its flexibility in model execution and deployment. Developers are not locked into cloud-based proprietary engines; the platform works smoothly with local models via Ollama, making it ideal for privacy-conscious environments or offline development. Furthermore, Sim supports multiple deployment options, including NPM packages, Docker containers, and Development Containers, allowing teams to integrate the workflow builder seamlessly into their existing infrastructure.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>The top Hermes integrations to give your agent superpowers:</p>
-<p>​</p>
-<p>1. Obsidian</p>
-<p>The Karpathy-style second brain, but one that talks back.</p>
-<p>Every note, page, and backlink in the vault becomes live context. The agent doesn't just store knowledge, it reasons over it across everything that's been written and saved.</p>
-<p>2. Reddit</p>
-<p>Unfiltered opinions from real users on any product, niche, or problem.</p>
-<p>No SEO fluff, no corporate blogs. Just raw signal from people who actually use the thing. One of the best research integrations for market validation.</p>
-<p>3. InsForge ​</p>
-<p>A full agentic backend behind one semantic layer.</p>
-<p>Auth, database, storage, edge functions, all accessible without wiring five services together. The agent reasons about backend primitives directly instead of calling disconnected APIs.</p>
-<p>Closest analogy: a PaaS built for agents.</p>
-<p>​GitHub → </p>
-<p>(don't forget to star 🌟)</p>
-<p>4. GitHub</p>
-<p>Code, issues, PRs. Turns Hermes into an engineering teammate that can actually read the repo.</p>
-<p>Essential for anyone shipping software.</p>
-<p>5. Firecrawl</p>
-<p>Web search designed specifically for agents.</p>
-<p>Returns clean structured data instead of raw HTML, which means faster responses and fewer tokens burned per query. Worth keeping on by default.</p>
-<p>6. YouTube transcripts</p>
-<p>Converts any video into searchable text. Hour-long podcasts, tutorials, conference talks, all become indexed notes in seconds.</p>
-<p>Easily the most underrated research integration in the stack.</p>
-<p>7. Google Workspace</p>
-<p>Gmail, Calendar, Drive, Docs, and Sheets through one connector.</p>
-<p>An agent that can't check the inbox, read the calendar, or write to shared docs is basically decorative. This should probably be the first integration anyone enables.</p>
-<p>8. Discord</p>
-<p>Ideal for channel-based automation.</p>
-<p>Hermes can be plugged into specific channels with dedicated workflows in each. Support tickets from email can be scanned, categorized, and dropped into an organized channel every morning without anyone lifting a finger.</p>
-<p>9. Stripe</p>
-<p>Revenue, refunds, subscription changes, failed charges, all surfaced through a single question instead of clicking through dashboards.</p>
-<p>"How many trials converted last week" or "which customers downgraded this month" gets a direct answer. Turns Stripe from a payment processor into a queryable business intelligence layer.</p>
-<p>10. Bland (or Twilio)</p>
-<p>Gives Hermes a voice for real phone calls. Booking reservations, confirming appointments, following up on invoices.</p>
-<p>The call recordings are worth listening to just for entertainment.</p>
-<p>11. Graphiti (by Zep)</p>
-<p>Real-time knowledge graphs that build structured relationships from conversations and documents.</p>
-<p>Instead of flat vector similarity, the agent traverses typed connections between entities. The difference between "find similar text" and "understand how things actually relate."</p>
-<p>​GitHub → </p>
-<p>(don't forget to star 🌟)</p>
-<p>12. FireFlies</p>
-<p>Every meeting transcript, fully searchable. "What did that client say about pricing last month" gets answered instantly instead of scrubbing through a 45-minute recording.</p>
-<p>That said, if you’re looking to set up Hermes, I wrote a full deep dive covering the Hermes agent’s architecture, memory system, self-evolving skills, GEPA optimization, and how to set up multiple specialized agents.</p>
-<p>​Get started here → ​</p>
-<p>Machine learning</p>
+  <h2><span class="sec-icon">💡</span>Essential Hermes Integrations for Supercharged Agents</h2>
+  <p>The Hermes agent ecosystem relies on a diverse set of integrations to expand its reasoning capabilities across different domains. Knowledge management integrations like Obsidian turn flat vaults into live context where the agent can reason over interconnected notes and backlinks. Similarly, YouTube transcripts and FireFlies convert hours of unstructured audio and video into indexed, searchable knowledge bases, radically accelerating research workflows.</p>
+<p>For software engineering and business operations, integrations with GitHub, Stripe, and Google Workspace turn the agent into an active participant in daily operations. The GitHub integration allows the model to read codebases, issues, and pull requests directly, functioning as a true engineering teammate. Meanwhile, the Stripe connector transforms raw payment data into a queryable business intelligence layer, answering complex subscription and revenue questions through natural language instead of manual dashboard navigation.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Platt scaling is likely one of the simplest techniques if you want to calibrate binary classification models.</p>
-<p>The below visual summarizes how it works:</p>
-<p>“Validation set” can also be called “calibration set”</p>
-<p>Let’s understand what calibration is and how Platt scaling works.</p>
-<p>We talked about model calibration in detail in a two-part deep dive below:</p>
-<p>​A Crash Course on Model Calibration – Part 1 .</p>
-<p>​A Crash Course on Model Calibration – Part 2 .</p>
-<p>***********</p>
-<p>The problem</p>
-<p>***********</p>
-<p>Say a government hospital wants to conduct a medical test on patients. Since the test is expensive, doctors want to ensure that the govt. funding is used optimally.</p>
-<p>A reliable estimate from a model reflecting the chances of a patient having the disease can be helpful.</p>
-<p>For instance, if the model predicts a 75% probability across some patients, then ideally, out of 100 patients, ~75 should actually have that disease.</p>
-<p>​</p>
-<p>This means the model is well calibrated, i.e., the confidence and accuracy resonate with each other.</p>
-<p>However, many experiments have revealed that modern ML models are typically not well-calibrated.</p>
-<p>For instance, consider the following plot, which compares a LeNet (a relatively older model) with a ResNet (a relatively newer model) on the CIFAR-100 dataset.</p>
-<p>​</p>
-<p>* LeNet produced:* Accuracy = ~0.55</p>
-<p>* Average confidence = ~0.54</p>
-<p>* ResNet produced:* Accuracy = ~0.7</p>
-<p>* Average confidence = ~0.9</p>
-<p>This shows that despite being more accurate, the ResNet model is overconfident in its predictions. While the model thinks it’s 90% confident in its predictions, in reality, it only turns out to be 70% accurate.</p>
-<p>This must be fixed if you are reliant on probabilities for decision-making.</p>
-<p>Calibration solves this.</p>
-<p>And Platt scaling is a common technique.</p>
-<p>​</p>
-<p>The primary goal is to find a logistic function that maps the raw scores (or logits) from a model to probabilities between 0 and 1.</p>
-<p>Note: It is not always necessary to use logits. One may use the predicted probabilities as well if that leads to stable results.</p>
-<p>Here’s a step-by-step breakdown of how it works:</p>
-<p>* Train a model (say, a neural network) on the training dataset. This will produce a model that will likely be uncalibrated.</p>
-<p>​</p>
-<p>* Pass the validation data through the above model and obtain logits (output before converting to probability using sigmoid):</p>
-<p>​</p>
-<p>* Next, train a logistic regression model that predicts the actual outcome using the above logits. Done!</p>
-<p>​</p>
-<p>* Now, to generate a calibrated prediction, obtain the logit for a new instance using the first (uncalibrated) model. Pass the logit through the logistic regression model trained in step 3 to obtain a calibrated probability:</p>
-<p>​</p>
-<p>Here’s a plot depicting its efficacy with SVMs. It shows the relationship between predicted and empirical probabilities for the original and calibrated models.</p>
-<p>​</p>
-<p>The ideal calibration line (a 45-degree line) indicates perfect calibration, where predicted probabilities match empirical probabilities exactly. From the above plot, it is clear that:</p>
-<p>* The SVM model (blue line) produces highly miscalibrated probabilities.</p>
-<p>* With Platt scaling, however, we get much better calibration (not entirely perfect though).</p>
-<p>That said, one common issue with Platt scaling is that it can be sensitive to the amount of data available for calibration. More specifically, when the calibration set is quite small, Platt scaling may not produce reliable probability estimates.</p>
-<p>If you want to go through the implementations and learn several other techniques for model calibration that you can utilize (for both binary and multi-class), we covered them in detail in a two-part deep dive below:</p>
-<p>* ​A Crash Course on Model Calibration – Part 1 ​</p>
-<p>* ​A Crash Course on Model Calibration – Part 2 ​</p>
-<p>👉 Over to you: What is your go-to technique for calibrating binary classification models?</p>
-<p>Thanks for reading!</p>
+  <h2><span class="sec-icon">⚙️</span>Model Calibration and Platt Scaling</h2>
+  <p>Machine learning models often output probability scores that fail to match their actual empirical accuracy. For instance, a deep residual network might exhibit high average confidence while failing to achieve a corresponding level of correct predictions, creating a dangerous mismatch for automated decision-making. Model calibration solves this discrepancy by ensuring that predicted probabilities accurately reflect the likelihood of the true outcome.</p>
+<p>Platt scaling is a parametric technique designed to calibrate binary classification models by applying a logistic regression model to the raw scores, or logits, generated by the primary model. By passing validation data through the uncalibrated model to extract logits, a simple logistic function maps these unconstrained scores into well-calibrated probabilities bounded between zero and one. While sensitive to the size of the calibration dataset, this approach provides an efficient mathematical correction for overconfident classifiers like Support Vector Machines and neural networks.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import numpy as np
+from sklearn.linear_model import LogisticRegression
+
+def platt_scaling_calibration(uncalibrated_logits, val_labels):
+    """
+    Applies Platt Scaling to calibrate uncalibrated model logits.
+    
+    Parameters:
+    - uncalibrated_logits: Array-like of raw model outputs (logits) from a validation set.
+    - val_labels: Array-like of true binary labels (0 or 1) for the validation set.
+    
+    Returns:
+    - calibrator: A fitted LogisticRegression model ready to calibrate new predictions.
+    """
+    # Ensure logits are in a 2D column vector shape as required by scikit-learn
+    logits_2d = np.array(uncalibrated_logits).reshape(-1, 1)
+    labels = np.array(val_labels)
+    
+    # Initialize and fit a logistic regression model on the logits
+    calibrator = LogisticRegression()
+    calibrator.fit(logits_2d, labels)
+    
+    return calibrator
+
+# Example usage:
+# dummy_logits = [-2.5, -0.5, 1.2, 2.8]
+# dummy_labels = [0, 0, 1, 1]
+# fitted_calibrator = platt_scaling_calibration(dummy_logits, dummy_labels)
+# calibrated_probs = fitted_calibrator.predict_proba([[1.5]])[:, 1]</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>​Drag-and-drop UI to build AI agent workflows​.</li>
-<li>The top Hermes integrations</li>
-<li>​Platt Scaling for model calibration​, explained visually.​</li>
-<li>Real-time workflow execution</li>
-<li>Connects with your favorite tools</li>
-<li>Works with local models via Ollama</li>
-<li>Intuitive drag-and-drop interface using ReactFlow</li></ul>
+  <ul><li>Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows.</li>
+<li>Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools.</li>
+<li>Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.</li>
+<li>ResNet models can exhibit high confidence scores despite moderate real-world accuracy, necessitating post-hoc calibration.</li>
+<li>Platt scaling uses a logistic regression model trained on validation logits to map raw scores to probabilities between zero and one.</li>
+<li>Small calibration datasets can negatively impact the reliability of Platt scaling probability estimates.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What are the primary advantages of using a visual workflow builder like Sim over traditional programmatic agent development?</div>
+<div class="iq-q">How do knowledge graph integrations like Graphiti differ from standard vector similarity searches in AI agents?</div>
+<div class="iq-q">Explain the concept of model calibration and why modern neural networks tend to be poorly calibrated.</div>
+<div class="iq-q">Walk through the mathematical steps involved in Platt scaling for binary classification models.</div>
+<div class="iq-q">What are the limitations of Platt scaling when working with limited validation data?</div>
+<div class="iq-q">How can integrating domain-specific tools like GitHub and Stripe transform a language model into an operational teammate?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced Model Calibration Techniques for Multi-Class Classification</li>
+<li>Designing Autonomous Agent Architectures with Local LLMs</li>
+<li>Building Production-Ready Knowledge Graphs for Retrieval-Augmented Generation</li>
+<li>Evaluating and Benchmarking AI Agent Workflows</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -732,7 +634,7 @@ Open-source...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1097,7 +999,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

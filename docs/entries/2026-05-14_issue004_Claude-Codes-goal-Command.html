@@ -527,105 +527,92 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* ​From idea to running app, without touching a cloud dashboard.
-* Claude Code's /goal command.
-* ​How to use kNNs for imbalanced datasets​.
-
-TODAY'S ISSUE
-
-Together with exe.dev...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* ​From idea to running app, without touching a cloud dashboard.</p>
-<p>* Claude Code's /goal command.</p>
-<p>* ​How to use kNNs for imbalanced datasets​.</p>
-<p>TODAY'S ISSUE</p>
-<p>Together with exe.dev...</p>
+  <p>In long-running agentic coding tasks, such as migrating hundreds of files or fixing complex test suites, the primary bottleneck is often the human developer repeatedly pressing enter to keep the model moving. Claude Code's `/goal` command eliminates this friction by allowing developers to define a target completion condition once, enabling the AI to execute turn after turn autonomously. </p>
+<p>An underlying evaluator model—typically Haiku—reviews the conversation transcript after each turn to determine if the desired state has been met. This shifts the focus from managing individual prompts to establishing clear, verifiable endpoints for autonomous coding sessions. </p>
+<p>Concurrently, machine learning practitioners frequently encounter structural biases when applying standard algorithms like kNN to imbalanced datasets. Because traditional kNN relies entirely on raw class counts within the neighborhood of $k$, minority classes can be structurally locked out of predictions regardless of geometric proximity, necessitating targeted architectural adjustments.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>The standard path from “I have a thing to run” to “it’s running and accessible” involves provisioning a VPS, configuring SSH keys, opening firewall ports, setting up a reverse proxy, and wiring HTTPS manually.</p>
-<p>For a side project or internal tool, that overhead often exceeds the work itself.</p>
-<p>​</p>
-<p>exe.dev bundles compute, networking, and persistence into a single step.</p>
-<p>One command gives you a persistent virtual machine, already exposed to the internet over HTTPS, with no firewall configuration or reverse proxy required.</p>
-<p>The pricing model matches how developers actually work: shared CPU and RAM across machines, billed for underlying resources rather than per VM. Spin up several for different projects without paying for idle capacity.</p>
-<p>It sits practically between a VPS and serverless, built for developers who want infrastructure control without the setup tax.</p>
-<p>​Get started with exe.dev here → ​</p>
-<p>Hands-on</p>
-<p>--------</p>
+  <h2><span class="sec-icon">🔬</span>Autonomous Coding with Claude Code's /goal Command</h2>
+  <p>The standard interaction model for AI coding assistants requires the model to complete a turn, stop, and wait for human input. For large-scale refactors spanning dozens or hundreds of files, this means a developer must continually monitor progress and type "keep going." The `/goal` command removes this bottleneck by establishing an automated loop driven by a secondary evaluator model. </p>
+<p>When you invoke `/goal`, Claude executes a turn by reading files, running commands, and editing code. Once a turn finishes, an evaluator model receives the complete conversation transcript alongside your specified condition. Crucially, the evaluator does not execute commands or inspect files independently; it strictly evaluates what Claude has surfaced in the transcript. Consequently, the success of an automated session depends entirely on how well the goal condition is phrased around observable, verifiable output.</p>
+<p>Writing effective conditions requires defining a measurable end state, establishing a clear check mechanism, outlining constraints, and optionally setting a turn or time cap. Vague conditions—such as asking if an app is "production-ready"—fail because they do not produce concrete output for the evaluator to inspect. Conversely, conditions specifying that all tests in a particular directory must pass and the lint step must be clean provide unambiguous verification metrics, allowing the evaluator to accurately judge progress.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Claude Code completes a turn, then stops and waits for your next prompt.</p>
-<p>For a 200-file migration or a full test suite fix, that means you're typing "keep going" every few minutes for an hour. The bottleneck in long-running agentic coding sessions isn't the model, it's the human pressing enter.</p>
-<p>/goal removes that bottleneck.</p>
-<p>You define a completion condition once, and Claude keeps working turn after turn until a separate evaluator model (Haiku by default) confirms the condition is met by reading the conversation transcript.</p>
-<p>The evaluator doesn't run commands or read files on its own. Instead, it only judges what Claude has already surfaced.</p>
-<p>Let's look at how the evaluator loop works, what makes a good condition, and where it breaks down.</p>
-<p>How the evaluator loop works</p>
+  <h2><span class="sec-icon">💡</span>Comparing Autonomous Workflow Mechanisms and Mitigating Failure Modes</h2>
+  <p>Claude Code provides four distinct autonomous workflow mechanisms, each tailored to different operational scopes. While `/goal` maintains a session alive across turns until a model-verified condition is met, `/loop` re-runs a prompt on a rigid time schedule, making it suitable for polling tasks rather than active code refactoring. Stop hooks offer deterministic or model-evaluated script execution across sessions, and auto mode removes per-tool confirmation prompts within a single turn. Combining auto mode with `/goal` creates the ideal setup for unattended execution.</p>
+<p>Despite its utility, `/goal` presents specific failure modes if not properly managed. Because there is no built-in token budget by default, poorly phrased conditions can cause Claude to loop indefinitely, burning resources while making no real progress. Vague criteria can also lead the evaluator to hallucinate success due to a lack of concrete verification data. Compound objectives that attempt too many tasks at once will similarly overwhelm the system, requiring developers to break complex work into sequential, manageable goals.</p>
+<p>To maximize reliability during long runs, developers should leverage a `CLAUDE.md` file at the project root to enforce consistent architecture and coding conventions. Setting up post-tool-use hooks for auto-validation ensures that linters and type-checkers catch issues immediately after file edits rather than at the end of a long sequence. When uncertainty arises regarding how to phrase an objective, developers can prompt Claude itself to help formulate a precise, measurable finish line before initializing the goal.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>​</p>
-<p>/goal runs one evaluation cycle per turn.</p>
-<p>Claude finishes a turn (reads files, runs commands, edits code), and the evaluator model receives the full conversation transcript plus your condition.</p>
-<p>The evaluator doesn't call tools, run commands, or read files independently. It can only judge what Claude has already surfaced in the conversation.</p>
-<p>This constraint shapes how you write conditions.</p>
-<p>The condition describes the desired end state, not the current state.</p>
-<p>For instance:</p>
-<p>* /goal all tests in test/auth pass and the lint step is clean means "keep working until every test passes and lint is clean." Claude will edit code, run the test suite, read failures, fix them, and re-run, turn after turn, until the evaluator sees passing output in the transcript. The condition works because the test output is visible in the conversation.</p>
-<p>* But a condition like /goal the app is production-ready fails because "production-ready" doesn't produce verifiable output. There's no command whose result proves that claim, so the evaluator has nothing concrete to check against.</p>
-<p>The evaluator returns a short reason with every judgment. That reason appears in the status view and in the transcript, so you can track what Claude is working toward at any point.</p>
-<p>Run /goal with no argument to see the turns elapsed, tokens spent, and the last evaluator reason.</p>
-<p>Writing effective conditions</p>
+  <h2><span class="sec-icon">⚙️</span>Limitations of kNN Classifiers on Imbalanced Datasets</h2>
+  <p>The k-Nearest Neighbors algorithm relies on distance metrics to identify the $k$ closest training instances to a given test point, subsequently assigning the class label based on a majority vote. While conceptually straightforward, this architecture is critically vulnerable to class imbalance. When one class vastly outnumbers another in the feature space, the sheer volume of majority-class neighbors can completely overwhelm the minority class within the chosen neighborhood window.</p>
+<p>Consider a binary classification scenario where a test instance sits geographically close to a cluster of minority-class points. If the parameter $k$ is set large enough—such as $k=7$—and the local density of the majority class is high, the majority class will occupy the vast majority of those 7 neighbor slots. Consequently, the mathematical count of the majority class will always supersede the minority class during the vote. </p>
+<p>This structural flaw means that a test instance can be physically closest to a minority-class cluster yet mathematically barred from ever being classified as that minority class. In data science applications involving fraud detection, rare disease diagnosis, or anomaly detection, this bias leads to catastrophic false negatives. Addressing this issue requires moving beyond raw majority voting by incorporating distance weighting, adjusting decision thresholds, or resampling the underlying feature space before running inference.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative example of handling kNN distance weighting to mitigate class imbalance
+import numpy as np
+from collections import Counter
+
+def weighted_knn_predict(distances, labels, k):
+    """
+    Predicts class for a test instance using distance-weighted voting
+    to counteract class imbalance in kNN classifiers.
+    
+    Parameters:
+    - distances: Array of distances from test point to training points
+    - labels: Array of corresponding class labels
+    - k: Number of nearest neighbors to consider
+    """
+    # Sort neighbors by distance
+    sorted_indices = np.argsort(distances)[:k]
+    k_labels = labels[sorted_indices]
+    k_distances = distances[sorted_indices]
+    
+    # Avoid division by zero if distance is zero
+    k_distances = np.where(k_distances == 0, 1e-5, k_distances)
+    
+    # Calculate inverse distance weights
+    weights = 1.0 / k_distances
+    
+    # Aggregate weights per class
+    class_weights = Counter()
+    for label, weight in zip(k_labels, weights):
+        class_weights[label] += weight
+        
+    # Return class with the highest accumulated weight
+    return class_weights.most_common(1)[0][0]</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Conditions can be up to 4,000 characters. The official docs recommend four components, including a measurable end state, a stated check (how Claude should prove it), constraints on what shouldn't change, and optionally a turn or time cap.</p>
-<p>​</p>
-<p>Conditions that work well:</p>
-<p>* /goal all tests in test/auth pass and the lint step is clean</p>
-<p>* goal CHANGELOG.md has an entry for every PR merged this week</p>
-<p>​</p>
-<p>* /goal every call site of the old API has been migrated and the build succeeds, stop after 20 turns</p>
-<p>Each one describes an observable end state that Claude can demonstrate through its own output. The evaluator has concrete criteria to check against.</p>
-<p>Vague conditions lead to two failure modes and both waste compute:</p>
-<p>* Claude loops burning tokens without making progress</p>
-<p>* or the evaluator hallucinates success because there's nothing concrete to verify.</p>
-<p>Interactive, -p, and remote control modes</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>/goal works across three Claude Code execution modes.</p>
-<p>* Interactive mode is the default. You type /goal in your terminal session. Setting a goal starts a turn immediately with the condition as the directive, so you don't need a separate prompt.</p>
-<p>* Non-interactive mode with the -p flag runs the loop to completion in a single invocation: claude -p "/goal CHANGELOG.md has an entry for every PR merged this week"</p>
-<p>* Remote Control mode lets multiple developers share goal-tracking agents in collaborative environments.</p>
-<p>In all three modes, a /goal active indicator shows live elapsed time, turn count, and token usage as an overlay panel.</p>
-<p>​</p>
-<p>/goal vs. /loop vs. Stop Hooks vs. Auto Mode</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>​From idea to running app, without touching a cloud dashboard.</li>
-<li>Claude Code's /goal command.</li>
-<li>​How to use kNNs for imbalanced datasets​.</li>
-<li>/goal all tests in test/auth pass and the lint step is clean</li>
-<li>goal CHANGELOG.md has an entry for every PR merged this week</li>
-<li>/goal every call site of the old API has been migrated and the build succeeds, stop after 20 turns</li>
-<li>Claude loops burning tokens without making progress</li></ul>
+  <ul><li>The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution.</li>
+<li>An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met.</li>
+<li>Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.</li>
+<li>Combining auto mode with `/goal` allows unattended execution by removing per-tool confirmation prompts while maintaining automated verification loops.</li>
+<li>Standard kNN classification fails on imbalanced datasets because majority classes dominate the raw vote count within a neighborhood of size $k$.</li>
+<li>Distance-weighted voting and careful hyperparameter tuning help mitigate class dominance in geometric classifiers.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">How does Claude Code's `/goal` command differentiate between the executing model and the evaluator model?</div>
+<div class="iq-q">What are the primary risks of using vague or compound conditions in automated agentic workflows?</div>
+<div class="iq-q">Why does standard kNN fail when applied to severely imbalanced datasets, even when a test instance is geometrically closest to a minority class?</div>
+<div class="iq-q">How can distance weighting alter the outcome of a kNN majority vote in skewed feature spaces?</div>
+<div class="iq-q">What configuration steps (such as `CLAUDE.md` and hooks) enhance the reliability of long-running autonomous coding sessions?</div>
+<div class="iq-q">How do `/goal` and `/loop` serve different operational use cases within developer workflows?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Anatomy and configuration of the .claude folder for advanced project orchestration</li>
+<li>Advanced sampling techniques and synthetic data generation for imbalanced classification</li>
+<li>Designing robust stopping criteria and token budget management for autonomous AI agents</li>
+<li>Evaluating distance metrics and curse of dimensionality in high-dimensional vector spaces</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -653,7 +640,7 @@ Together with exe.dev...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1018,7 +1005,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

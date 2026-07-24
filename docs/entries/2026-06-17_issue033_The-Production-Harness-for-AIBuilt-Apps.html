@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #33 · LLMs &amp; Agents · 7 min read</div>
+  <div class="issue-badge">Issue #33 · LLMs &amp; Agents · 3 min read</div>
   <h1 class="entry-title">The Production Harness for AIBuilt Apps</h1>
   <div class="entry-meta"><span>📅 June 17, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,160 +527,120 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* The production harness for AI-built apps.
-* HarnessX: A harness that compiles itself.
-* ​Multi-head attention in Transformers, explained visually.
-
-TODAY'S ISSUE
-
-HANDS-ON
---------...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* The production harness for AI-built apps.</p>
-<p>* HarnessX: A harness that compiles itself.</p>
-<p>* ​Multi-head attention in Transformers, explained visually.</p>
-<p>TODAY'S ISSUE</p>
-<p>HANDS-ON</p>
-<p>--------...</p>
+  <p>When AI coding agents generate applications end-to-end, they often leave critical production guardrails out of the generated code. Because models rely on text prompts rather than hard system boundaries, verbal instructions to protect production databases can be easily overridden or ignored. Securing AI applications requires treating the deployment runtime as the ultimate enforcement layer for security, permissions, and auditing.</p>
+<p>Simultaneously, engineering paradigms are shifting toward self-optimizing architectures where software infrastructure adapts programmatically. Traditionally, agent harnesses—the orchestration code surrounding large language models—have been manually tuned by human engineers. Emerging frameworks like HarnessX treat the harness itself as an editable, typed artifact that evolves via reinforcement learning.</p>
+<p>At the deepest structural level, these autonomous applications and self-editing harnesses rely on the foundational mechanics of the Transformer architecture. Multi-head attention mechanisms allow models to evaluate contextual token relationships in parallel. Understanding how these layers interact provides critical insight into modern AI deployment pipelines.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>When an AI agent deletes a production database, the model is almost never the weak link.</p>
-<p>This sounds counterintuitive, but the dangerous part is rarely the code the agent writes.</p>
-<p>Instead, it is what sits around that code, the access it inherits, and the boundary nobody put in front of it.</p>
-<p>​</p>
-<p>A model will happily generate a button that issues account credits and never question who is allowed to click it, because authorization was never in the prompt.</p>
-<p>Today, let’s look at this in action and the solution  to avoid this in production!</p>
-<p>Our test run</p>
+  <h2><span class="sec-icon">🔬</span>The Production Harness and Runtime Security</h2>
+  <p>When an AI agent writes and deploys an application, the model itself is rarely the weak link; rather, the vulnerability stems from the absence of security boundaries surrounding the generated code. If an engineer prompts an AI to build an internal support console that updates account balances, the model will generate functional code to execute the database write. However, because authorization logic was never explicitly requested in the prompt, the resulting endpoint lacks access controls, authentication checks, and write logs. </p>
+<p>Relying on textual warnings inside the prompt to keep agents away from production data is fundamentally flawed. Instructions live within the same token context that the model is free to override, turning critical security directives into mere suggestions rather than hard system constraints. If every individual application handles its own permissions, organizations quickly descend into "Shadow AI," characterized by disparate tools with mismatched rules and zero centralized governance.</p>
+<p>Security controls must instead live within the platform infrastructure where the application executes. By decoupling the code generation phase from the runtime execution phase, applications can be built rapidly using standard coding agents and subsequently wrapped in a secure runtime environment. When an un-opinionated React bundle or API service is dropped into a governed platform like Retool, its raw data calls can be automatically routed through managed resources.</p>
+<p>This architectural shift ensures that mutating queries inherit identity, permissions, and audit trails directly from the infrastructure rather than the application code. Standard enterprise requirements—such as Single Sign-On (SSO) mapping, role-based permission groups, and default approval gates for write operations—are enforced automatically. The AI model handles the heavy lifting of writing functional code, while the runtime infrastructure guarantees that the code is safe to execute in production.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>We asked Fable 5 to build a small internal support console with one button that issues an account credit.</p>
-<p>It worked on the first run, and on our laptop, the credit was applied to the balance the instant we clicked:</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/dHdnuBzxQ7VTmXJnggi3JY/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>Issuing a credit is an UPDATE against production rows, and it commits real money permanently.</p>
-<p>In this case, the agent generated the code end-to-end and stopped. Any caller could reach it, and no role decided whether they were allowed, and nothing was recorded of what they did.</p>
-<p>Of course, it built exactly what we asked for. While the model knows well that a button moving money in production needs an access check, it just didn’t add one because the prompt didn’t ask it to.</p>
-<p>Why does this happen?</p>
+  <h2><span class="sec-icon">💡</span>HarnessX and Self-Compiling Agent Architectures</h2>
+  <p>Historically, every improvement made to an AI agent's harness has been the result of manual human intervention. Engineers continuously rewrite orchestration loops, prune unnecessary planning steps, and manually adjust tool-use paradigms based on observational debugging. HarnessX introduces a paradigm shift by treating the agent harness as a first-class, typed object that can be systematically optimized from its own execution traces.</p>
+<p>Mapping harness evolution to reinforcement learning transforms the optimization process into a structured pipeline. The harness state represents the environment, a code modification acts as an action, execution traces paired with evaluation scores provide feedback, and successful updates compile into a new system version. Mirroring traditional model training, this self-editing workflow introduces known machine learning failure modes, including reward hacking, catastrophic forgetting, and under-exploration.</p>
+<p>To safely govern autonomous self-editing, every candidate harness modification must pass through a strict, deterministic evaluation loop. Individual stages within the pipeline automatically compress execution traces into specific failure patterns, plan localized code modifications, write the edit, and execute it against a validation suite. A strict programmatic gate ensures that a newly compiled version replaces the current build only if it demonstrates higher performance on a predefined evaluation set.</p>
+<p>This autonomous compilation relies heavily on a modular, typed architecture where processors attach at fixed lifecycle boundaries. Because candidate harnesses are strictly type-checked prior to assembly, malformed edits fail at compile-time rather than causing runtime crashes mid-task. Empirical evaluations show that evolved harnesses yield significant performance gains across diverse model families and benchmarks, successfully recovering complex behavioral patterns that weaker base models cannot produce on their own.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative Python implementation of a typed runtime wrapper 
+# enforcing authentication and audit logging for AI-generated endpoints.
+
+import functools
+import logging
+from typing import Callable, Any, Dict
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("ProductionRuntime")
+
+def governed_write_operation(resource_name: str) -&gt; Callable:
+    """
+    A runtime decorator that acts as a production boundary,
+    injecting authorization checks and audit logging around an AI-generated function.
+    """
+    def decorator(func: Callable) -&gt; Callable:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs) -&gt; Dict[str, Any]:
+            # Simulate runtime context extraction (e.g., from SSO session)
+            caller_identity = kwargs.get("user_identity", "anonymous")
+            user_role = kwargs.get("user_role", "guest")
+            
+            logger.info(f"Intercepted call to {resource_name} by user {caller_identity} with role {user_role}")
+            
+            # Enforce centralized permission group check
+            allowed_roles = ["admin", "finance_manager"]
+            if user_role not in allowed_roles:
+                logger.warning(f"Access denied for user {caller_identity} on resource {resource_name}")
+                raise PermissionError(f"Role '{user_role}' is not authorized to execute mutating writes on {resource_name}.")
+            
+            # Enforce human-in-the-loop approval gate for production writes
+            logger.info("Triggering mandatory approval gate for mutating database transaction.")
+            approval_granted = True  # Simulated approval check
+            
+            if not approval_granted:
+                return {"status": "rejected", "message": "Write operation rejected by approval gate."}
+            
+            # Execute the underlying AI-generated function
+            result = func(*args, **kwargs)
+            
+            # Record immutable audit trail
+            logger.info(f"AUDIT TRAIL: Success | Resource: {resource_name} | User: {caller_identity} | Timestamp: 2026-06-17")
+            
+            return {"status": "success", "data": result}
+        return wrapper
+    return decorator
+
+# Example AI-generated application function (unaware of security boundaries)
+@governed_write_operation(resource_name="production_accounts_db")
+def issue_account_credit(account_id: str, amount: float, **kwargs) -&gt; dict:
+    # Pure business logic generated by an AI coding agent
+    return {"account_id": account_id, "new_credit": amount}
+
+# Test execution
+if __name__ == "__main__":
+    try:
+        response = issue_account_credit(
+            account_id="acc_9921", 
+            amount=500.00, 
+            user_identity="engineer@company.com", 
+            user_role="admin"
+        )
+        print(response)
+    except Exception as e:
+        print(f"Transaction failed: {e}")</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>In one widely-reported case, eleven ALL-CAPS warnings not to touch production did not stop an agent from deleting the database.</p>
-<p>​</p>
-<p>Instructions live inside the same context that the model is free to override, so they are guidance, not enforcement.</p>
-<p>Ideally, these controls should live in the platform the app runs on, not in the app.</p>
-<p>Because the moment each app handles its own permissions, you get a hundred tools with a hundred different rules and no central way to manage them. That sprawl is what Shadow AI really means.</p>
-<p>The boundary should belong to the runtime where:</p>
-<p>* Credentials are scoped server-side</p>
-<p>* Access runs through shared permission groups</p>
-<p>* And writes are gated and logged centrally.</p>
-<p>An agent can’t emit that, because it lives outside the app it builds.</p>
-<p>Solution</p>
-<p>--------</p>
-<p>A smart approach to this is now actually implemented in Retool .</p>
-<p>​</p>
-<p>Essentially, instead of asking the model to add the boundary it was never going to add, you can keep building wherever you are fastest (Claude Code, Cursor, Codex, etc) and let the Retool runtime supply the boundary on the way to production.</p>
-<p>To demonstrate this, we took the same app from earlier and dropped its React bundle into Retool:</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/6ReUYi1kVdMr5XEEPJUngq/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>Once done, it parsed the components, pulled them in, and walked us through pointing the app’s data calls at a Retool resource, the governed connection that fronts the real database, everything automatically.</p>
-<p>We wrote none of the access control ourselves.</p>
-<p>Note: Setup-wise, we only signed up for Retool to get production infrastructure for the app. The React code was generated on its own, with no knowledge that Retool would later run it, which is the most important point here.</p>
-<p>​</p>
-<p>Nothing in the build was written for Retool, and it still imported cleanly.</p>
-<p>​</p>
-<p>That said, there’s a Retool MCP server if you’d rather have the runtime guide the build from inside your coding agent, but we didn’t use it here. The import worked on a plain, Retool-unaware bundle.</p>
-<p>The moment those data calls ran through the resource, the app inherited identity, permissions, and an audit trail from the runtime.</p>
-<p>As depicted in the video above, the credit call was now routed through the resource layer.</p>
-<p>Moreover, SSO resolved the caller to a real identity. And permission groups decided whether their role can issue credit.</p>
-<p>The mutating query trips an approval gate that is on by default, so the write waits for a human instead of committing silently. Each run lands in an audit log with a name and a timestamp.</p>
-<p>Nothing in the app changed. It’s the same credit button with the same function behind it. What changed is that the write now runs through Retool’s boundary.</p>
-<p>​</p>
-<p>The model makes writing the code almost free.</p>
-<p>It does almost nothing for the identity, permissions, and audit trail that make that code safe to run in production, because those come from where the app runs, not from the model.</p>
-<p>With Retool, you can build the app anywhere you like and push it to Retool’s runtime to make it safe to ship. None of this slows down the building process.</p>
-<p>​You can try it out yourself here → ​</p>
-<p>Thanks to Retool for partnering with us today!</p>
-<p>LATEST RESEARCH</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Every harness improvement so far has come from a human editing code by hand.</p>
-<p>Anthropic strips planning steps out of Claude Code when a stronger model ships. Manus rebuilt its agent five times in six months, removing complexity each round.</p>
-<p>The entire engineering runs on human judgment about what to change and when. HarnessX is a way that allows the system to make those edits itself:</p>
-<p>​</p>
-<p>The trick is to treat the harness as a first-class object, the way we already treat model weights.</p>
-<p>Once it's a typed, editable artifact, it can be optimized from its own execution traces.</p>
-<p>And evolving a harness maps cleanly onto reinforcement learning .</p>
-<p>* The harness is the state.</p>
-<p>* An edit is the action.</p>
-<p>* The trace plus a score is the feedback.</p>
-<p>* A new version is the update.</p>
-<p>Once you see it that way, the failure modes also become easily evident, like reward hacking, catastrophic forgetting, and under-exploration.</p>
-<p>And they are the same problems that break model training, showing up the moment a system starts editing its own scaffolding.</p>
-<p>But the good thing is that because the failure modes are known ahead of time, the defenses are part of the design rather than patches added later.</p>
-<p>Every edit goes through a loop before it is applied:</p>
-<p>​</p>
-<p>* One stage compresses the execution traces into a specific failure.</p>
-<p>* The next plans a single change.</p>
-<p>* The third writes the edit.</p>
-<p>* The fourth runs it and checks the result.</p>
-<p>A deterministic gate decides what should persist, so a new version replaces the current one only if it scores higher on the evaluation set; otherwise, it is dropped and the loop reruns.</p>
-<p>This self-editing process only works because of how the harness is built. It is composed of typed processors that attach at fixed points in the execution lifecycle, so the system can replace one without breaking the others.</p>
-<p>That is why we mentioned "A harness that compiles itself" in the title.</p>
-<p>Since every candidate is type-checked before it runs, a malformed edit fails at assembly instead of mid-task.</p>
-<p>Across five benchmarks and three model families, evolved harnesses gained 14.5% on average. The gains scaled inversely with baseline strength.</p>
-<p>On ALFWorld, the weakest agent improved by 44%. The same evolution moved a stronger model 11%, and a near-ceiling benchmark moved 1.1%.</p>
-<p>An evolved harness recovers behavior that a weak model cannot produce on its own. The weights are fixed throughout. Only the harness changes.</p>
-<p>This is the next phase of harness engineering. The field moved from weights to context, to hand-built harnesses, and the harness was the last component still edited by hand.</p>
-<p>In case you missed it, we wrote a deep dive on agent harness engineering a while back, covering the orchestration loop, tools, memory, context management, and everything that turns a stateless LLM into a capable agent.</p>
-<p>​Read it here → ​</p>
-<p>​And you can read the HarnessX paper here → ​</p>
-<p>DEEP LEARNING</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>We prepared this animation that explains how multi-head attention works under the hood:</p>
-<p>* Input gets transformed into Queries, Keys, and Values</p>
-<p>* Each attention head focuses on different relationships - one captures grammar, another tracks long-distance dependencies</p>
-<p>* Attention scores determine which words matter to each other</p>
-<p>* Scores get normalized and combined into context vectors</p>
-<p>By running multiple heads in parallel, each head discovers unique patterns, and together they give the model a complete understanding.</p>
-<p>This matters because traditional models like RNNs process sequences step-by-step, losing context. Multi-head attention sees everything at once and understands relationships that would otherwise be invisible.</p>
-<p>This is why modern AI can write code, translate languages, and understand nuance.</p>
-<p>For further practical reading, ​we implemented Llama 4 from scratch, which is a mixture of experts, in this article → ​</p>
-<p>It covers:</p>
-<p>* Character-level tokenization</p>
-<p>* Multi-head self-attention with rotary positional embeddings (RoPE)</p>
-<p>* Sparse routing with multiple expert MLPs</p>
-<p>* RMSNorm, residuals, and causal masking</p>
-<p>* And finally, training and generation.</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>The production harness for AI-built apps.</li>
-<li>HarnessX: A harness that compiles itself.</li>
-<li>​Multi-head attention in Transformers, explained visually.</li>
-<li>Credentials are scoped server-side</li>
-<li>Access runs through shared permission groups</li>
-<li>And writes are gated and logged centrally.</li>
-<li>The harness is the state.</li></ul>
+  <ul><li>AI coding agents frequently omit authorization and access control logic because these constraints are absent from initial generation prompts.</li>
+<li>Textual instructions embedded within model prompts act as weak guidance rather than absolute system enforcement boundaries.</li>
+<li>Shifting application security to the deployment runtime prevents security sprawl and eliminates Shadow AI vulnerabilities.</li>
+<li>Frameworks like HarnessX treat agent execution harnesses as typed, first-class objects that can be optimized programmatically.</li>
+<li>Reinforcement learning applied to software scaffolding uses execution traces and evaluation scores to drive iterative harness updates.</li>
+<li>Deterministic gates and type-checking ensure that self-compiled harness modifications fail safely at assembly time rather than failing mid-task.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">Why do prompt-based instructions fail to prevent AI coding agents from making destructive modifications to production databases?</div>
+<div class="iq-q">How does shifting security boundaries from application code to the deployment runtime mitigate the risks of Shadow AI?</div>
+<div class="iq-q">What are the primary machine learning failure modes encountered when an autonomous system attempts to optimize its own software harness?</div>
+<div class="iq-q">Explain how HarnessX uses reinforcement learning and typed execution processors to compile improved agent frameworks.</div>
+<div class="iq-q">What role do deterministic gates and static type-checking play in preventing cascading failures during self-directed software evolution?</div>
+<div class="iq-q">How does multi-head attention in Transformer models contrast with traditional step-by-step sequence processing in Recurrent Neural Networks?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Agent Harness Engineering and Orchestration Loops</li>
+<li>Reinforcement Learning for Automated Code Generation and Optimization</li>
+<li>Transformer Architecture and Multi-Head Attention Mechanisms</li>
+<li>Enterprise Governance and Zero-Trust Runtimes for AI Applications</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -708,7 +668,7 @@ HANDS-ON
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Summary: * Free hands-on virtual event on agentic AI at AWS Summit India Online.\r\n* RAG vs. Graph RAG vs. Agentic RAG.\r\n* \u200bAn animated guide to DBSCAN clustering\u200b.\r\n* [Hands-on] Tool calling in LLMs.\r\n\r\nTODAY'\n  Key points: Free hands-on virtual event on agentic AI at AWS Summit India Online. | RAG vs. Graph RAG vs. Agentic RAG. | \u200bAn animated guide to DBSCAN clustering\u200b.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Summary: * \u200bThe operating system for AI research labs!\r\n* Why agent crashes are nothing like database crashes.\r\n* [Hands-on] Deploy a Qwen 3 Agentic RAG.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: \u200bThe operating system for AI research labs! | Why agent crashes are nothing like database crashes. | [Hands-on] Deploy a Qwen 3 Agentic RAG.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Summary: * Google\u2019s 5-day AI Agents intensive vibe coding course!\r\n* Introduction to Deep RL and DQN.\r\n* \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH GOOGLE CLOUD...\n  Key points: Google\u2019s 5-day AI Agents intensive vibe coding course! | Introduction to Deep RL and DQN. | \u200bPCA vs. t-SNE: A popular DS interview question\u200b.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Summary: * [Hands-on] Build a 3D weather globe with Claude Code.\r\n* \u200bClaude Code dynamic workflows, explained!\r\n* Categorization of clustering algorithms.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on\r\n--------...\n  Key points: [Hands-on] Build a 3D weather globe with Claude Code. | \u200bClaude Code dynamic workflows, explained! | Categorization of clustering algorithms.\u200b\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Summary: * Surya OCR: SOTA model for document intelligence.\r\n* \u200bCollapse CRM pipelines into one table.\r\n* The easiest way to find out which models you can run on your computer.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE.\n  Key points: Surya OCR: SOTA model for document intelligence. | \u200bCollapse CRM pipelines into one table. | The easiest way to find out which models you can run on your computer.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Summary: * An open-weight agent that handles both work + code.\r\n* The evolution of retrieval layer.\r\n* A simple implementation of boosting algorithm.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: An open-weight agent that handles both work + code. | The evolution of retrieval layer. | A simple implementation of boosting algorithm.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Summary: * Documentation that keeps pace with the codebase.\r\n* \u200bResearchers found a way to make LLMs 8.5x faster.\r\n* [LLM Interview question] Train LLMs using other LLMs.\r\n* Our AI Engineering, MCP, Agents, an\n  Key points: Documentation that keeps pace with the codebase. | \u200bResearchers found a way to make LLMs 8.5x faster. | [LLM Interview question] Train LLMs using other LLMs.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Summary: * Build your own Claude app with open-source tooling!\r\n* Finally, Hermes agent's desktop app is here!\r\n* What feature scaling is not used for?\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: Build your own Claude app with open-source tooling! | Finally, Hermes agent's desktop app is here! | What feature scaling is not used for?\n\nIssue #24 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Summary: * REINFORCE and actor-critic methods in RL.\r\n* \u200b15 LLM fine-tuning techniques.\r\n* [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI Engineering...\n  Key points: REINFORCE and actor-critic methods in RL. | \u200b15 LLM fine-tuning techniques. | [Hands-on] \u200bFine-tuning Gemma 4 12B using Unsloth, 100% locally\u200b.\n\nIssue #25 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Summary: * A GitHub repo to learn building production-grade voice agent apps.\r\n* [Hands-on] Your agent harness should repair itself.\r\n* An intuitive guide to non-linearity of ReLU.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-sou\n  Key points: A GitHub repo to learn building production-grade voice agent apps. | [Hands-on] Your agent harness should repair itself. | An intuitive guide to non-linearity of ReLU.\n\nIssue #26 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Summary: * Strands Agents\r\n* Loop engineering: Design the system that prompts agents.\r\n* \u200bRAG & Fine-tuning, explained visually\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: Strands Agents | Loop engineering: Design the system that prompts agents. | \u200bRAG & Fine-tuning, explained visually\u200b.\n\nIssue #27 | 2026-06-10 | Training an LLM to Generate Reliable Structured Output | [Reinforcement Learning]\n  Summary: * CMU\u2019s new study is a must-read for coding agent users.\r\n* \u200bTraining an LLM to generate reliable structured output\u200b.* Introduction\r\n* Problems with SFT\r\n* How GRPO helps\r\n* Infra for GRPO\r\n* The full\n  Key points: CMU\u2019s new study is a must-read for coding agent users. | \u200bTraining an LLM to generate reliable structured output\u200b.* Introduction | Problems with SFT\n\nIssue #28 | 2026-06-11 | The 8 Layer Engineering Behind a Production AI Systems | [LLMs & Agents]\n  Summary: * \u200bBuilding inside the lines with Claude Fable 5\u200b.\r\n* The 8-layer engineering behind a production AI system.\r\n* [Demo] Build agentic workflows in plain English.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH RETOO\n  Key points: \u200bBuilding inside the lines with Claude Fable 5\u200b. | The 8-layer engineering behind a production AI system. | [Demo] Build agentic workflows in plain English.\n\nIssue #29 | 2026-06-12 | Schema Guided Agent Memory for Production Agents | [LLMs & Agents]\n  Summary: * The less your model thinks, the better it codes.\r\n* \u200bSchema-guided agent memory.\r\n* 4 parallel processing techniques in Python.\r\n\r\nTODAY'S ISSUE\r\n\r\nOPEN-SOURCE...\n  Key points: The less your model thinks, the better it codes. | \u200bSchema-guided agent memory. | parallel processing techniques in Python.\n\nIssue #30 | 2026-06-14 | Deep dive on proximal policy optimization PPO in RL | [Reinforcement Learning]\n  Summary: * The strategy layer most AI engineers never see.\r\n* Deep dive on proximal policy optimization (PPO) in RL, with code.\r\n* [RECAP] 7 LLM generation parameters.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI STRATEGY BLUEPRINT\n  Key points: The strategy layer most AI engineers never see. | Deep dive on proximal policy optimization (PPO) in RL, with code. | [RECAP] 7 LLM generation parameters.\n\nIssue #31 | 2026-06-15 | Handson Build a RealTime Satellite Tracker with Claude Code | [LLMs & Agents]\n  Summary: * Mythos taught everyone a lesson this week.\r\n* [Hands-on] \u200bBuild a real-time satellite tracker with Claude Code.\r\n* From AGI \u2192 ASI, Google's latest research paper.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI STRATEGY...\n  Key points: Mythos taught everyone a lesson this week. | [Hands-on] \u200bBuild a real-time satellite tracker with Claude Code. | From AGI \u2192 ASI, Google's latest research paper.\n\nIssue #32 | 2026-06-16 | Hermes Kanban Mission Control for your Agents | [LLMs & Agents]\n  Summary: * \u200bAI security has nothing to do with AI\u200b.\r\n* \u200bHermes Kanban: Mission control for your agents.\r\n* The top Claude Code CLI integrations.\r\n\r\nTODAY'S ISSUE\r\n\r\nTOGETHER WITH AWS...\n  Key points: \u200bAI security has nothing to do with AI\u200b. | \u200bHermes Kanban: Mission control for your agents. | The top Claude Code CLI integrations.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Key points: Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface. | Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls. | Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Production debugging bottlenecks are usually caused by fragmented tool visibility across logs, monitoring traces, and team chat history rather than the complexity of the fix itself. | Integrated AI agents can bridge communication platforms with cloud infrastructure to automate trace retrieval, pull request analysis, and incident postmortem generation. | Independent variables act as inputs for prediction, while dependent variables represent the target outcome being modeled.\n\nIssue #16 | 2026-05-28 | RAG vs Graph RAG vs Agentic RAG | [LLMs & Agents]\n  Key points: Standard RAG relies on vector similarity search, which excels at direct factual lookups but fails on multi-hop relationship queries. | Graph RAG uses knowledge graphs and explicit entity traversal to connect facts spread across multiple documents. | Agentic RAG utilizes runtime LLM decision-making to dynamically select tools, sources, and execution order based on query needs.\n\nIssue #17 | 2026-05-29 | Why Agent Crashes Are Nothing Like Database Crashes | [Reinforcement Learning]\n  Key points: Database crashes allow deterministic recovery via write-ahead logs, whereas agent crashes face LLM non-determinism and decision drift. | Stateless restarts of multi-day agent workflows cause re-interpretation errors that cascade into faulty downstream decisions. | Agent reliability requires platform-level checkpoint-and-resume strategies rather than custom application-layer serialization.\n\nIssue #18 | 2026-05-31 | Introduction to Deep RL and DQN | [Reinforcement Learning]\n  Key points: Frontier LLM pipelines increasingly incorporate reinforcement learning techniques like RLHF and GRPO for post-training and alignment. | Replacing tables with neural networks in RL introduces instability caused by correlated sequential data and non-stationary targets. | Experience replay decorrelates training data by sampling random mini-batches from a historical transition buffer.\n\nIssue #19 | 2026-06-01 | Handson Build a 3D Weather Globe with Claude Code | [LLMs & Agents]\n  Key points: AI coding assistants can fully provision cloud databases, create hyper-tables, and seed production datasets using specialized MCP servers. | TimescaleDB automatically partitions time-series data by timestamp to ensure fast querying under heavy user interaction. | Continuous aggregates compute pre-rolled data summaries to instantly serve dashboard trend charts without rescanning raw records.\n\nIssue #20 | 2026-06-02 | Handson Collapse CRM Pipelines into One Table | [Reinforcement Learning]\n  Key points: Surya OCR achieves an 83.3% score on the olmocr benchmark while operating under 3 billion parameters. | Traditional database tables act as passive stores, requiring external microservices and webhooks to execute row-level logic. | Modern visual AI workspaces allow database columns to execute enrichment tasks and multi-step workflows natively.\n\nIssue #21 | 2026-06-03 | The Evolution of Retrieval Layer | [LLMs & Agents]\n  Key points: Fragmented AI tools create context loss when tasks cross the boundary between general work workflows and software engineering. | Classical RAG pipelines suffer from operational staleness and code duplication due to being tightly coupled to single applications. | A standing retrieval layer separates data ingestion from querying, utilizing content hashing for efficient, continuous synchronization.\n\nIssue #22 | 2026-06-04 | Researchers Found a Way to Make LLMs 85x Faster | [LLMs & Agents]\n  Key points: Traditional speculative decoding uses a small autoregressive drafter to guess tokens, but the drafting step itself caps speedups at 2x-3x. | DFlash replaces autoregressive drafters with block diffusion models, generating entire token blocks in a single parallel shot. | Conditioning the DFlash drafter on multi-layer hidden features from the target model significantly improves guess accuracy without quality loss.\n\nIssue #23 | 2026-06-05 | Finally Hermes Agents Desktop App is Here | [LLMs & Agents]\n  Key points: CopilotKit decouples agent logic from the frontend UI using the open-source AG-UI protocol. | Standardized protocols allow developers to change agent backends between LangGraph, CrewAI, and Google ADK without altering the frontend code. | Full-stack agent applications require real-time streaming, shared state synchronization, and persistent session history.\n\nIssue #24 | 2026-06-07 | REINFORCE and Actorcritic Methods in RL | [Reinforcement Learning]\n  Key points: Policy gradient methods optimize decision-making parameters directly rather than deriving behavior exclusively from pre-calculated value functions. | The REINFORCE algorithm utilizes Monte Carlo trajectory sampling but suffers from high variance during training updates. | Actor-critic architectures combine an actor for policy updates and a critic for value estimation to stabilize reinforcement learning.\n\nIssue #25 | 2026-06-08 | Your Agent Harness Should Repair Itself | [LLMs & Agents]\n  Key points: Production-grade voice agent applications require robust handling of real-time audio streaming, WebRTC capture, turn detection, and VAD chunking. | Traditional observability tools provide detailed execution traces but fail to automatically diagnose root causes or propose code fixes for agent failures. | Automated debugging frameworks like Opik utilize specialized coding agents to analyze traces, propose code diffs, and verify fixes against original inputs.\n\nIssue #26 | 2026-06-09 | Loop Engineering Design the System That Prompts Agents | [LLMs & Agents]\n  Key points: Loop engineering replaces manual human prompting and verification with automated system schedules, persistent state files, and checker agents. | The six essential components of an agent loop include automations, isolated worktrees, modular skills, MCP connectors, sub-agents, and external knowledge graphs. | The maker-checker split prevents models from grading their own work too leniently by using separate agents and independent validation signals.\n\nIssue #27 | 2026-06-10 | Training an LLM to Generate Reliable Structured Output | [Reinforcement Learning]\n  Key points: Standard SFT optimizes for token-level surface similarity rather than functional structural validity. | GRPO replaces static labeled examples with programmatic reward functions and group-relative scoring. | Intermediate reward scoring provides actionable optimization gradients for structurally incomplete outputs.\n\nIssue #28 | 2026-06-11 | The 8 Layer Engineering Behind a Production AI Systems | [LLMs & Agents]\n  Key points: The base model is merely a fixed probabilistic input; the true differentiation of a production AI product lies in the surrounding eight engineering layers. | Operational permissions, security checks, and audit logging must be enforced within the application runtime rather than left to the autonomous model. | Inference serving must balance the compute-bound prefill phase with the memory-bound decode phase using optimizations like continuous batching and KV caching.\n\nIssue #29 | 2026-06-12 | Schema Guided Agent Memory for Production Agents | [LLMs & Agents]\n  Key points: Reasoning models can achieve higher benchmark scores while utilizing significantly fewer thinking tokens by avoiding overthinking on simple tasks. | Unconstrained agent memory extraction leads to messy knowledge graphs with generic labels and poor retrieval precision. | Schema-guided memory uses Pydantic models and strict edge constraints to dictate valid entities and relationships before generation.\n\nIssue #30 | 2026-06-14 | Deep dive on proximal policy optimization PPO in RL | [Reinforcement Learning]\n  Key points: PPO prevents destructive policy collapse by mathematically restricting policy updates within a safe trust region. | The clipped surrogate objective uses a probability ratio clamped between $1-\\epsilon$ and $1+\\epsilon$ to flatten gradients during excessively large updates. | PPO served as the foundational reinforcement learning optimization algorithm behind early RLHF and ChatGPT alignment.\n\nIssue #31 | 2026-06-15 | Handson Build a RealTime Satellite Tracker with Claude Code | [LLMs & Agents]\n  Key points: Relying entirely on rented frontier APIs exposes businesses to unexpected platform policy changes and service shutdowns. | Owning base model weights locally ensures operational continuity, as providers cannot remotely revoke downloaded files. | The true enterprise value lies in proprietary post-training data, customized evaluations, and domain-specific workflows rather than base model weights.\n\nIssue #32 | 2026-06-16 | Hermes Kanban Mission Control for your Agents | [LLMs & Agents]\n  Key points: Application-layer AI security focuses on prompt filters and guardrails, which fail to govern data transit outside network boundaries. | Model provider retention policies can inadvertently store regulated data in external logs if infrastructure controls are absent. | Infrastructure-level primitives like IAM policies, VPC isolation, and CloudTrail logging secure AI features natively on day one.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1073,7 +1033,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

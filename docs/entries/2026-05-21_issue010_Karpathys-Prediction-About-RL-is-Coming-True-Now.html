@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="issue-badge">Issue #10 · Reinforcement Learning · 5 min read</div>
+  <div class="issue-badge">Issue #10 · Reinforcement Learning · 4 min read</div>
   <h1 class="entry-title">Karpathys Prediction About RL is Coming True Now</h1>
   <div class="entry-meta"><span>📅 May 21, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,133 +527,79 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#5B8CFF;--cb:#22d3ee">
   
-<div class="tldr-box" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* A lesson from running AI in production.
-* Karpathy’s prediction about RL is coming true now!
-* ​Avoid Using PCA for Visualization Unless...​
-
-TODAY'S ISSUE
-
-Together with AWS...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* A lesson from running AI in production.</p>
-<p>* Karpathy’s prediction about RL is coming true now!</p>
-<p>* ​Avoid Using PCA for Visualization Unless...​</p>
-<p>TODAY'S ISSUE</p>
-<p>Together with AWS...</p>
+  <p>Building and scaling artificial intelligence applications has matured past the era of simple wrapper scripts and single-endpoint deployments. As AI workflows transition to complex multi-step pipelines involving vector databases, web searches, tool executions, and sequential language model inferences, the underlying infrastructure must adapt. Treating an entire application as a monolithic deployable unit creates extreme inefficiencies when auto-scaling encounters isolated component spikes.</p>
+<p>Concurrently, training modern autonomous agents via reinforcement learning faces significant engineering barriers. Traditional reward functions often rely on low-dimensional, binary, or hand-coded signals that fail to capture the nuanced definitions of success required for complex, multi-turn environments. Addressing this requires higher-dimensional feedback channels that can evaluate trajectories dynamically.</p>
+<p>Furthermore, data science practitioners frequently rely on linear dimensionality reduction techniques like Principal Component Analysis for exploratory data visualization without validating whether the projection preserves sufficient information. Blindly reducing high-dimensional data down to two principal components can discard the vast majority of underlying data variance, leading to erroneous conclusions. Understanding the mathematical constraints of variance retention is critical for building trustworthy analytical pipelines.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>In 2023, AI products were thin wrappers. The LLM call was the entire workload, so cheaper models meant cheaper bills.</p>
-<p>​</p>
-<p>That’s not what AI queries look like today.</p>
-<p>A single request can trigger a vector DB, web search, tools, and multiple LLM inferences before streaming a response back. The model got cheaper, but the infrastructure serving each query got heavier.</p>
-<p>And when all of that runs inside a single deployable unit, auto-scaling makes it worse.</p>
-<p>A spike in inference forces the entire app to scale, even when every other component is idle. The bill lands at 10x for a single-component problem.</p>
-<p>​AWS’ managed services  decompose this by running each layer independently. Inference on Bedrock, vector search on Aurora pgvector, orchestration on EKS, each scaling on its own load curve.</p>
-<p>Innovaccer runs this pattern for a healthcare AI platform serving 54M patients. After decomposing, they achieved 33% lower cloud costs and 65% less management overhead.</p>
-<p>​You can explore AWS’s resources for building AI-native SaaS here → ​</p>
-<p>RL</p>
-<p>--</p>
+  <h2><span class="sec-icon">🔬</span>Microservice Decomposition in Production AI Workloads</h2>
+  <p>In early implementations of generative applications, architectures consisted primarily of thin software wrappers communicating with a single remote model endpoint. The economic model was straightforward, as reducing the cost of the underlying language model directly lowered operational billing. Modern production environments, however, execute highly asynchronous, multi-faceted workloads for every single user request.</p>
+<p>A single query may simultaneously trigger a vector database retrieval, external web scraping, tool execution engines, and several sequential language model reasoning passes before streaming a synthesized output to the client. When these heterogeneous tasks are bundled into a single monolithic deployment, traditional auto-scaling policies react to aggregate resource exhaustion. If inference demand spikes, the entire application container scales horizontally—forcing redundant scaling of idle vector search and orchestration layers.</p>
+<p>Decomposing these architectures into independent, specialized managed services isolates the scaling boundaries of each infrastructural tier. For instance, running model inference on dedicated serverless infrastructure, vector similarity searches on managed database instances, and task orchestration on container clusters allows every layer to scale precisely along its distinct load curve. Enterprises serving tens of millions of users achieve substantial reductions in cloud expenditure and operational management overhead by adopting this decoupled microservice paradigm.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Karpathy called reward functions unreliable and argued that a single reward number is too low-dimensional to teach an agent what “good” means for complex tasks.</p>
-<p>To solve this, Agents need a knowledge-guided review as a higher-dimensional feedback channel.</p>
-<p>Every major AI lab trains models with RL today (OpenAI, Anthropic, DeepSeek).</p>
-<p>And their key bottleneck has always been the reward functions.</p>
-<p>GRPO by DeepSeek worked well for math and code because the environment gave a binary signal.</p>
-<p>​</p>
-<p>But for real agent tasks, someone still has to hand-code the scoring function. That takes days and breaks every time the pipeline changes.</p>
-<p>​RULER (implemented in OpenPipe ART, 10k stars)  addresses the exact problem Karpathy identified.</p>
-<p>The reward criteria are defined in plain English, and an LLM evaluates each trajectory against that description to provide feedback for training.</p>
-<p>We trained a Qwen3 1.4B agent that plays 2048 using GRPO with this exact workflow.</p>
-<p>​</p>
-<p>In this case, the agent saw the board, picked a direction, and RULER evaluated the outcome, all from this natural language definition.</p>
-<p>You can see the full implementation on GitHub and try it yourself.</p>
-<p>​Here’s the ART Repo → (don’t forget to star it ⭐ )</p>
-<p>--&gt;​ART GitHub Repo </p>
-<p>​ART GitHub Repo Just like RLHF replaced manual rankings and GRPO replaced the critic model, natural language rewards are replacing hand-coded scoring functions.</p>
-<p>RL reward engineering is now prompt engineering.</p>
-<p>We also wrote a full walkthrough covering RL for LLM agents, from RLHF to GRPO to RULER. You can read it here → ​</p>
-<p>data science</p>
+  <h2><span class="sec-icon">💡</span>Natural Language Rewards and the Evolution of Reinforcement Learning</h2>
+  <p>Andrej Karpathy previously highlighted a fundamental limitation in reinforcement learning: reward functions are inherently unreliable because a single scalar number represents a drastically low-dimensional signal for teaching complex agent behaviors. While reinforcement learning has become ubiquitous across major AI laboratories, the primary operational bottleneck remains the design of these reward functions. Although algorithms like Group Relative Policy Optimization excel in domains with clear, deterministic environments like mathematics and programming where binary correctness is easily verified, real-world agent tasks require extensive manual coding of scoring logic that breaks whenever the pipeline updates.</p>
+<p>To overcome this constraint, modern frameworks incorporate knowledge-guided reviews and natural language evaluation workflows. Instead of writing rigid programmatic scripts to score agent trajectories, reward criteria are articulated in plain English. A secondary evaluation model reviews the agent's step-by-step performance against these textual definitions, generating nuanced feedback signals for training. </p>
+<p>This shift transforms reward engineering into a form of prompt engineering, analogous to how reinforcement learning from human feedback replaced manual preference rankings. By evaluating agent outputs directly against natural language guidelines, developers can train complex agents across dynamic environments without rewriting custom scoring scripts for every pipeline iteration.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>​PCA , by its very nature, is a dimensionality reduction technique.</p>
-<p>Yet, at times, it is used to visualize high-dimensional datasets by projecting the data into two dimensions.</p>
-<p>​</p>
-<p>Here's the problem with it.</p>
-<p>After applying PCA, each new feature (PC1, PC2, ..., PC-N) captures a fraction of the original data variance:</p>
-<p>* PC1 may capture 40%.</p>
-<p>* PC2 may capture 25%.</p>
-<p>* And so on.</p>
-<p>Thus, using PCA for visualization by projecting the data to 2-dimensions only makes sense if the first two principal components collectively capture most of the original data variance.</p>
-<p>This is rarely true in practice.</p>
-<p>But it is possible to verify if PCA's visualization is useful by creating a cumulative explained variance (CEV) plot.</p>
-<p>It plots the cumulative variance explained by principal components.</p>
-<p>In sklearn, the explained variance fraction is available in the explained_variance_ratio_ attribute:</p>
-<p>​</p>
-<p>Create a cumulative plot of explained variance and check whether the first two components explain the majority of variance.</p>
-<p>​</p>
-<p>If the plot looks the following, your PCA visualizations are misleading since the first two components only explain 55% of the variance:</p>
-<p>​</p>
-<p>But if the plot looks like the following, it is safe to use PCA:</p>
-<p>​</p>
-<p>As a takeaway, use PCA for 2D visualization only when the above plot suggests so.</p>
-<p>That said, use the CEV plot only for dimensionality reduction to determine how many dimensions to project the data to when using PCA.</p>
-<p>For instance, in the following plot, projecting to 5 dimensions could be good (depending on how much information loss you can tolerate):</p>
-<p>​</p>
-<p>For visualization, however, use techniques specifically designed for it, like t-SNE, UMAP, etc.</p>
-<p>​We formulated and implemented (in NumPy) t-SNE from scratch here .</p>
-<p>​We discussed the mathematical details of PCA and derived it from scratch here .</p>
-<p>👉 Over to you: What are some other problems with using PCA for visualization?</p>
+  <h2><span class="sec-icon">⚙️</span>The Mathematical Pitfalls of PCA for Data Visualization</h2>
+  <p>Principal Component Analysis is a foundational linear algebra technique used to compress high-dimensional feature spaces by projecting data onto orthogonal axes that maximize variance. Because human perception is naturally limited to two or three spatial dimensions, practitioners frequently project high-dimensional datasets directly onto a two-dimensional plane using the first two principal components to visualize clusters or trends. However, this approach is statistically sound only under strict mathematical conditions.</p>
+<p>When PCA transforms a dataset, each sequential principal component captures a specific fractional share of the total original data variance. The first principal component captures the maximum possible variance, the second captures the next highest orthogonal variance, and so forth. For a two-dimensional scatter plot to accurately represent the underlying high-dimensional structure, the cumulative variance explained by the first two components must constitute a dominant majority of the total dataset variance.</p>
+<p>In real-world datasets with complex non-linear structures, the first two principal components often capture less than half of the total variance. Relying on such a projection results in severe information loss, flattening multidimensional clusters into misleading two-dimensional overlaps. Validating these visualizations requires computing the cumulative explained variance across all components to measure exact information retention before drawing analytical conclusions.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import numpy as np
+from sklearn.decomposition import PCA
+from sklearn.datasets import make_blobs
+
+# Generate synthetic high-dimensional data
+X, _ = make_blobs(n_samples=1000, n_features=20, centers=5, random_state=42)
+
+# Fit PCA across all available dimensions
+pca = PCA()
+pca.fit(X)
+
+# Calculate cumulative explained variance ratio
+cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
+
+# Determine the number of components required to capture 95% of variance
+n_components_95 = np.argmax(cumulative_variance &gt;= 0.95) + 1
+
+print(f"Number of components for 95% variance: {n_components_95}")
+print(f"Variance explained by first 2 components: {cumulative_variance[1]:.4f}")</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>A lesson from running AI in production.</li>
-<li>Karpathy’s prediction about RL is coming true now!</li>
-<li>​Avoid Using PCA for Visualization Unless...​</li>
-<li>PC1 may capture 40%.</li>
-<li>PC2 may capture 25%.</li>
-<li>Can you reduce costs?</li>
-<li>Drive revenue?</li></ul>
+  <ul><li>Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes.</li>
+<li>Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure.</li>
+<li>Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.</li>
+<li>Natural language reward frameworks allow language models to evaluate agent trajectories dynamically against plain-text criteria, replacing fragile hand-coded scoring functions.</li>
+<li>Principal Component Analysis should only be used for two-dimensional visualization if the cumulative explained variance of the first two components captures the vast majority of the dataset's total variance.</li>
+<li>Cumulative explained variance plots are essential diagnostic tools for determining optimal dimensionality reduction thresholds.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">Why do monolithic deployments of modern multi-step AI pipelines lead to inefficient auto-scaling costs?</div>
+<div class="iq-q">What are the primary limitations of scalar reward functions in reinforcement learning for complex, multi-turn agent environments?</div>
+<div class="iq-q">How do natural language reward frameworks function, and what role do evaluation models play in training loops?</div>
+<div class="iq-q">Explain why projecting high-dimensional data into two dimensions using PCA can result in misleading visualizations.</div>
+<div class="iq-q">How is the cumulative explained variance ratio calculated and utilized when performing dimensionality reduction with scikit-learn?</div>
+<div class="iq-q">Under what circumstances should a data scientist choose non-linear techniques like t-SNE or UMAP over linear methods like PCA?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced Vector Database Indexing and Search Optimization Strategies</li>
+<li>Mathematical Derivations of Linear and Non-Dimensionality Reduction Techniques</li>
+<li>Designing Scalable Container Orchestration Architectures for Asynchronous AI Workloads</li>
+<li>Evaluating Generative Agent Workflows Using Natural Language Feedback Loops</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -681,7 +627,7 @@ Together with AWS...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1046,7 +992,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

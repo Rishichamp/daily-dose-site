@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #14 · LLMs &amp; Agents · 6 min read</div>
+  <div class="issue-badge">Issue #14 · LLMs &amp; Agents · 5 min read</div>
   <h1 class="entry-title">Claude Code used 3x fewer tokens with just one change</h1>
   <div class="entry-meta"><span>📅 May 26, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,153 +527,96 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Free course to learn Generative UI, Anthropic's most viral feature​.
-* ​Claude Code used 3x fewer tokens with just one change!​
-* Docker explained in 2 minutes!
-* Active learning in ML.
-
-TODAY'</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Free course to learn Generative UI, Anthropic's most viral feature​.</p>
-<p>* ​Claude Code used 3x fewer tokens with just one change!​</p>
-<p>* Docker explained in 2 minutes!</p>
-<p>* Active learning in ML.</p>
-<p>TODAY'S ISSUE</p>
-<p>FREE course...</p>
+  <p>The landscape of software development and machine learning is rapidly shifting toward autonomous agents and data efficiency. As AI models take on more complex roles, traditional paradigms of text-only interfaces and massive, brute-force context windows are hitting performance and economic walls. Modern approaches require rethinking how agents consume backend states and how users interact with generated outputs.</p>
+<p>Concurrently, foundational engineering principles remain critical. Understanding low-level infrastructure tools like Docker and optimizing data workflows through active learning ensures that systems scale effectively. By combining advanced agentic frameworks with rigorous data and system design, engineers can build robust, cost-effective, and highly scalable applications.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>Andrew Ng's DeepLearningAI just released  a new free course on building Interactive Agents with Generative UI, covering the full stack from scratch:</p>
-<p>​</p>
-<p>Claude Artifacts showed what happens when agents generate UI instead of text, like charts, dashboards, and interactive components, all assembled live inside the chat.</p>
-<p>Every major AI product tried to replicate it.</p>
-<p>CopilotKit is the only open-source framework (repo ) that actually lets you build your own full-stack Claude-like apps.</p>
-<p>The course covers three approaches on the Generative UI spectrum, including:</p>
-<p>1) Controlled → the agent picks from pre-built components like pie charts and flight cards.</p>
-<p>2) Declarative → the agent assembles layouts from reusable building blocks using A2UI, co-developed with Google.</p>
-<p>3) Open-ended → the agent generates arbitrary HTML/SVG from scratch, streamed token-by-token into a sandboxed iframe.</p>
-<p>You can implement the entire Generative UI spectrum through AG-UI, and it works out of the box with LangGraph, Google ADK, CrewAI, Mastra, AWS Strands, and more.</p>
-<p>This entire stack is built on top of CopilotKit.</p>
-<p>31k+ GitHub stars, with SDKs for React, Next.js, Angular, and Vue.</p>
-<p>​You can watch the course here → ​</p>
-<p>​And here's the CopilotKit GitHub repo → ​</p>
-<p>Devs who watch this tonight will know how to build agent interfaces that go beyond plain text by tomorrow.</p>
-<p>COding agents</p>
+  <h2><span class="sec-icon">🔬</span>Building Interactive Agents with Generative UI</h2>
+  <p>Generative user interfaces represent a fundamental shift in how humans interact with AI agents, moving beyond static text outputs into dynamic, live-rendered components. Historically, AI models responded with textual explanations or markdown tables. With Generative UI, pioneered by Anthropic's Artifacts, agents can assemble charts, dashboards, and interactive widgets live inside the chat window. This approach bridges the gap between conversational intent and functional application interfaces.</p>
+<p>To implement this spectrum of generative interfaces, developers typically rely on structured architectural approaches ranging from controlled to open-ended paradigms. In controlled setups, the agent selects from a curated library of pre-built components, ensuring strict adherence to design systems. Declarative approaches allow agents to assemble layouts dynamically from reusable building blocks using specialized schemas like A2UI. Open-ended systems give the agent the freedom to generate arbitrary HTML and SVG from scratch, which are then safely streamed token-by-token into a sandboxed iframe.</p>
+<p>Frameworks such as CopilotKit facilitate these full-stack implementations by providing native integration layers across React, Next.js, Angular, and Vue. These tools allow developers to integrate generative capabilities directly with orchestration engines like LangGraph, CrewAI, and Mastra. By utilizing these frameworks, engineers can transform standard chat interfaces into comprehensive application platforms where the UI itself is an emergent property of the agent's reasoning process.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>Before writing a single line of code, the agent must know:</p>
-<p>* the existing tables and schemas</p>
-<p>* the configured auth providers</p>
-<p>* the available storage buckets</p>
-<p>* the deployed edge functions</p>
-<p>* the available AI models</p>
-<p>* the active RLS policies</p>
-<p>Most backends expose this via MCP tools, which means the agent discovers each piece through a separate call.</p>
-<p>This is a problem because Claude Code re-sends the full conversation on every turn, so each discovery call is more expensive than the last.</p>
-<p>​</p>
-<p>So by the time the agent understands the backend, a significant chunk of the token budget is already gone.</p>
-<p>Some info, like auth provider config, isn't queryable at all. Either the developer manually provides it in the prompt or the agent assumes it.</p>
-<p>These wrong assumptions only surface as runtime errors after the code is already written.</p>
-<p>And when something breaks, the errors don't say where the failure came from. So the agent retries, re-sending the entire growing conversation each time.</p>
-<p>A smarter model has no way to skip these gaps.</p>
-<p>If anything, it actually tries harder to fill them, which is why MCPMark V2 benchmarks showed a ~60% increase in backend token usage after a model upgrade.</p>
-<p>In our own test, this setup cost 10.4M tokens and 10 manual interventions on a single RAG app.</p>
-<p>​</p>
-<p>But we brought that down to 3.7M tokens and 0 manual interventions by using InsForge (GitHub repo ) as the backend context engineering layer for Claude Code (open-source and self-hostable via Docker).</p>
-<p>It provides the same primitives as Supabase but structures the entire information layer for agents instead of dashboards.</p>
-<p>In one CLI call that consumes ~500 tokens, the agent can see the full backend topology before writing a single line of code.</p>
-<p>This includes auth, database, storage, edge functions, model gateway, micro VMs, and deployment.</p>
-<p>​</p>
-<p>Also, instead of loading the entire product surface into context on every task, four narrowly scoped skills activate only when relevant to keep cognitive load minimal.</p>
-<p>And to ensure efficient retries if needed, every CLI operation returns structured JSON with meaningful exit codes, so the agent never has to guess what to do next.</p>
-<p>​Here's the InsForge GitHub Repo →  (don't forget to star it ⭐)</p>
-<p>​You can find our full 100% local setup guide in this issue → ​</p>
-<p>visual guides</p>
+  <h2><span class="sec-icon">💡</span>Optimizing Coding Agents with Context Engineering</h2>
+  <p>Coding agents like Claude Code often suffer from extreme token inflation due to the repetitive discovery of backend topologies. Before writing code, an agent must understand existing database schemas, authentication providers, storage buckets, and deployed services. In a standard Model Context Protocol (MCP) setup, the agent discovers these elements through sequential, independent calls. Because conversational architectures re-send the entire history on every turn, each discovery step compounds token consumption, frequently exhausting budgets and leading to high manual intervention rates.</p>
+<p>Furthermore, missing or unqueryable information often forces agents to make incorrect assumptions, resulting in runtime errors that trigger repeated, costly retries. Advanced models attempting to bridge these gaps aggressively can inadvertently exacerbate token bloat. To solve this, developers employ specialized backend context engineering layers, such as InsForge, which structure the entire information layer specifically for machine consumers rather than human dashboards.</p>
+<p>By utilizing a dedicated context layer, an agent can ingest the complete backend topology—including authentication, database schemas, storage, and micro VMs—via a single low-token CLI call before writing code. Additionally, scoping down active skills so that only relevant domains load into memory prevents cognitive overload. Ensuring that CLI operations return structured JSON with clear exit codes guarantees that agents can navigate retries deterministically without guessing their next action.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Developers typically use Docker daily without understanding what happens under the hood. Here's everything you need to know.</p>
-<p>Docker has 3 main components:</p>
-<p>​</p>
-<p>* Docker Client: Where you type commands that talk to the Docker daemon via API.</p>
-<p>* Docker Host: The daemon runs here, handling all the heavy lifting (building images, running containers, and managing resources)</p>
-<p>* Docker Registry: Stores Docker images. Docker Hub is public, but companies run private registries.</p>
-<p>Here's what happens when you run "docker run":</p>
-<p>* Docker pulls the image from the registry (if not available locally)</p>
-<p>* Docker creates a new container from that image</p>
-<p>* Docker allocates a read-write filesystem to the container</p>
-<p>* Docker creates a network interface to connect the container</p>
-<p>* Docker starts the container</p>
-<p>That's it.</p>
-<p>The client, host, and registry can live on different machines. This is why Docker scales so well.</p>
-<p>Understanding this architecture makes debugging container issues much easier. You'll know exactly where to look when something breaks.</p>
-<p>visual explainers</p>
+  <h2><span class="sec-icon">⚙️</span>Docker Architecture Under the Hood</h2>
+  <p>Docker is a foundational tool in modern software engineering, yet developers often use it daily without fully grasping its internal architecture. The Docker ecosystem relies on three primary components: the Docker Client, the Docker Host, and the Docker Registry. The client serves as the user-facing interface where commands are entered, communicating via an API with the Docker daemon residing on the Docker Host. The daemon performs the heavy lifting of building images, running containers, and managing system resources, while the registry stores and distributes Docker images.</p>
+<p>When a user executes a command such as `docker run`, a specific sequence of architectural events takes place. First, the Docker daemon checks for the requested image locally; if it is missing, it pulls the image from the specified registry. Next, Docker creates a new container instance from that image and allocates a dedicated read-write filesystem layer on top of the read-only image layers. A dedicated network interface is then established to connect the container to the host network, followed by the final initialization and execution of the containerized process.</p>
+<p>Because the client, host, and registry components can operate entirely decoupled across different physical or virtual machines, Docker provides unmatched scalability and environment consistency. Understanding this modular lifecycle allows developers to isolate debugging efforts effectively, instantly identifying whether a failure originates from image construction, registry availability, daemon resource allocation, or internal container networking.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Data annotation is difficult, expensive, and time-consuming.</p>
-<p>Active learning is a relatively easy and inexpensive way to build supervised models when you don’t have annotated data to begin with.</p>
-<p>As the name suggests, the idea is to build the model with active human feedback on examples it is struggling with.</p>
-<p>The visual below summarizes this:</p>
-<p>​</p>
-<p>* Manually label a tiny percentage of the dataset.</p>
-<p>* Build a model on this small labeled dataset (model should be able to provide confidence values)</p>
-<p>* Generate predictions on the unlabeled dataset.</p>
-<p>* Label low confidence predictions and add them to the labeled dataset.</p>
-<p>* Back to step 2.</p>
-<p>Active learning is a huge time-saver in building supervised models on unlabeled datasets.</p>
-<p>The only thing that you have to be careful about is generating confidence measures.</p>
-<p>If you mess this up, it will affect every subsequent training step.</p>
-<p>​To learn more techniques on supercharging ML model training (with implementation), read this → ​</p>
+  <h2><span class="sec-icon">🏗️</span>Streamlining Data Annotation with Active Learning</h2>
+  <p>Data annotation is consistently one of the most expensive and time-consuming bottlenecks in supervised machine learning projects. When teams face a large corpus of unlabeled data, building a robust model from scratch becomes a significant challenge. Active learning provides an efficient, cost-effective alternative by intelligently selecting only the most informative data points for human annotation, drastically reducing the total number of labels required to achieve high model performance.</p>
+<p>The active learning workflow operates iteratively. Initially, developers manually label a very small percentage of the overall dataset and train an initial baseline model, which must be capable of outputting calibrated confidence scores. The model then generates predictions across the remaining large pool of unlabeled data. Instances where the model exhibits low confidence—signaling uncertainty or decision boundaries—are flagged, manually labeled by human annotators, and injected back into the training corpus to retrain the model in subsequent cycles.</p>
+<p>While active learning saves immense time and annotation budget, practitioners must exercise caution regarding confidence estimation. If the model generates flawed or uncalibrated confidence metrics, the active learning loop will continuously prioritize uninformative or misleading samples, degrading subsequent training iterations. When implemented correctly with robust uncertainty sampling, active learning accelerates model convergence while maintaining high predictive accuracy.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative Python example simulating an active learning iteration loop
+import numpy as np
+from sklearn.base import clone
+
+def active_learning_iteration(model, X_pool, y_pool, X_unlabeled, n_samples_to_query=10):
+    """
+    Simulates a single active learning cycle by querying low-confidence predictions
+    from an unlabeled pool and moving them to the training pool.
+    """
+    # Step 1: Train the model on the current labeled pool
+    model.fit(X_pool, y_pool)
+    
+    # Step 2: Generate probability predictions on the unlabeled dataset
+    probabilities = model.predict_proba(X_unlabeled)
+    
+    # Step 3: Compute confidence as the maximum predicted class probability
+    confidences = np.max(probabilities, axis=1)
+    
+    # Step 4: Identify indices of lowest confidence predictions
+    query_indices = np.argsort(confidences)[:n_samples_to_query]
+    
+    # Step 5: Extract queried samples and simulate manual labeling
+    X_new_labeled = X_unlabeled[query_indices]
+    # In a real pipeline, y_new_labeled would come from human annotators
+    y_new_labeled = model.predict(X_new_labeled) 
+    
+    # Remove queried samples from the unlabeled pool
+    X_unlabeled_remaining = np.delete(X_unlabeled, query_indices, axis=0)
+    
+    return X_new_labeled, y_new_labeled, X_unlabeled_remaining</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Free course to learn Generative UI, Anthropic's most viral feature​.</li>
-<li>​Claude Code used 3x fewer tokens with just one change!​</li>
-<li>Docker explained in 2 minutes!</li>
-<li>Active learning in ML.</li>
-<li>Controlled → the agent picks from pre-built components like pie charts and flight cards.</li>
-<li>Declarative → the agent assembles layouts from reusable building blocks using A2UI, co-developed with Google.</li>
-<li>Open-ended → the agent generates arbitrary HTML/SVG from scratch, streamed token-by-token into a sandboxed iframe.</li></ul>
+  <ul><li>Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface.</li>
+<li>Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls.</li>
+<li>Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.</li>
+<li>Active learning optimizes data annotation costs by iteratively querying human feedback exclusively for low-confidence model predictions.</li>
+<li>Structured JSON responses and meaningful exit codes prevent coding agents from guessing during error recovery and retries.</li>
+<li>Scoping down active agent skills minimizes cognitive load and token bloat during complex software engineering tasks.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">How does Generative UI differ fundamentally from traditional markdown or text-based agent responses?</div>
+<div class="iq-q">What are the primary token consumption bottlenecks when coding agents interact with raw Model Context Protocol (MCP) backends?</div>
+<div class="iq-q">Explain the role of the Docker daemon in handling container lifecycle commands like `docker run`.</div>
+<div class="iq-q">What risks are associated with poor confidence estimation in active learning loops?</div>
+<div class="iq-q">How do declarative and open-ended Generative UI frameworks manage security and component rendering?</div>
+<div class="iq-q">Why is structuring backend information specifically for machine consumers more efficient than relying on human-centric dashboards?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Advanced Agentic Workflow Architectures</li>
+<li>Container Networking and Storage Drivers in Docker</li>
+<li>Uncertainty Estimation and Calibration in Machine Learning Models</li>
+<li>Backend Context Optimization for Autonomous Coding Agents</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -701,7 +644,7 @@ TODAY'</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1066,7 +1009,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

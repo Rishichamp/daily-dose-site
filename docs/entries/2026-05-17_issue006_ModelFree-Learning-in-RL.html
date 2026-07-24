@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="issue-badge">Issue #6 · Reinforcement Learning · 6 min read</div>
+  <div class="issue-badge">Issue #6 · Reinforcement Learning · 4 min read</div>
   <h1 class="entry-title">ModelFree Learning in RL</h1>
   <div class="entry-meta"><span>📅 May 17, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,158 +527,89 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#5B8CFF;--cb:#22d3ee">
   
-<div class="tldr-box" style="--ca:#5B8CFF;--cb:#22d3ee">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Model-free learning in RL.
-* The anatomy of a perfect /goal prompt in Claude Code.
-* A technique to decide if you should gather more data.
-
-TODAY'S ISSUE
-
-AI engineering...</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Model-free learning in RL.</p>
-<p>* The anatomy of a perfect /goal prompt in Claude Code.</p>
-<p>* A technique to decide if you should gather more data.</p>
-<p>TODAY'S ISSUE</p>
-<p>AI engineering...</p>
+  <p>Modern artificial intelligence is rapidly shifting away from static prediction problems toward sequential decision-making frameworks. While traditional supervised learning focuses on mapping given inputs to fixed labels, many of the most advanced capabilities in contemporary AI involve agents that must choose actions with consequences unfolding over time. Examples include large language models selecting subsequent tokens based on reward signals, search agents executing multi-step API calls, and reinforcement learning pipelines orchestrating complex reasoning tasks.</p>
+<p>To address these challenges, reinforcement learning provides the mathematical framework necessary to learn what actions to take rather than merely what patterns to predict. Early approaches to reinforcement learning often relied on Markov Decision Processes and dynamic programming, which assume complete prior knowledge of an environment's transition probabilities. However, real-world applications frequently lack this explicit model of the environment, requiring agents to learn purely through direct interaction.</p>
+<p>Model-free learning bridges this gap by enabling agents to derive optimal policies from experience without explicit environment models. Concurrently, software engineering is evolving to leverage autonomous agent loops that execute multi-turn coding tasks under strict evaluation conditions. Optimizing these workflows requires a deep understanding of prompt engineering, model-to-evaluator architectures, and systematic validation strategies to prevent infinite loops and token waste.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>Part 4 of our RL series  is here.</p>
-<p>--&gt;​Reinforcement Learning Nanodegree Part 4 </p>
-<p>​Reinforcement Learning Nanodegree Part 4 The previous chapters covered MDPs, value functions, Bellman equations, and DP. All of that assumes you have full access to the environment's transition probabilities.</p>
-<p>This chapter removes that assumption and covers how agents learn purely from interacting with the environment.</p>
-<p>​</p>
-<p>It covers:</p>
-<p>* It covers Monte Carlo prediction and control</p>
-<p>* The structural limits of MC that motivated temporal-difference learning</p>
-<p>* The intersection of MC and DP and the bias-variance tradeoff between the two,</p>
-<p>* SARSA, Q-learning, and maximization bias</p>
-<p>* And a complete SARSA vs. Q-learning experiment on the Cliff Walking gridworld with code and analysis.</p>
-<p>Everything is covered from scratch, so no RL background is required.</p>
-<p>​You can read Part 4 of the course here → ​</p>
-<p>--&gt;​Reinforcement Learning Nanodegree Part 4 </p>
-<p>​Reinforcement Learning Nanodegree Part 4 </p>
-<p>Why care?</p>
-<p>---------</p>
-<p>Supervised learning handles prediction. There are inputs and labels, and the model learns the mapping.</p>
-<p>But a growing share of the most important problems in AI right now are not prediction problems.</p>
-<p>They are sequential decision problems.</p>
-<p>​</p>
-<p>* An LLM deciding which token to generate next based on a reward signal is making sequential decisions.</p>
-<p>* An agent that searches documents, calls APIs, and composes a multi-step answer is making sequential decisions.</p>
-<p>* A post-training pipeline that uses GRPO to teach a model to reason by generating multiple attempts and reinforcing the better ones is orchestrating sequential decisions.</p>
-<p>RL is the ML paradigm designed for this, and it gives us the mathematical framework for learning what to do, not just what to predict, in settings where actions have consequences that unfold over time.</p>
-<p>That is why it keeps showing up at the center of every major AI development. It is the right abstraction for the problems the field is increasingly trying to solve.</p>
-<p>This series builds that understanding from the ground up, concept by concept, with math where it matters and hands-on code you can run.</p>
-<p>* ​Part 1: Foundations of Reinforcement Learning → ​</p>
-<p>* ​Part 2: Markov Decision Processes and Value Functions → ​</p>
-<p>* ​Part 3: Bellman Equations and Dynamic Programming → ​</p>
-<p>* ​Part 4: Model-Free Learning in RL → ​</p>
-<p>👉 Over to you: What topics would you like us to cover in this RL series?</p>
-<p>Claude</p>
-<p>------</p>
+  <h2><span class="sec-icon">🔬</span>Model-Free Learning and Temporal-Difference Methods</h2>
+  <p>Model-free learning removes the foundational assumption that an agent has full access to an environment's transition probabilities. Previous chapters in reinforcement learning fundamentals typically rely on Markov Decision Processes, value functions, Bellman equations, and dynamic programming. These classical methods assume that the underlying dynamics of the environment are completely known. When dealing with complex, real-world systems, this assumption breaks down completely, forcing agents to learn directly from raw interaction data.</p>
+<p>The transition from model-based to model-free learning often begins with Monte Carlo prediction and control methods. Monte Carlo approaches rely on averaging complete episode returns to estimate value functions and optimize policies. While intuitive, Monte Carlo methods suffer from structural limitations, such as high variance and the inability to learn online from incomplete episodes. These limitations directly motivated the development of temporal-difference learning, which updates estimates based in part on other learned estimates without waiting for the final outcome of an episode.</p>
+<p>Exploring the intersection of Monte Carlo methods and dynamic programming illuminates the fundamental bias-variance tradeoff in reinforcement learning. Algorithms like SARSA and Q-learning represent core temporal-difference control methods, though they must be carefully managed to avoid maximization bias. Practical implementations, such as experiments on the Cliff Walking gridworld, demonstrate how these algorithms behave differently in practice, highlighting the nuances of exploration, exploitation, and policy convergence.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>/goal in Claude Code lets you define a completion condition once, and Claude keeps working turn after turn until a separate evaluator model (Haiku by default) confirms the condition is met by reading the conversation transcript.</p>
-<p>Under the hood, two models run in a loop.</p>
-<p>* Sonnet/Opus handles the actual coding.</p>
-<p>* After every turn, Haiku reads the full conversation transcript and checks whether completion conditions were met.</p>
-<p>* If Haiku says “not yet,” Sonnet/Opus starts another turn automatically.</p>
-<p>The Haiku evaluator costs almost nothing. But the worker still runs at full Sonnet/Opus rates.</p>
-<p>So the condition you write directly controls how many expensive turns Claude takes before the loop terminates.</p>
-<p>Anthropic recommends three things in a /goal condition:</p>
-<p>​</p>
-<p>* a measurable end state</p>
-<p>* a stated check</p>
-<p>* and constraints.</p>
-<p>They also suggest adding a turn cap.</p>
-<p>What the docs don’t cover is what happens when any of those pieces are missing.</p>
-<p>A vague condition like “make the app production-ready” loops indefinitely because no command output ever proves that claim.</p>
-<p>A subjective condition like “complete the migration” lets Claude self-report completion, and Haiku accepts it because the judge only sees the transcript.</p>
-<p>The nine-section template in the image expands Anthropic’s three-part recommendation into a structured prompt that addresses both failure modes.</p>
-<p>​</p>
-<p>→ GOAL defines the objective in a single sentence, eliminating ambiguity.</p>
-<p>→ CONTEXT gives Claude the background it needs, so it doesn’t waste turns exploring the codebase.</p>
-<p>→ CONSTRAINTS set hard scope boundaries.</p>
-<p>→ PRIORITY controls execution order so Claude tackles easy wins first.</p>
-<p>→ PLAN states the approach explicitly, preventing aimless exploration that burns tokens.</p>
-<p>→ DONE WHEN forces a binary, observable outcome like pytest exits 0, not a subjective state like “code quality is improved.”</p>
-<p>→ VERIFY makes Claude run a specific command whose raw output lands in the transcript, so Haiku judges machine evidence, not self-reports.</p>
-<p>→ OUTPUT specifies what Claude should surface when done.</p>
-<p>→ STOP RULES cap the downside with a turn limit. Without this, a slightly wrong condition loops forever.</p>
-<p>For even stronger guarantees, pair /goal with a Stop hook that runs your test suite or hits a CI endpoint after every turn. That moves verification from the prompt layer to the infrastructure layer, where it’s deterministic.</p>
-<p>machine learning</p>
+  <h2><span class="sec-icon">💡</span>Structuring Autonomous Agent Loops in Claude Code</h2>
+  <p>Autonomous coding assistants utilize continuous execution loops where a worker model, such as Claude Sonnet or Opus, generates code, while a separate evaluator model, such as Claude Haiku, reviews the conversation transcript to check completion conditions. Because the evaluator model runs at a negligible cost while the worker model incurs full operational expenses, the design of the completion condition directly dictates token consumption and cost. Vague or subjective conditions often lead to infinite loops because no objective command output proves the task is finished.</p>
+<p>To mitigate these failure modes, structured prompts must expand beyond basic goals to include comprehensive contextual constraints and explicit verification steps. A robust prompt template defines a single-sentence objective, supplies necessary context to minimize codebase exploration, sets hard scope boundaries, and establishes execution priorities. Furthermore, it incorporates an explicit plan to prevent aimless token expenditure and enforces a binary, observable outcome rather than a subjective state.</p>
+<p>Verification is a critical component of this architecture. By forcing the agent to run a specific command whose raw output lands in the transcript, the evaluator judges hard machine evidence rather than the agent's self-reported progress. Incorporating stop rules and turn caps prevents runaway execution, while infrastructure-layer integrations like automated test suites or continuous integration endpoints provide deterministic guarantees that complement prompt-level design choices.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>At times, no matter how much you try, the model performance barely improves:</p>
-<p>* Feature engineering gives a marginal improvement.</p>
-<p>* Trying different models does not produce satisfactory results either.</p>
-<p>* and more…</p>
-<p>This is usually an indicator that we don’t have enough data to work with.</p>
-<p>But since gathering new data can be a time-consuming and tedious process...</p>
-<p>...here's a technique to determine whether more data will help:</p>
-<p>​</p>
-<p>* Divide the dataset into “k” equal parts. Usually, 7 to 12 parts are fine.</p>
-<p>* Train models cumulatively on the above subsets and measure the performance on the validation set:</p>
-<p>​</p>
-<p>* Train a model on the first subset only.</p>
-<p>* Train a model on the first two subsets only.</p>
-<p>* And so on…</p>
-<p>Plotting the validation performance will produce one of these two lines:</p>
-<p>​</p>
-<p>* Line A conveys that adding more data will likely increase the model's performance.</p>
-<p>* Line B conveys that the model's performance has already saturated. Adding more data will most likely not result in any considerable gains.</p>
-<p>This way, you can ascertain whether gathering data will help.</p>
-<p>​</p>
+  <h2><span class="sec-icon">⚙️</span>Diagnosing Data Saturation to Optimize Machine Learning Performance</h2>
+  <p>In machine learning workflows, encountering a plateau where model performance barely improves despite feature engineering or model tuning is a common frustration. These performance bottlenecks often indicate that the available dataset has been exhausted of useful signal, meaning the system is suffering from a data deficit. However, gathering additional data is frequently tedious, expensive, and time-consuming, necessitating a diagnostic method to determine whether more data will actually yield performance gains.</p>
+<p>To ascertain whether additional data will help, practitioners can divide their existing training dataset into several equal parts, typically ranging from seven to twelve subsets. By training models cumulatively on these incremental subsets—starting with the first subset, then the first two combined, and so on—engineers can measure validation performance at each step. Plotting this validation performance against dataset size reveals distinct trajectories that inform future data collection efforts.</p>
+<p>The resulting learning curves generally follow one of two patterns. The first pattern indicates that model performance is still scaling positively with data, suggesting that gathering more data will increase overall predictive capability. The second pattern shows that performance has completely saturated, meaning additional data will likely result in negligible gains. This empirical diagnostic saves substantial time and engineering capital by preventing unnecessary data collection when model architecture or feature space is the true bottleneck.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative Q-learning update step in a tabular reinforcement learning setting
+import numpy as np
+
+def q_learning_update(Q, state, action, reward, next_state, alpha, gamma):
+    """
+    Performs a single Q-learning update step for a tabular state-action space.
+    
+    Parameters:
+    - Q: Current Q-value table of shape (n_states, n_actions)
+    - state: Current discrete state index
+    - action: Action taken in the current state
+    - reward: Reward received after taking the action
+    - next_state: Resulting state after the action
+    - alpha: Learning rate (0 &lt; alpha &lt;= 1)
+    - gamma: Discount factor (0 &lt;= gamma &lt;= 1)
+    """
+    # Find the maximum Q-value for the next state (off-policy update)
+    best_next_action_value = np.max(Q[next_state])
+    
+    # Compute the Temporal Difference (TD) target
+    td_target = reward + gamma * best_next_action_value
+    
+    # Compute the Temporal Difference error
+    td_error = td_target - Q[state, action]
+    
+    # Update the Q-value for the current state-action pair
+    Q[state, action] += alpha * td_error
+    
+    return Q</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Model-free learning in RL.</li>
-<li>The anatomy of a perfect /goal prompt in Claude Code.</li>
-<li>A technique to decide if you should gather more data.</li>
-<li>It covers Monte Carlo prediction and control</li>
-<li>The structural limits of MC that motivated temporal-difference learning</li>
-<li>The intersection of MC and DP and the bias-variance tradeoff between the two,</li>
-<li>SARSA, Q-learning, and maximization bias</li></ul>
+  <ul><li>Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities.</li>
+<li>Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally.</li>
+<li>Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.</li>
+<li>Structured agent prompts require explicit measurable end states, hard constraints, and raw command verification to prevent infinite loops.</li>
+<li>Plotting validation performance across cumulative data subsets reveals whether a model's predictive capacity has saturated.</li>
+<li>Sequential decision problems increasingly drive advanced AI applications, from token generation to multi-step agentic execution.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What is the primary theoretical difference between model-based and model-free reinforcement learning?</div>
+<div class="iq-q">How do temporal-difference learning methods differ from Monte Carlo methods in terms of variance and learning frequency?</div>
+<div class="iq-q">What causes maximization bias in Q-learning, and how can double Q-learning mitigate it?</div>
+<div class="iq-q">Why is it insufficient to rely on subjective self-reporting when evaluating completion conditions in autonomous agent loops?</div>
+<div class="iq-q">How does the bias-variance tradeoff manifest when balancing dynamic programming updates against Monte Carlo sampling?</div>
+<div class="iq-q">What steps are involved in constructing a cumulative data subset experiment to diagnose model performance saturation?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Deep Q-Networks and Function Approximation in Reinforcement Learning</li>
+<li>Multi-Agent Reinforcement Learning and Policy Gradient Methods</li>
+<li>Advanced Prompt Engineering Patterns for Autonomous Software Agents</li>
+<li>Statistical Learning Theory and Empirical Learning Curve Analysis</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -706,7 +637,7 @@ AI engineering...</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1071,7 +1002,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

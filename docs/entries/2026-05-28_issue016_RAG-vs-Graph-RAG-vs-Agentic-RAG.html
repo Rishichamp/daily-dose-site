@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #16 · LLMs &amp; Agents · 7 min read</div>
+  <div class="issue-badge">Issue #16 · LLMs &amp; Agents · 3 min read</div>
   <h1 class="entry-title">RAG vs Graph RAG vs Agentic RAG</h1>
   <div class="entry-meta"><span>📅 May 28, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,189 +527,92 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Free hands-on virtual event on agentic AI at AWS Summit India Online.
-* RAG vs. Graph RAG vs. Agentic RAG.
-* ​An animated guide to DBSCAN clustering​.
-* [Hands-on] Tool calling in LLMs.
-
-TODAY'</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Free hands-on virtual event on agentic AI at AWS Summit India Online.</p>
-<p>* RAG vs. Graph RAG vs. Agentic RAG.</p>
-<p>* ​An animated guide to DBSCAN clustering​.</p>
-<p>* [Hands-on] Tool calling in LLMs.</p>
-<p>TODAY'S ISSUE</p>
-<p>TOGETHER WITH AWS...</p>
+  <p>Modern data science and machine learning applications demand advanced methods for data retrieval, pattern recognition, and external system integration. As data pipelines grow more sophisticated, relying on naive approaches—such as standard similarity search or rigid clustering algorithms—often leads to performance bottlenecks and incomplete insights. Understanding how to select the right tool or architecture for a specific problem is essential for building production-ready AI systems.</p>
+<p>Retrieval-Augmented Generation (RAG) has evolved beyond basic vector lookups to address multi-hop reasoning and dynamic task execution. Similarly, clustering complex datasets requires moving past traditional assumptions about spherical data distributions to leverage density-based methods that identify arbitrary shapes and handle noise effectively. Finally, empowering large language models to interact with external APIs through tool calling bridges the gap between static text generation and dynamic, real-world utility.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>​</p>
-<p>​AWS Summit India Online  is happening on June 3rd, and it’s completely free.</p>
-<p>The part we like about this event is that it hosts hands-on virtual labs with Amazon Bedrock and agentic AI. These are not just talks about agents, but actual labs where participants can experiment with them to build AI systems in production.</p>
-<p>Beyond the labs, there are 50+ sessions covering agentic AI, serverless computing, cloud modernization, and real-world case studies from companies across industries. Live Q&amp;A with AWS solution architects and AWS Partners is available throughout the day.</p>
-<p>The event runs from 10 AM to 4 PM IST, and on-demand replays stay accessible through July 3rd, so it’s easy to learn at your own pace from anywhere.</p>
-<p>​Register here (for free) → ​</p>
-<p>--&gt;​Register for free here! </p>
-<p>​Register for free here! </p>
-<p>RAG</p>
-<p>---</p>
+  <h2><span class="sec-icon">🔬</span>Comparing RAG Architectures: Standard, Graph, and Agentic RAG</h2>
+  <p>Standard Retrieval-Augmented Generation relies on embedding documents into vector spaces and utilizing similarity search to retrieve the most relevant chunks. This approach excels at direct, single-hop factual lookups where the answer resides within a localized context. However, standard RAG breaks down when a query requires connecting facts spread across multiple, disparate documents. Because similarity search retrieves individual chunks based on embedding proximity, it misses critical relational bridges that exist outside the immediate query vector space.</p>
+<p>Graph RAG introduces a knowledge graph layer to overcome the limitations of isolated vector chunks. During the indexing phase, an LLM extracts entities and relationships from source documents, mapping them as connected nodes and edges. When a multi-hop query is executed, the system traverses these explicit connections rather than relying solely on embedding similarity. This allows the retrieval pipeline to navigate through intermediary facts—such as linking a service to an API and that API to a specific infrastructure cluster—ensuring that all context required to answer complex relationship queries is successfully gathered.</p>
+<p>Agentic RAG takes architectural flexibility a step further by replacing fixed retrieval pipelines with dynamic decision-making. Instead of following a predetermined path, an LLM agent evaluates the user query at runtime to determine which tools to invoke, which data sources to query, and in what order. Crucially, these three architectures do not represent a linear progression of sophistication that developers must graduate through. Instead, they solve fundamentally different query types: standard RAG handles single-hop lookups, Graph RAG addresses multi-hop relationships, and Agentic RAG manages dynamic, multi-source tasks.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>​</p>
-<p>Standard RAG embeds documents into vectors and retrieves the most similar chunks via similarity search. For direct factual lookups, this works well.</p>
-<p>But it breaks down when a query needs to connect facts spread across multiple documents. Similarity search retrieves individual chunks, not the relationships between them.</p>
-<p>Graph RAG adds a knowledge graph layer on top.</p>
-<p>​</p>
-<p>* During indexing, an LLM extracts entities and relationships from the documents.</p>
-<p>* During retrieval, the system traverses these connections instead of relying on embedding similarity alone.</p>
-<p>This is what enables multi-hop queries.</p>
-<p>Say a vector DB stores three facts about internal services:</p>
-<p>↳ “The checkout service uses payments API.”</p>
-<p>↳ “The payments API runs on cluster-3.”</p>
-<p>↳ “Cluster-3 is scheduled for maintenance on Friday.”</p>
-<p>Someone asks: “Will the checkout service be affected by Friday’s maintenance?”</p>
-<p>Vector search can likely retrieve facts 1 and 3 because the query mentions “checkout service” and “Friday maintenance.”</p>
-<p>But it will miss fact 2, which connects the payments API to cluster-3.</p>
-<p>​</p>
-<p>That middle fact sits too far from the query in embedding space. It mentions neither “checkout” nor “maintenance,” so it never makes it into the retrieved context.</p>
-<p>A knowledge graph connects these as linked entities, and graph traversal finds the full path in one query.</p>
-<p>Agentic RAG takes a different approach entirely.</p>
-<p>Instead of a fixed retrieval pipeline, an LLM agent decides at query time which tools to invoke, which sources to query, and in what order.</p>
-<p>Check the visual below again to understand the three architectures thoroughly.</p>
-<p>​</p>
-<p>One thing to note here is that these three aren’t levels of sophistication that you need to graduate through.</p>
-<p>Instead, they solve different query types.</p>
-<p>↳ Single-hop factual lookups → standard RAG</p>
-<p>↳ Multi-hop relationship queries → Graph RAG</p>
-<p>↳ Dynamic multi-source tasks with tool use → Agentic RAG</p>
-<p>If you want to dive further, our full RAG crash course discusses RAG from basics to beyond:</p>
-<p>* ​​​​​RAG fundamentals​​​​ ​</p>
-<p>* ​​​​​RAG evaluation​​​​ ​</p>
-<p>* ​​​​​RAG optimization​​​​ ​</p>
-<p>* ​​​​​Multimodal RAG​​​​ ​</p>
-<p>* ​​​​​Graph RAG​​​​ ​</p>
-<p>* ​​​​​Multivector retrieval using ColBERT​​​​ ​</p>
-<p>* ​​​​​RAG over complex real-world docs ft. ColPali​​​​ ​</p>
-<p>👉 Over to you: Which RAG architecture are you running in production?</p>
-<p>CLUSTERING</p>
+  <h2><span class="sec-icon">💡</span>DBSCAN Clustering and LLM Tool Calling Implementation</h2>
+  <p>Density-Based Spatial Clustering of Applications with Noise (DBSCAN) addresses major limitations inherent in algorithms like KMeans, such as the inability to account for cluster covariance or non-spherical shapes. While KMeans forces data into round, spherical clusters regardless of the underlying distribution, DBSCAN identifies clusters based on areas of high density separated by areas of low density. This allows it to discover arbitrarily shaped clusters and naturally isolate outlier data points as noise. Despite these advantages, standard DBSCAN suffers from a run-time complexity that grows quadratically with the number of data points, prompting the development of scalable alternatives like DBSCAN++.</p>
+<p>In parallel, extending an LLM's capabilities beyond its training data requires the implementation of tool calling. When generating responses, an LLM can act as a coordinator that recognizes when a task demands external assistance, invokes the appropriate API or function, and integrates the resulting output into its final answer. By passing tool definitions to models using frameworks like Ollama, developers can inspect the structured response object to extract function names and arguments. This enables the model to bridge internal reasoning with real-time data retrieval, such as fetching current stock prices or interacting with external services via standardized protocols like the Model Context Protocol (MCP).</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import yfinance as yf
+import ollama
+
+def get_stock_price(ticker: str) -&gt; str:
+    """Fetches the latest closing price for a specified stock ticker using yfinance."""
+    stock = yf.Ticker(ticker)
+    todays_data = stock.history(period='1d')
+    return str(todays_data['Close'].iloc[0])
+
+# Define the tools available to the LLM
+tools = [{
+    'type': 'function',
+    'function': {
+        'name': 'get_stock_price',
+        'description': 'Get the latest closing price for a stock ticker',
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'ticker': {
+                    'type': 'string',
+                    'description': 'The stock ticker symbol, e.g. AAPL for Apple',
+                }
+            },
+            'required': ['ticker'],
+        },
+    },
+}]
+
+# Prompt the model with the tool definitions
+response = ollama.chat(
+    model='llama3.2',
+    messages=[{'role': 'user', 'content': 'What is the stock price of Apple?'}],
+    tools=tools,
+)
+
+# Inspect the tool calls returned by the model
+if response.get('message', {}).get('tool_calls'):
+    for tool in response['message']['tool_calls']:
+        print(f"Tool to call: {tool['function']['name']}")
+        print(f"Arguments: {tool['function']['arguments']}")</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>If you have ever struggled to understand the DBSCAN clustering algorithm, such as:</p>
-<p>* What are core points, border points, and noise points?</p>
-<p>* How do its hyperparameters fit into the algorithm?</p>
-<p>* How does it perform clustering?</p>
-<p>…then the video below will help you build an intuitive understanding.</p>
-<p>video preview ( https://api.filekitcdn.com/e/k7YHPN24SoxyM8nGKZnDxa/vircxUqLxfLMbJBQfu1BAq/player )--&gt;</p>
-<p>video preview--&gt;</p>
-<p>​</p>
-<p>It covers all the steps that we typically follow in DBSCAN.</p>
-<p>***********</p>
-<p>Why DBSCAN?</p>
-<p>***********</p>
-<p>While KMeans is widely used due to its simplicity and effectiveness as a clustering algorithm, it has many limitations:</p>
-<p>* It does not account for cluster covariance.</p>
-<p>* It can only produce spherical clusters. As shown below, even if the data has non-circular clusters, it still produces round clusters.</p>
-<p>​</p>
-<p>Density-based algorithms, like DBSCAN, quite effectively address these limitations.</p>
-<p>The video above explains how it works.</p>
-<p>Of course, like any other algorithm, DBSCAN also has some limitations.</p>
-<p>One significant limitation is its run-time, which grows quadratically with the number of data points, as depicted below:</p>
-<p>​</p>
-<p>DBSCAN++ is a major step towards a fast and scalable DBSCAN.</p>
-<p>We covered it here: DBSCAN++: The Faster and Scalable Alternative to DBSCAN Clustering .</p>
-<p>👉 Over to you: What are some other limitations of DBSCAN?</p>
-<p>HANDS-ON</p>
-<p>--------</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>When generating text, like in ​ ​RAG systems ​​ , the LLM may need to invoke external tools or APIs to perform specific tasks beyond its built-in capabilities.</p>
-<p>​</p>
-<p>This is known as tool calling, and it turns the AI into more like a coordinator, which delegates tasks it cannot handle internally to specialized tools.</p>
-<p>The process is:</p>
-<p>* Recognize when a task requires external assistance.</p>
-<p>* Invoke the appropriate tool or API for that task.</p>
-<p>* Process the tool's output and integrate it into its response.</p>
-<p>Today, let us show you how to implement tool calling.</p>
-<p>We’ll build a stock price retrieval assistant that combines the natural language capabilities of an LLM with the real-time data retrieval capabilities of the yfinance library.​ ​</p>
-<p>First, we define a tool function, get_stock_price. It uses the yfinance library to fetch the latest closing price for a specified stock ticker:</p>
-<p>​</p>
-<p>Next, we prompt the LLM using Ollama and pass the tools the model can access for external information (if needed):</p>
-<p>​</p>
-<p>Printing the response, we get:</p>
-<p>​</p>
-<p>Notice that the message key in the above response object has tool_calls, which includes relevant details, such as:</p>
-<p>* tool.function.name: The name of the tool to be called.</p>
-<p>* tool.function.arguments: The arguments required by the tool.</p>
-<p>Thus, we can utilize this info to produce a response as follows:</p>
-<p>​</p>
-<p>This produces the following output.</p>
-<p>​</p>
-<p>This produces the expected output.</p>
-<p>Of course, the above output can also be passed back to the AI to generate a more vivid response, which we haven't shown here.</p>
-<p>But this simple demo shows that with tool calling, the assistant can be made more flexible and powerful to handle diverse user needs.</p>
-<p>MCP takes this idea much further, standardizing how models connect to tools and data sources so you aren't hand-wiring every integration yourself.</p>
-<p>We've already covered MCPs from scratch here , so check that out if you want to go deeper.</p>
-<p>* ​​Part 1 covered MCP fundamentals, the architecture, context management, etc. →​​​​ ​</p>
-<p>* ​​Part 2 covered core capabilities, JSON-RPC communication, etc. →​​​​ ​</p>
-<p>* ​​Part 3 built a fully custom and local MCP client →​​​​ ​</p>
-<p>* ​​Part 4 built a full-fledged MCP workflow using tools, resources, and prompts →​​​​ ​</p>
-<p>* ​​​​​Part 5 taught how to integrate Sampling into MCP workflows →​​​​ ​</p>
-<p>* ​​Part 6 covered testing, security, and sandboxing in MCP Workflows →​​​​ ​</p>
-<p>* ​​Part 7 covered testing, security, and sandboxing in MCP Workflows →​​​​ ​</p>
-<p>* ​​Part 8 integrated MCPs with the most widely used agentic frameworks: LangGraph, LlamaIndex, CrewAI, and PydanticAI →​​​​ ​</p>
-<p>* ​​​​​P​​​​​​art 9 covered using LangGraph MCP workflows to build a comprehensive real-world use case → ​</p>
-<p>👉 Over to you: What else would you like to learn about in LLMs?</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>​</p>
-<p>All businesses care about impact. That’s it!</p>
-<p>* Can you reduce costs?</p>
-<p>* Drive revenue?</p>
-<p>* Can you scale ML models?</p>
-<p>* Predict trends before they happen?</p>
-<p>We have discussed several other topics (with implementations) in the past that align with such topics.</p>
-<p>​</p>
-<p>* Learn MLOps from first principles to production in this course with 18 parts → ​</p>
-<p>* Learn everything about MCPs in this course with 9 parts → ​</p>
-<p>* Learn how to build Agentic systems in this course with 14 parts .</p>
-<p>* Learn how to build real-world RAG apps, evaluate, and scale them in this course .</p>
-<p>* Learn sophisticated graph architectures and how to train them on graph data in this course .</p>
-<p>* So many real-world NLP systems rely on pairwise context scoring. Learn scalable approaches here .</p>
-<p>* Learn how to run large models on small devices using Quantization techniques .</p>
-<p>* Learn how to generate prediction intervals or sets with strong statistical guarantees for increasing trust using Conformal Predictions .</p>
-<p>* Learn how to identify causal relationships and answer business questions using causal inference in this course .</p>
-<p>* Learn how to scale and implement ML model training in this practical guide .</p>
-<p>* Learn techniques to reliably test new models in production .</p>
-<p>* Learn how to build privacy-first ML systems using Federated Learning .</p>
-<p>* Learn 6 techniques with implementation to compress ML models .</p>
-<p>​</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Free hands-on virtual event on agentic AI at AWS Summit India Online.</li>
-<li>RAG vs. Graph RAG vs. Agentic RAG.</li>
-<li>​An animated guide to DBSCAN clustering​.</li>
-<li>[Hands-on] Tool calling in LLMs.</li>
-<li>During indexing, an LLM extracts entities and relationships from the documents.</li>
-<li>During retrieval, the system traverses these connections instead of relying on embedding similarity alone.</li>
-<li>​​​​​RAG fundamentals​​​​ ​</li></ul>
+  <ul><li>Standard RAG relies on vector similarity search, which excels at direct factual lookups but fails on multi-hop relationship queries.</li>
+<li>Graph RAG uses knowledge graphs and explicit entity traversal to connect facts spread across multiple documents.</li>
+<li>Agentic RAG utilizes runtime LLM decision-making to dynamically select tools, sources, and execution order based on query needs.</li>
+<li>DBSCAN clustering identifies dense regions and arbitrary cluster shapes while handling noise, contrasting with KMeans' spherical constraints.</li>
+<li>DBSCAN run-time scales quadratically with dataset size, leading to optimized variants like DBSCAN++.</li>
+<li>Tool calling transforms LLMs into coordinators that recognize external dependencies and invoke APIs to gather real-time data.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What are the primary failure modes of standard vector similarity search in RAG systems, and how does Graph RAG resolve them?</div>
+<div class="iq-q">How does graph traversal during retrieval differ mathematically and operationally from vector embedding cosine similarity?</div>
+<div class="iq-q">When should a system architect choose Agentic RAG over Graph RAG or standard RAG?</div>
+<div class="iq-q">What are the definitions of core points, border points, and noise points in DBSCAN clustering?</div>
+<div class="iq-q">Why does standard DBSCAN struggle with large datasets in terms of computational complexity, and how do algorithms like DBSCAN++ address this?</div>
+<div class="iq-q">How do LLMs process tool call outputs to generate final responses, and what role do JSON-RPC and schemas play in MCP architectures?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Graph RAG indexing strategies and entity extraction pipelines</li>
+<li>Scalable density-based clustering algorithms and DBSCAN++ optimization</li>
+<li>Advanced LLM tool calling patterns and error handling</li>
+<li>Model Context Protocol (MCP) architecture and secure sandboxing</li>
+<li>Multimodal retrieval techniques using ColPali and ColBERT</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -737,7 +640,7 @@ TODAY'</p>
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * Hermes Agent Masterclass* What Hermes Agent actually is\r\n* How it\u2019s built (whole Architecture)\r\n* Who is the Agent? SOUL.md, the identity layer.\r\n* The memory system.\r\n* Self-evolving skills and gar\n  Key points: Hermes Agent Masterclass* What Hermes Agent actually is | How it\u2019s built (whole Architecture) | Who is the Agent? SOUL.md, the identity layer.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Summary: * \u200bFrom idea to running app, without touching a cloud dashboard.\r\n* Claude Code's /goal command.\r\n* \u200bHow to use kNNs for imbalanced datasets\u200b.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with exe.dev...\n  Key points: \u200bFrom idea to running app, without touching a cloud dashboard. | Claude Code's /goal command. | \u200bHow to use kNNs for imbalanced datasets\u200b.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Summary: * \u200bYour Agent harness needs a harness too\u200b\r\n* [Hands-on] \u200bBuilding custom tools for AI Agents\u200b.\r\n* An intuitive perspective to understand neural networks.\r\n\r\nTODAY'S ISSUE\r\n\r\nopen-source...\n  Key points: \u200bYour Agent harness needs a harness too\u200b | [Hands-on] \u200bBuilding custom tools for AI Agents\u200b. | An intuitive perspective to understand neural networks.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Summary: * Model-free learning in RL.\r\n* The anatomy of a perfect /goal prompt in Claude Code.\r\n* A technique to decide if you should gather more data.\r\n\r\nTODAY'S ISSUE\r\n\r\nAI engineering...\n  Key points: Model-free learning in RL. | The anatomy of a perfect /goal prompt in Claude Code. | A technique to decide if you should gather more data.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Summary: * Automated release docs for engineering teams.\r\n* Implement knowledge distillation from scratch.\r\n* Descriptors in Python\u200b, explained with code.\r\n\r\nTODAY'S ISSUE\r\n\r\ntogether with Doc Holiday...\n  Key points: Automated release docs for engineering teams. | Implement knowledge distillation from scratch. | Descriptors in Python\u200b, explained with code.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Summary: * \u200bDrag-and-drop UI to build AI agent workflows\u200b.\r\n* The top Hermes integrations\r\n* \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nOpen-source...\n  Key points: \u200bDrag-and-drop UI to build AI agent workflows\u200b. | The top Hermes integrations | \u200bPlatt Scaling for model calibration\u200b, explained visually.\u200b\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n  Summary: * Build a common memory layer for all your AI apps\u200b.\r\n* \u200bThe anatomy of ~/.hermes folder\u200b.\r\n* 6 steps to build an ML model.\r\n\r\nTODAY'S ISSUE\r\n\r\nHands-on Demo...\n  Key points: Build a common memory layer for all your AI apps\u200b. | \u200bThe anatomy of ~/.hermes folder\u200b. | steps to build an ML model.\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Summary: * A lesson from running AI in production.\r\n* Karpathy\u2019s prediction about RL is coming true now!\r\n* \u200bAvoid Using PCA for Visualization Unless...\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: A lesson from running AI in production. | Karpathy\u2019s prediction about RL is coming true now! | \u200bAvoid Using PCA for Visualization Unless...\u200b\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Summary: * An open-source alternative to Claude (29k+ stars)!\r\n* [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning\r\n* Where extraction fits in the pipelin\n  Key points: An open-source alternative to Claude (29k+ stars)! | [Hands-on] Agent memory is only as good as its schema:* Why flat retrieval breaks on multi-hop reasoning | Where extraction fits in the pipeline\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Summary: * Function Approximation in RL.\r\n* \u200bFrom prompt to context to harness engineering\u200b.\r\n* Build an automated Agent optimization workflow.\r\n\r\nTODAY'S ISSUE\r\n\r\nDeep dives...\n  Key points: Function Approximation in RL. | \u200bFrom prompt to context to harness engineering\u200b. | Build an automated Agent optimization workflow.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Summary: * Innovative AI for everyone.\r\n* The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick.\r\n* \u200bBuild portable ML models with ONNX\u200b\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with AWS...\n  Key points: Innovative AI for everyone. | The No. 1 deep researcher beats Claude/ChatGPT using a counterintuitive trick. | \u200bBuild portable ML models with ONNX\u200b\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Summary: * Free course to learn Generative UI, Anthropic's most viral feature\u200b.\r\n* \u200bClaude Code used 3x fewer tokens with just one change!\u200b\r\n* Docker explained in 2 minutes!\r\n* Active learning in ML.\r\n\r\nTODAY'\n  Key points: Free course to learn Generative UI, Anthropic's most viral feature\u200b. | \u200bClaude Code used 3x fewer tokens with just one change!\u200b | Docker explained in 2 minutes!\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Summary: * \u200bWhat your Claude Code setup is missing.\r\n* [Video] Hermes agent masterclass.\r\n* 11 types of variables in a dataset.\r\n\r\nTODAY'S ISSUE\r\n\r\nTogether with coderabbit...\n  Key points: \u200bWhat your Claude Code setup is missing. | [Video] Hermes agent masterclass. | types of variables in a dataset.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n\nIssue #3 | 2026-05-13 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework. | The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries. | A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.\n\nIssue #4 | 2026-05-14 | Claude Codes goal Command | [LLMs & Agents]\n  Key points: The `/goal` command in Claude Code eliminates the human bottleneck in long-running agentic coding by automating multi-turn execution. | An evaluator model (Haiku by default) reviews the conversation transcript after each turn to assess whether a defined condition has been met. | Goal conditions must describe observable, verifiable end states rather than abstract qualities to prevent hallucinations and infinite loops.\n\nIssue #5 | 2026-05-15 | Handson Building Custom Tools for AI Agents | [LLMs & Agents]\n  Key points: Agent performance is dictated more by the surrounding software harness and testing infrastructure than by model weights alone. | Automated debugging agents can inspect failure traces, read source code, propose diffs, and validate fixes autonomously. | Custom agent tools require both a strongly typed input schema and a structured execution class with robust error handling.\n\nIssue #6 | 2026-05-17 | ModelFree Learning in RL | [Reinforcement Learning]\n  Key points: Model-free reinforcement learning enables agents to learn optimal policies from environment interaction without knowing transition probabilities. | Temporal-difference learning combines the benefits of Monte Carlo methods and dynamic programming by updating estimates incrementally. | Autonomous coding loops rely on separate worker and evaluator models where completion criteria directly impact operational costs.\n\nIssue #7 | 2026-05-18 | Implement Knowledge Distillation from Scratch | [Data Science]\n  Key points: Knowledge distillation trains a smaller student model to mimic the soft probability outputs of a larger teacher model. | Kullback-Leibler (KL) divergence serves as the ideal loss function for distillation by measuring the difference between the teacher and student probability distributions. | Distillation significantly reduces inference latency and model size with minimal loss in predictive accuracy.\n\nIssue #8 | 2026-05-19 | The top Hermes integrations | [LLMs & Agents]\n  Key points: Sim provides a drag-and-drop ReactFlow interface as an AI-native alternative to n8n for building agent workflows. | Hermes agent integrations span knowledge management, code repositories, payment processors, and voice interaction tools. | Model calibration aligns a model's predicted confidence scores with its actual empirical accuracy.\n\nIssue #9 | 2026-05-20 | The Anatomy of hermes Folder | [LLMs & Agents]\n\nIssue #10 | 2026-05-21 | Karpathys Prediction About RL is Coming True Now | [Reinforcement Learning]\n  Key points: Monolithic AI deployments suffer from inefficient resource utilization because auto-scaling forces all application components to scale simultaneously during inference spikes. | Decomposing production architectures into decoupled managed services optimizes individual load curves and reduces overall cloud expenditure. | Traditional scalar reward functions in reinforcement learning present a low-dimensional bottleneck for teaching complex, real-world agent behaviors.\n\nIssue #11 | 2026-05-22 | Agent Memory Is Only as Good as Its Schema | [LLMs & Agents]\n  Key points: Flat vector retrieval struggles with multi-hop reasoning because it misses bridging facts that lack shared search terms. | Unstructured LLM-driven graph extraction results in generic labels like Topic and RELATES_TO that prevent meaningful querying. | Pydantic models with detailed field descriptions provide the extraction model with explicit classification vocabulary and constraints.\n\nIssue #12 | 2026-05-24 | Function Approximation in RL | [Reinforcement Learning]\n  Key points: Tabular reinforcement learning methods fail in real-world scenarios because they cannot scale to continuous state spaces and lack generalization. | Function approximation replaces lookup tables with parameterized models like neural networks or linear feature combinations to estimate values across similar states. | Reinforcement learning is increasingly critical in modern AI pipelines, driving post-training, alignment, and reasoning models like GRPO and RLHF.\n\nIssue #13 | 2026-05-25 | The No 1 Deep Researcher Beats Claude and ChatGPT Using a Counterintuitive Trick | [LLMs & Agents]\n  Key points: Restricting search access on orchestrator agents prevents premature query answering and encourages deep task decomposition. | Limiting agent hierarchies to two levels prevents information distortion caused by excessive multi-step summarization. | ONNX serves as a framework-agnostic intermediate representation containing standardized computation graphs and baked weights.\n\nIssue #14 | 2026-05-26 | Claude Code used 3x fewer tokens with just one change | [LLMs & Agents]\n  Key points: Generative UI transforms static AI text outputs into interactive, live-rendered components like charts and dashboards directly inside the chat interface. | Context engineering layers provide coding agents with immediate access to backend topology, drastically reducing redundant token consumption from sequential tool calls. | Docker architecture decouples the client, host daemon, and registry, enabling scalable container management and streamlined debugging.\n\nIssue #15 | 2026-05-27 | Hermes Agent Masterclass | [LLMs & Agents]\n  Key points: Production debugging bottlenecks are usually caused by fragmented tool visibility across logs, monitoring traces, and team chat history rather than the complexity of the fix itself. | Integrated AI agents can bridge communication platforms with cloud infrastructure to automate trace retrieval, pull request analysis, and incident postmortem generation. | Independent variables act as inputs for prediction, while dependent variables represent the target outcome being modeled.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1102,7 +1005,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

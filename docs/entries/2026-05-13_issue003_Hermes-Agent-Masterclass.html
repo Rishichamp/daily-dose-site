@@ -527,151 +527,87 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">* Hermes Agent Masterclass* What Hermes Agent actually is
-* How it’s built (whole Architecture)
-* Who is the Agent? SOUL.md, the identity layer.
-* The memory system.
-* Self-evolving skills and gar</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>* Hermes Agent Masterclass* What Hermes Agent actually is</p>
-<p>* How it’s built (whole Architecture)</p>
-<p>* Who is the Agent? SOUL.md, the identity layer.</p>
-<p>* The memory system.</p>
-<p>* Self-evolving skills and garbage collection for skills.</p>
-<p>* GEPA and Offline skill optimization.</p>
-<p>* Getting up and running.</p>
-<p>* Running multiple agents. profiles, three personas, scheduled</p>
-<p>digests.</p>
-<p>* Customising the agents as per your needs.</p>
-<p>TODAY'S ISSUE</p>
-<p>Hands-on</p>
-<p>--------...</p>
+  <p>The Hermes Agent platform represents a distinct shift in how developers deploy personal AI assistants. Unlike traditional frameworks that merely wrap a messaging gateway around an LLM, Hermes focuses on autonomous learning loops that allow the agent to capture context, store experiences, and evolve its own procedural skills. Crossing significant adoption milestones rapidly, it provides a viable architecture for autonomous systems that run continuously without manual intervention.</p>
+<p>At its core, Hermes packages a gateway around a learning agent rather than an agent around a gateway. This design choice enables the system to maintain long-term persistence across sessions while managing tool executions securely. By combining runtime skill generation with a strict execution budget, the framework prevents common pitfalls like infinite loops and runaway API costs.</p>
+<p>The architecture is built for flexibility, supporting multiple execution environments ranging from local terminals to cloud GPUs like Modal and Daytona. A unified translation layer abstracts underlying model providers, allowing engineers to switch seamlessly between Claude, GPT, Gemini, or local models running on Ollama. This ensures that the agent's underlying intelligence can be upgraded without breaking its established memory or skill structures.</p>
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">🔬</span>Section 1</h2>
-  <p>Hermes Agent crossed 90,000 GitHub stars in two months.</p>
-<p>Developers are quietly building personal AI agents that learn</p>
-<p>their workflow, remember their context, and run 24/7.</p>
-<p>​</p>
-<p>Hermes Agent takes a fundamentally different approach which makes</p>
-<p>it much more practically useful over OpenClaw. It ships with a</p>
-<p>learning loop that:</p>
-<p>* Remembers across sessions</p>
-<p>* Writes its own reusable skills</p>
-<p>* Prunes them in the background</p>
-<p>* And validates them offline through an evolutionary engine</p>
-<p>called GEPA</p>
-<p>No other open-source agent combines all of them. Not even</p>
-<p>OpenClaw.</p>
-<p>This guide covers how this learning loop works, what each memory</p>
-<p>layer does, and how to configure everything from scratch.</p>
-<p>By the end, you’ll have three fully isolated agents running on</p>
-<p>your machine: a programmer (who uses your Claude code), a deep</p>
-<p>researcher, and a designer, each with its own personality,</p>
-<p>memory, skills, and Telegram bot.</p>
-<p>The whole setup takes minutes and everything here is reproducible</p>
-<p>on your own hardware.</p>
-<p>What Hermes is, and what makes it architecturally different</p>
+  <h2><span class="sec-icon">🔬</span>Architectural Foundations and Execution Environments</h2>
+  <p>The backbone of the Hermes Agent framework resides in a single AIAgent class initialized via a run_agent.py script. This centralized entry point serves the CLI, messaging gateways, batch runners, and IDE integrations alike, ensuring consistent behavior regardless of how the agent is invoked. The underlying operational loop follows a synchronous, ReAct-style pattern: it constructs the system prompt, verifies if context compression is necessary, issues an interruptible API call, executes any designated tool calls, and repeats the cycle.</p>
+<p>Execution safety is managed through strict operational constraints. The platform enforces a hard cap of 90 turns per task to prevent agents trapped in error loops from silently draining API credits. This budget constraint extends to subagents as well, ensuring that runaway delegation chains cannot bypass safety thresholds. Furthermore, command execution is environment-agnostic, capable of routing shell tasks to a local terminal, Docker container, SSH host, Modal instance, Daytona workspace, or Singularity environment through simple configuration adjustments.</p>
+<p>Interoperability across different large language models is achieved through a translation translation layer. This mechanism standardizes interactions, allowing developers to route prompts through various API formats without altering application logic. Whether shifting from commercial frontier models to local open-weights alternatives via Ollama, the transition requires minimal friction, preserving the integrity of the agent's surrounding workflow.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">💡</span>Section 2</h2>
-  <p>The one-line pitch: an agent that gets better the longer you use</p>
-<p>it.</p>
-<p>What makes that real is that three usually separate capabilities</p>
-<p>sit in one framework: runtime skill learning, persistent</p>
-<p>multi-layer memory, and an optional weight-training pipeline. No</p>
-<p>other open-source agent ships all three.</p>
-<p>The closest comparison in the open ecosystem is OpenClaw. Both</p>
-<p>are persistent, messaging-friendly, but they make opposite</p>
-<p>architectural choices.</p>
-<p>​</p>
-<p>A clean framing from the Kilo blog captures it: “Hermes packages</p>
-<p>a gateway around a learning agent. OpenClaw packages an agent</p>
-<p>around a messaging gateway.”</p>
-<p>How it’s built</p>
+  <h2><span class="sec-icon">💡</span>Identity and Multi-Tiered Memory Management</h2>
+  <p>Before an agent acquires memories or skills, it requires a stable identity to maintain behavioral consistency. Hermes implements this through a static configuration file named SOUL.md, located in the user's home directory. Positioned at the very top of the system prompt, this file dictates the agent's personality, communication style, tone, and operational boundaries. Because it is hand-authored and persists unchanged across sessions, it provides a stable anchor against which dynamic memories and skills are evaluated.</p>
+<p>Memory within Hermes is divided into three distinct architectural tiers to balance token efficiency with long-term retention. Tier 1 consists of two compact Markdown files: MEMORY.md, which stores environmental notes, tool quirks, and project conventions, and USER.md, which records user preferences and skill levels. These files are injected into the system prompt as frozen snapshots, and when they approach capacity, the agent automatically consolidates redundant entries into denser summaries.</p>
+<p>Tier 2 memory comprises a local SQLite database with full-text search capabilities, allowing the agent to query weeks of historical conversations on demand. Tier 3 opens the framework to external memory plugins, enabling deep persistence layers that prefetch relevant memories prior to each turn and sync conversation logs upon session completion. This layered approach ensures that critical directives remain instantly accessible in context while vast historical records stay searchable in the background.</p>
   
 </div>
 <div class="sec">
-  <h2><span class="sec-icon">⚙️</span>Section 3</h2>
-  <p>Before the learning loop makes sense, you need a basic picture of</p>
-<p>how Hermes is structured.</p>
-<p>Everything flows through a single AIAgent class in a run_agent.py</p>
-<p>script. CLI, messaging gateway, batch runner, IDE integration:</p>
-<p>they’re all entry points into the same core agent.</p>
-<p>This is what makes the platform-agnostic story actually work.</p>
-<p>​</p>
-<p>The core loop is ReAct-style and synchronous. Build the system</p>
-<p>prompt, check if compression is needed, make an interruptible API</p>
-<p>call, execute any tool calls, and loop again.</p>
-<p>A few key details:</p>
-<p>* The agent can run commands in six different places. Local</p>
-<p>terminal, Docker, SSH, Modal, Daytona, or Singularity. Same code,</p>
-<p>just a config change. Move execution from your laptop to a cloud</p>
-<p>GPU server without touching anything else.</p>
-<p>* It works with almost any model. A translation layer routes any</p>
-<p>provider through one of three API formats. That’s why you can</p>
-<p>swap from Claude to GPT to Gemini to local Ollama with one</p>
-<p>command and nothing breaks.</p>
-<p>* The agent has a hard cap of 90 turns per task. Without it, an</p>
-<p>agent stuck in a loop (retrying a failing API, re-reading the</p>
-<p>same file) would silently burn through your credits. Subagents</p>
-<p>share the same budget, so a runaway delegation chain can’t sneak</p>
-<p>past either.</p>
-<p>Before memory</p>
+  <h2><span class="sec-icon">⚙️</span>Procedural Memory and Self-Evolving Skills</h2>
+  <p>While factual memory records environment details, procedural memory governs how tasks are executed. In Hermes, procedural memory takes the form of SKILL.md files equipped with YAML frontmatter. To prevent context window bloat, the framework implements a progressive disclosure model where the agent initially scans only names and descriptions at Level 0, loads full skill content at Level 1 when execution begins, and drills down into specific reference files at Level 2.</p>
+<p>The self-improvement loop enables the agent to autonomously expand its procedural catalog. When the agent completes complex workflows, overcomes errors through trial and error, or incorporates direct user corrections, it uses the skill_manage tool to write new operational playbooks. Subsequent encounters with similar problems prompt the agent to load these validated skills rather than rediscovering solutions from scratch, utilizing targeted patching mechanisms to maintain token efficiency.</p>
+<p>To prevent catalog pollution from accumulated narrow playbooks, Hermes incorporates an automated maintenance system known as the Curator. Triggered after specific inactivity thresholds, a forked background agent reviews all agent-authored skills without disturbing the active conversation. The Curator executes deterministic transitions based on usage age—classifying unused skills as stale or archived—while offering robust rollback mechanisms via tar.gz snapshots to ensure that no operational knowledge is permanently lost without user intent.</p>
   
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code># Illustrative representation of the core Hermes ReAct loop structure
+class AIAgent:
+    def __init__(self, model_client, soul_identity, memory_manager):
+        self.client = model_client
+        self.soul = soul_identity
+        self.memory = memory_manager
+        self.max_turns = 90
+        self.turn_count = 0
+
+    def run_task(self, prompt: str):
+        context = self.build_system_prompt()
+        history = self.memory.fetch_relevant_history(prompt)
+        
+        while self.turn_count &lt; self.max_turns:
+            self.turn_count += 1
+            response = self.client.generate(context, history, prompt)
+            
+            if response.has_tool_calls():
+                tool_results = self.execute_tools(response.tool_calls)
+                history.append(tool_results)
+            else:
+                return response.content
+                
+        raise TimeoutError("Task exceeded maximum turn budget of 90 turns.")
+
+    def build_system_prompt(self):
+        return f"{self.soul.load_content()}\n{self.memory.get_tier_one_snapshot()}"</code></pre>
 </div>
-<div class="sec">
-  <h2><span class="sec-icon">🏗️</span>Section 4</h2>
-  <p>Before we get to memory and self-evolving skills, there’s a layer</p>
-<p>that sits above both: identity.</p>
-<p>Memory is what the agent knows. Skills are how it does things.</p>
-<p>But neither tells you who it is when it shows up. Without an</p>
-<p>identity layer, every agent feels like the same agent wearing</p>
-<p>different hats.</p>
-<p>Hermes solves this with a single file: SOUL.md.</p>
-<p>It lives at ~/.hermes/SOUL.md and occupies slot #1 in the system</p>
-<p>prompt, before anything else loads. It defines the agent’s</p>
-<p>personality, tone, communication style, and hard limits.</p>
-<p>​</p>
-<p>SOUL.md is hand-authored and static. You write it once, tweak it</p>
-<p>over time, and it stays consistent across every project and every</p>
-<p>session. If the file is missing, Hermes falls back to a built-in</p>
-<p>default identity.</p>
-<p>Why does this matter for the self-improving story? Because</p>
-<p>everything that follows (the memory the agent writes, the skills</p>
-<p>it creates, the way it consolidates knowledge) happens through</p>
-<p>the lens of this identity.</p>
-<p>SOUL.md is the fixed frame. Memory and skills are the moving</p>
-<p>parts inside it.</p>
-<p>The memory system</p>
-  
-</div>
-<div class="sec">
-  <h2><span class="sec-icon">📊</span>Section 5</h2>
-  <p>Hermes doesn’t have a single “memory.” It has three layers, each</p>
-<p>designed for a different purpose.</p>
-<p>​</p>
-<p>Tier 1: Two tiny Markdown files.</p>
-  
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Hermes Agent Masterclass* What Hermes Agent actually is</li>
-<li>How it’s built (whole Architecture)</li>
-<li>Who is the Agent? SOUL.md, the identity layer.</li>
-<li>The memory system.</li>
-<li>Self-evolving skills and garbage collection for skills.</li>
-<li>GEPA and Offline skill optimization.</li>
-<li>Getting up and running.</li></ul>
+  <ul><li>Hermes Agent integrates runtime skill learning, multi-layer memory, and offline evolutionary optimization into a single persistent framework.</li>
+<li>The SOUL.md identity layer occupies slot one in the system prompt to maintain consistent agent personality and behavioral boundaries.</li>
+<li>A three-tier memory architecture balances compact Markdown snapshots, SQLite full-text search, and pluggable external providers.</li>
+<li>Progressive disclosure limits token overhead by loading skill catalogs hierarchically from descriptions down to full operational playbooks.</li>
+<li>The Curator background system prunes and archives unused agent-authored skills while maintaining secure recovery snapshots.</li>
+<li>A strict 90-turn budget prevents runaway subagent delegation and infinite loops from depleting user API credits.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">How does the architectural framing of Hermes Agent differ from messaging-first frameworks like OpenClaw?</div>
+<div class="iq-q">What is the structural role of the SOUL.md file, and why must it precede other layers in the system prompt?</div>
+<div class="iq-q">Explain the multi-tier memory strategy in Hermes, detailing how Tier 1 and Tier 2 trade off capacity and context availability.</div>
+<div class="iq-q">Describe the progressive disclosure mechanism used for procedural skills and how it optimizes token usage.</div>
+<div class="iq-q">How does the autonomous skill creation loop function when an agent encounters and resolves a novel error?</div>
+<div class="iq-q">What safety constraints and recovery mechanisms govern the background Curator system during skill garbage collection?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Designing stateful agent architectures with persistent session SQLite backends</li>
+<li>Implementing progressive disclosure patterns for large prompt context management</li>
+<li>Evolutionary optimization engines for autonomous code and skill synthesis</li>
+<li>Background maintenance loops and safe archival strategies for AI-generated artifacts</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -699,7 +635,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
     <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
   </div>
 </div>
-<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Summary: Hey!\r\n\r\nWelcome to the Daily Dose of Data Science.\r\n\r\nAs promised, here's your free MCP guidebook:\r\n\r\n\r\n-->Download the PDF \r\nDownload the PDF We'll send you another email in a minute detailing what t\n  Key points: Avi and Akshay\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Summary: AI Engineering is advancing rapidly, and staying at the forefront\r\nrequires both deep understanding and hands-on experience.\r\n\r\nWe go beyond the \u201cnews\u201d by filtering out the noise and teaching\r\nhow to \n  Key points: Newsletter issues on mastering classical ML, deep learning, | Strategies to implement, adapt, and scale your ML projects. | In-depth tutorials on LLMs and RAGs.\n";</script>
+<script>const GEMINI_KEY_JS='';const TUTOR_CTX="=== DAILY DOSE OF DS \u2014 COMPLETE ISSUE INDEX ===\n\nIssue #1 | 2026-05-13 | Heres your free MCP PDF | [LLMs & Agents]\n  Key points: The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools. | MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers. | The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).\n\nIssue #2 | 2026-05-13 | Welcome 550 Page DSML PDF | [LLMs & Agents]\n  Key points: Balancing classical machine learning foundations with modern generative AI techniques is essential for a complete data science career. | Production-grade machine learning requires rigorous validation, monitoring for data drift, and scalable system design. | Retrieval-Augmented Generation (RAG) effectively mitigates LLM hallucinations by grounding text generation in external knowledge bases.\n";</script>
 <button class="btt" id="btt">↑</button>
 <canvas id="confetti"></canvas>
 <script>
@@ -1064,7 +1000,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }

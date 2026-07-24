@@ -517,7 +517,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   </div>
 </nav>
 <div class="entry-hero" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="issue-badge">Issue #1 · LLMs &amp; Agents · 2 min read</div>
+  <div class="issue-badge">Issue #1 · LLMs &amp; Agents · 3 min read</div>
   <h1 class="entry-title">Heres your free MCP PDF</h1>
   <div class="entry-meta"><span>📅 May 13, 2026</span><span>·</span><span>📬 Daily Dose of DS</span></div>
   <div class="entry-actions">
@@ -527,36 +527,116 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 </div>
 <div class="entry-body" style="--ca:#7C5CFF;--cb:#5B8CFF">
   
-<div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF">
-  <div class="tldr-label">TL;DR</div>
-  <p style="margin:0">Hey!
-
-Welcome to the Daily Dose of Data Science.
-
-As promised, here's your free MCP guidebook:
-
-
---&gt;Download the PDF 
-Download the PDF We'll send you another email in a minute detailing what t</p>
-</div>
 <div class="sec">
   <h2><span class="sec-icon">📋</span>Overview</h2>
-  <p>Hey!</p>
-<p>Welcome to the Daily Dose of Data Science.</p>
-<p>As promised, here's your free MCP guidebook:</p>
-<p>--&gt;Download the PDF </p>
-<p>Download the PDF We'll send you another email in a minute detailing what to</p>
-<p>expect from the Daily Dose of Data Science.</p>
-<p>- Avi and Akshay</p>
-<p>Co-founders of the Daily Dose of Data Science....</p>
+  <p>Modern artificial intelligence development has largely solved the challenge of model training and base capability, but deploying models into dynamic, data-rich environments remains complex. Large language models often operate in isolation, lacking real-time access to internal corporate documents, databases, or specialized developer tools. Bridging this gap typically requires custom, ad-hoc integrations for every unique data source and application, creating brittle architectures and maintenance overhead for engineering teams.</p>
+<p>The Model Context Protocol (MCP) emerges as a structured solution to this fragmentation. By establishing an open standard for how AI applications connect to external contexts, MCP simplifies the integration layer between clients, such as IDEs or chat interfaces, and servers that host tools and data. This architectural shift standardizes communication protocols, ensuring that models can securely fetch, manipulate, and reason over external information without requiring bespoke middleware for every new tool.</p>
+<p>For data science professionals, mastering MCP represents a shift toward more modular and scalable AI system design. Instead of hardcoding API calls into prompt engineering workflows or relying on unstructured tool-use loops, developers can utilize a standardized protocol that governs permissions, data formatting, and state management. This guide explores the foundational components of MCP and how it streamlines the interaction between intelligence layers and data layers.</p>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🔬</span>Core Architecture and Concepts of the Model Context Protocol</h2>
+  <p>The Model Context Protocol operates on a client-server architecture designed to decouple the user-facing AI application from the underlying data sources and execution environments. In this ecosystem, the client acts as the orchestrator—typically an AI-powered interface or development environment that initiates requests. The server acts as the provider, exposing specific capabilities, resources, and tools that the client can query. This separation of concerns ensures that security boundaries are strictly maintained, as the server controls what data is exposed and how actions are executed.</p>
+<p>At the heart of MCP are three primary primitives: Resources, Prompts, and Tools. Resources represent raw data sources such as files, database schemas, or API responses that the model can read to gather context. Prompts are pre-defined templates or workflows provided by the server that guide user interactions. Tools are executable functions that the model can invoke to perform actions, such as running a database query, executing code, or modifying a file. Together, these primitives allow models to transition from passive text generators to active agents capable of interacting with complex systems.</p>
+<p>Security and authentication are foundational considerations within the MCP architecture. Because models are granted the ability to read resources and execute tools, the protocol enforces strict permission boundaries at the server level. Administrators can configure fine-grained access controls, ensuring that an AI assistant only accesses authorized directories or executes permitted database operations. This mitigates risks associated with unintended data exfiltration and unauthorized system modifications in enterprise environments.</p>
+<p>Scaling AI applications often bottlenecks around context window management and retrieval-efficient data ingestion. MCP addresses this by allowing servers to stream or paginate resources dynamically rather than dumping entire datasets into the model's context window. This capability optimizes token usage, reduces latency, and lowers operational costs. By standardizing how context is requested and delivered, MCP enables developers to build responsive, context-rich applications that scale gracefully as data volumes grow.</p>
+  
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">💡</span>Implementing MCP Clients and Servers in Python</h2>
+  <p>Building an MCP-compliant application involves initializing a server that registers resources, prompts, or tools, and configuring a client to consume them. Python developers can leverage official libraries to spin up these components with minimal boilerplate. The implementation relies on asynchronous programming patterns to handle concurrent requests efficiently, ensuring that data retrieval and tool execution do not block the primary AI inference loop.</p>
+<p>To illustrate how an MCP server functions, consider a lightweight implementation using a Python code structure. This example demonstrates how to define a custom tool that an MCP client can discover and execute. The server registers the tool via a decorator, specifying its input schema and documentation, which the language model uses to understand when and how to call the function.</p>
+  
+<div class="code-wrap">
+  <div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div>
+  <pre><code>import asyncio
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+import mcp.types as types
+
+# Initialize the MCP server instance
+app = Server("data-science-server")
+
+@app.list_tools()
+async def list_tools() -&gt; list[types.Tool]:
+    """Define available tools for the MCP client."""
+    return [
+        types.Tool(
+            name="calculate_statistics",
+            description="Computes basic descriptive statistics for a list of numerical values.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {"type": "number"},
+                        "description": "A list of numbers to analyze."
+                    }
+                },
+                "required": ["data"]
+            }
+        )
+    ]
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict) -&gt; list[types.TextContent]:
+    """Execute the requested tool based on the incoming name and arguments."""
+    if name == "calculate_statistics":
+        data = arguments.get("data", [])
+        if not data:
+            return [types.TextContent(type="text", text="Error: Provided data list is empty.")]
+        
+        mean_val = sum(data) / len(data)
+        min_val = min(data)
+        max_val = max(data)
+        
+        result_str = (
+            f"Statistical Analysis:\n"
+            f"Count: {len(data)}\n"
+            f"Mean: {mean_val:.2f}\n"
+            f"Min: {min_val}\n"
+            f"Max: {max_val}"
+        )
+        return [types.TextContent(type="text", text=result_str)]
+    
+    raise ValueError(f"Unknown tool: {name}")
+
+async def main():
+    """Run the server using standard input/output transport."""
+    async with stdio_server() as (read_stream, write_stream):
+        await app.run(
+            read_stream,
+            write_stream,
+            app.create_initialization_options()
+        )
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📌</span>Key Takeaways</h2>
-  <ul><li>Avi and Akshay</li></ul>
+  <ul><li>The Model Context Protocol (MCP) standardizes how AI applications connect securely to external data sources and developer tools.</li>
+<li>MCP utilizes a client-server architecture that separates the user-facing AI interface from backend data providers.</li>
+<li>The three core primitives of MCP are Resources (data), Prompts (templates), and Tools (executable functions).</li>
+<li>Server-side security controls ensure that AI models only access authorized files, databases, and APIs.</li>
+<li>Dynamic resource streaming and pagination optimize token usage and reduce operational latency in large-scale applications.</li>
+<li>Python libraries allow developers to build MCP-compliant servers and clients using asynchronous programming patterns.</li></ul>
+</div>
+<div class="sec">
+  <h2><span class="sec-icon">🎯</span>Interview Questions</h2>
+  <div class="iq-q">What is the primary purpose of the Model Context Protocol in modern AI system architecture?</div>
+<div class="iq-q">How do MCP Resources differ from MCP Tools, and when should each be used?</div>
+<div class="iq-q">Explain how the client-server decoupling in MCP enhances security for enterprise AI deployments.</div>
+<div class="iq-q">How does MCP address context window limitations when dealing with large external datasets?</div>
+<div class="iq-q">Walk through the execution flow when an LLM invokes an MCP-registered tool in a Python application.</div>
+<div class="iq-q">What are the advantages of using a standardized protocol over custom API integrations for AI applications?</div>
 </div>
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
-  <ul><li>Visit dailydoseofds.com for the full article and related resources</li></ul>
+  <ul><li>Asynchronous programming patterns in Python for high-performance AI services</li>
+<li>Enterprise data governance and security compliance for large language model integrations</li>
+<li>Advanced prompt engineering and agentic workflows using standardized tool-use interfaces</li>
+<li>Designing scalable microservices architectures for AI-driven enterprise applications</li></ul>
 </div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -949,7 +1029,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }
