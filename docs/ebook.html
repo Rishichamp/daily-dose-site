@@ -523,7 +523,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">63 Chapters · Generated July 24, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">64 Chapters · Generated August 26, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1032,6 +1032,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#063</span>
   <span style="font-size:.9rem">5 Techniques to Optimize LLMs in Production</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">July 23, 2026</span>
+</a>
+<a href="#ch64" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#064</span>
+  <span style="font-size:.9rem">Build a MultiAgent GTM Intelligence System</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 25, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -3669,6 +3677,76 @@ fine_tune_results = model.train(
 # Validate the best resulting checkpoint against the validation split
 metrics = model.val()
 print(f"Validation mAP50-95: {metrics.box.map}")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Agent checkpointing automatically saves workflow states at method boundaries, allowing seamless recovery and branching without restarting from zero.</li><li>LLM token generation is constrained by memory bandwidth rather than compute capacity, making data movement the primary bottleneck.</li><li>FlashAttention eliminates quadratic memory growth by computing attention tiles within on-chip SRAM instead of writing full matrices to HBM.</li><li>PagedAttention applies virtual memory paging to KV caches, reducing memory waste from upwards of 80% down to under 4%.</li><li>Continuous batching and speculative decoding maximize hardware saturation by scheduling at the decode-step level and parallelizing verification.</li><li>Fine-tuning YOLO26 on custom computer vision datasets requires configuring a standard data YAML file and executing training in a single command.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch64" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 64</span>
+    <span style="font-size:.72rem;color:var(--text-3)">August 25, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Build a MultiAgent GTM Intelligence System
+  </h2>
+  <h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Go-To-Market (GTM) research and re-engagement strategies frequently suffer from timing bottlenecks and fragmented data sources. Traditional sales pipelines rely on arbitrary calendar schedules—such as waiting nine months after a lost deal—rather than actionable triggers like executive hires or funding rounds. The core challenge in automating this discovery lies in data fragmentation, where a target's identity resides in one record and their company's recent news resides in another. Standard search engines return isolated links and snippets that require extensive multi-step scraping and HTML parsing to synthesize.</p><p>To overcome this, modern systems leverage structured web indices that return complete records in a single API call, enabling clean data merges across distinct domains. By pairing specialized retrieval APIs with multi-agent orchestration frameworks like CrewAI, developers can automate signal hunting, profile enrichment, and outreach generation. However, scaling these autonomous agent systems introduces downstream engineering challenges, particularly regarding long context windows and token management. As agent loops run over extended periods, understanding the economic trade-offs of prefix caching versus context compaction becomes critical for cost optimization.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">The Architecture of Multi-Agent GTM Intelligence Pipelines</h3><p>Building an effective GTM intelligence system requires moving away from traditional, fragmented search workflows toward structured record retrieval. When an agent attempts to determine whether a target company hired a specific role while simultaneously evaluating recent corporate milestones, standard web search APIs fall short. They return snippets that necessitate crawling, parsing, and data cleaning. By utilizing specialized web indices designed to expose people and news scopes as structured records, developers eliminate the intermediate fetch-and-parse loops, allowing agents to ingest complete documents natively.</p><p>This pipeline can be cleanly partitioned into a sequential multi-agent architecture using CrewAI and Model Context Protocol (MCP) servers. The first agent, the Signal Hunter, queries a news scope for recent trigger events such as leadership additions or funding announcements within a defined temporal window. The second agent, the People Enricher, takes those surfaced names and queries a dedicated people scope to extract full career histories, dates, prior affiliations, and educational backgrounds. The final agent, the Outreach Strategist, receives the merged output of the prior two agents without needing additional retrieval tools, leveraging the complete context to draft personalized, signal-driven outreach copy.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Economic Trade-Offs of LLM Context Compaction Strategies</h3><p>As LLM agents execute multi-turn loops involving tool outputs and reasoning steps, their context windows expand rapidly, creating potential token explosion issues. A common engineering intuition is that compacting or summarizing an agent's context window will always save money. However, due to how LLM providers handle prefix caching, this assumption can be misleading. Modern inference engines bill the leading, byte-identical span of an input request as a cache read—often at a heavily discounted rate—while appending new turns only to the tail. When a harness triggers context compaction, it modifies the front or middle of the transcript by replacing historical turns with a summary. </p><p>This modification breaks the prefix cache boundary, forcing the provider to bill the summarized block as a cache write at a significantly higher rate than a cache read. While this cost is eventually amortized over subsequent turns, frequent compaction events in long-running sessions can temporarily spike operational expenses. To manage finite context limits without breaking cache dynamics unnecessarily, engineers deploy various compaction methodologies. Truncation drops oldest tokens outright, rolling summarization maintains a persistent state, prompt compression scores token relevance using lightweight encoders, RAG-based retrieval offloads history to external vector databases, and serving-layer KV cache eviction drops attention tensors dynamically.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>from crewai import Agent, Crew, Process, Task
+from crewai.tools import MCPServerHTTP
+
+# Initialize the Seltz MCP server connection via HTTP transport
+seltz_mcp = MCPServerHTTP(url="https://mcp.seltz.ai/mcp")
+
+# Define Agent 1: Signal Hunter focused on discovering corporate trigger events
+signal_hunter = Agent(
+    role="Signal Hunter",
+    goal="Discover recent leadership hires, funding, and expansion events at target companies.",
+    backstory="You specialize in scanning structured news indices to identify high-intent commercial triggers.",
+    tools=[seltz_mcp],
+    verbose=True
+)
+
+# Define Agent 2: People Enricher focused on gathering comprehensive career history
+people_enricher = Agent(
+    role="People Enricher",
+    goal="Retrieve full career records, roles, dates, and educational backgrounds for target profiles.",
+    backstory="You extract deep professional profiles to map out decision-maker trajectories.",
+    tools=[seltz_mcp],
+    verbose=True
+)
+
+# Define Agent 3: Outreach Strategist to synthesize signals and write customized outreach
+outreach_strategist = Agent(
+    role="Outreach Strategist",
+    goal="Merge trigger events with enriched profiles to write highly contextualized first-touch messages.",
+    backstory="You craft precise, personalized messaging tailored directly to immediate company signals.",
+    verbose=True
+)
+
+# Define sequential tasks for the crew
+task_hunt = Task(
+    description="Query the news scope for recent target company announcements over the last quarter.",
+    expected_output="A structured list of companies and their associated trigger events.",
+    agent=signal_hunter
+)
+
+task_enrich = Task(
+    description="Take the names surfaced by the Signal Hunter and query the people scope for full career records.",
+    expected_output="Enriched professional profiles matched to each trigger event.",
+    agent=people_enricher
+)
+
+task_outreach = Task(
+    description="Combine the signal data and enriched profiles to generate a ranked outreach list with custom messaging.",
+    expected_output="A final ranked list of contacts with personalized outreach copy.",
+    agent=outreach_strategist
+)
+
+# Assemble the sequential crew
+gtm_crew = Crew(
+    agents=[signal_hunter, people_enricher, outreach_strategist],
+    tasks=[task_hunt, task_enrich, task_outreach],
+    process=Process.sequential
+)</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>GTM outreach timing should be driven by contextual business triggers like executive hires or funding rounds rather than arbitrary calendar schedules.</li><li>Standard search engines return fragmented snippets requiring expensive crawl-and-parse loops, whereas structured web indices return complete records in a single pass.</li><li>Multi-agent GTM pipelines can be effectively orchestrated using CrewAI paired with HTTP-based Model Context Protocol (MCP) servers.</li><li>Context compaction in LLM agents can paradoxically increase short-term costs by invalidating prefix caches and converting cheap cache reads into expensive cache writes.</li><li>Five primary context compaction strategies exist: truncation, rolling summarization, prompt compression, RAG-based retrieval, and serving-layer KV cache eviction.</li><li>Chaining open web search for initial macro-discovery with structured web indices for deep profile and news retrieval yields optimal pipeline performance.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
