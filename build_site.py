@@ -35,7 +35,7 @@ from dataclasses import dataclass, field
 # ── Config ──────────────────────────────────────────────────────────────────
 SENDER      = "Daily Dose of DS"
 SITE_TITLE  = "Daily Dose of DS"
-AI_MODEL    = "gemini-1.5-flash-8b"
+AI_MODEL    = "gemini-3.5-flash-lite"
 MAX_TOKENS  = 4000
 DB_FILE     = "site_data.db"
 TOKEN_FILE  = "token.json"
@@ -374,10 +374,12 @@ class Gmail:
 class AI:
     def __init__(self):
         self.provider = None
+        self.quota_exhausted = False  # circuit breaker: set once a hard quota cap is hit
         if GEMINI_KEY:
-            import google.generativeai as genai
-            genai.configure(api_key=GEMINI_KEY)
-            self.model = genai.GenerativeModel(AI_MODEL)
+            # Uses the current `google-genai` SDK (the old `google-generativeai`
+            # package is deprecated and may not recognize newer model names).
+            from google import genai as google_genai
+            self.gemini_client = google_genai.Client(api_key=GEMINI_KEY)
             self.provider = "gemini"
             log.info("AI: Gemini %s", AI_MODEL)
         elif OPENAI_KEY:
@@ -388,6 +390,10 @@ class AI:
 
     def enhance(self, email: RawEmail) -> StudyNote:
         if not self.provider:
+            return self._fallback(email)
+        if self.quota_exhausted:
+            # Already confirmed dead for this run — don't waste time retrying it
+            # again on every remaining issue. It'll work again on the next run.
             return self._fallback(email)
 
         prompt = f"""You are an expert technical writer for a data science newsletter.
@@ -440,12 +446,15 @@ FURTHER_READING:
 - [Topic to explore next, no URLs]
 [3-5 total]
 """
-        MAX_RETRY = 5
+        MAX_RETRY = 3
         for attempt in range(MAX_RETRY):
             try:
                 if self.provider == "gemini":
-                    resp = self.model.generate_content(
-                        prompt, generation_config={"temperature": 0.25, "max_output_tokens": MAX_TOKENS})
+                    resp = self.gemini_client.models.generate_content(
+                        model=AI_MODEL,
+                        contents=prompt,
+                        config={"temperature": 0.25, "max_output_tokens": MAX_TOKENS},
+                    )
                     text = resp.text
                 else:
                     resp = self.client.chat.completions.create(
@@ -456,7 +465,24 @@ FURTHER_READING:
             except Exception as e:
                 err = str(e)
                 m = re.search(r'retry_delay.*?seconds:\s*([0-9]+)', err, re.DOTALL)
-                wait = int(m.group(1)) + 5 if m else 30 * (attempt + 1)
+                # Config-level errors (bad model name, invalid/expired key) will
+                # fail identically on every future call this run — trip the
+                # breaker so we don't repeat the same doomed request 59 times.
+                is_config_error = any(s in err for s in (
+                    "404", "NotFound", "is not found for API version",
+                    "API_KEY_INVALID", "PERMISSION_DENIED", "401",
+                    "no longer available"))
+                # A quota/rate error WITH a retry_delay is a short per-minute
+                # throttle — worth retrying. WITHOUT one, it's a hard daily/
+                # monthly cap — retrying within this run cannot help either.
+                is_hard_quota = (not m) and any(s in err for s in (
+                    "429", "quota", "RESOURCE_EXHAUSTED"))
+                if is_config_error or is_hard_quota:
+                    self.quota_exhausted = True
+                    log.error("AI disabled for rest of this run (%s) — using smart fallback from here on",
+                              err.splitlines()[0][:120])
+                    break
+                wait = int(m.group(1)) + 5 if m else 15 * (attempt + 1)
                 log.warning("AI quota/error — waiting %ds (attempt %d/%d)...", wait, attempt + 1, MAX_RETRY)
                 time.sleep(wait)
         log.error("AI failed after %d retries — using smart fallback", MAX_RETRY)
@@ -1289,7 +1315,7 @@ document.querySelectorAll('.suggest-chip[data-q]').forEach(s=>{
 // Typewriter cycling placeholder for ask input (only if empty & unfocused)
 (function(){
   if(!askIn) return;
-  const phrases=['Explain issue #5','What topics cover LLMs?','Search anything you\\'ve learned...','Compare RAG vs Agentic RAG','Summarize the last 3 chapters'];
+  const phrases=['Explain issue #5','What topics cover LLMs?',"Search anything you've learned...",'Compare RAG vs Agentic RAG','Summarize the last 3 chapters'];
   let pi=0, ci=0, deleting=false;
   function tick(){
     if(document.activeElement===askIn || askIn.value){ setTimeout(tick,600); return; }
@@ -1348,7 +1374,7 @@ async function callGemini(msg){
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
     const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
   }catch(e){return null;}
 }
