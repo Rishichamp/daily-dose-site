@@ -2068,12 +2068,22 @@ class App:
     def _deploy(self):
         log.info("Deploying to GitHub Pages...")
         try:
+            # Ensure git identity exists wherever this runs (CI already sets
+            # this in the workflow's own commit step, but _deploy() can also
+            # run from --schedule or a local invocation where it hasn't).
+            who = subprocess.run(["git", "config", "user.email"], capture_output=True, text=True)
+            if not who.stdout.strip():
+                subprocess.run(["git", "config", "user.email", "github-actions[bot]@users.noreply.github.com"], check=False)
+                subprocess.run(["git", "config", "user.name", "github-actions[bot]"], check=False)
+
             # CRITICAL: commit the database too, so history persists across
             # every automated run (previously gitignored — this was the bug
             # that made old issues disappear from the roadmap).
             subprocess.run(["git", "add", "docs/", DB_FILE], check=True)
-            subprocess.run(["git", "commit", "-m",
-                f"🤖 Auto-update: {datetime.now().strftime('%Y-%m-%d %H:%M')} [v7]"], check=False)
+            result = subprocess.run(["git", "commit", "-m",
+                f"🤖 Auto-update: {datetime.now().strftime('%Y-%m-%d %H:%M')} [v8]"], check=False, capture_output=True, text=True)
+            if result.returncode != 0 and "nothing to commit" not in (result.stdout + result.stderr).lower():
+                log.warning("git commit returned non-zero: %s", (result.stdout + result.stderr).strip())
             subprocess.run(["git", "push"], check=True)
             log.info("Deployed ✅")
         except Exception as e:
