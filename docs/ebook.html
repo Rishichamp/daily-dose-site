@@ -94,6 +94,28 @@ body.light .nav.scrolled{background:rgba(255,255,255,.88);}
   box-shadow:0 2px 14px rgba(91,140,255,.35);}
 .nav-cta:hover{box-shadow:0 4px 22px rgba(91,140,255,.5);transform:translateY(-1px);}
 @media(max-width:900px){.nav-links{display:none;}}
+@media(max-width:560px){.nav-cta{display:none;}}
+
+.nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:38px;height:34px;
+  border-radius:10px;background:var(--card-glass);border:1px solid var(--border);cursor:none;flex-shrink:0;}
+.nav-burger span{display:block;width:16px;height:2px;margin:0 auto;border-radius:2px;background:var(--text-2);
+  transition:transform .3s var(--smooth),opacity .2s;}
+.nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.nav-burger.open span:nth-child(2){opacity:0;}
+.nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+@media(max-width:900px){.nav-burger{display:flex;}}
+
+.nav-mobile{max-height:0;overflow:hidden;opacity:0;transition:max-height .35s var(--smooth),opacity .25s;
+  background:rgba(5,8,22,.92);backdrop-filter:blur(20px) saturate(160%);border-bottom:1px solid transparent;}
+.nav-mobile.open{max-height:420px;opacity:1;border-bottom-color:var(--border);}
+body.light .nav-mobile{background:rgba(255,255,255,.92);}
+.nav-mobile-link{display:block;padding:14px 24px;color:var(--text-2);text-decoration:none;font-weight:600;
+  font-size:.94rem;border-top:1px solid var(--border);transition:background .2s,color .2s;}
+.nav-mobile-link:hover{color:var(--text);background:rgba(91,140,255,.08);}
+.nav-mobile-link.nav-mobile-cta{color:#fff;background:linear-gradient(135deg,var(--a),var(--b));font-weight:700;border-top:none;margin:10px 16px;border-radius:12px;text-align:center;}
+.nav-mobile-link.nav-mobile-cta:hover{background:linear-gradient(135deg,var(--a),var(--b));filter:brightness(1.1);}
+@media(min-width:561px){.nav-mobile-cta{display:none;}}
+@media(min-width:901px){.nav-mobile{display:none;}}
 
 .theme-switch{position:relative;width:50px;height:27px;border-radius:100px;cursor:none;
   background:linear-gradient(135deg,#161b30,#1e2440);border:1px solid var(--border);transition:background .4s;flex-shrink:0;overflow:hidden;}
@@ -384,6 +406,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 @keyframes msgPop{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
 .msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-bottom-right-radius:4px;}
 .msg.bot{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
+.msg.error{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:#fca5a5;}
 .typing{display:flex;gap:5px;padding:4px 0;}
 .typing span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:tyBounce 1.3s ease-in-out infinite;}
 .typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
@@ -513,7 +536,19 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
         <span class="thumb">☀️</span>
       </button>
       <a href="../index.html#roadmap" class="nav-cta magnetic">Start Learning</a>
+      <button class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+  </div>
+  <div class="nav-mobile" id="navMobile">
+    <a href="../index.html#roadmap" class="nav-mobile-link nav-mobile-cta">Start Learning →</a>
+    <a href="../index.html" class="nav-mobile-link">Home</a>
+    <a href="../index.html#roadmap" class="nav-mobile-link">Roadmap</a>
+    <a href="../ebook.html" class="nav-mobile-link">Chapters</a>
+    <a href="../index.html#features" class="nav-mobile-link">Features</a>
+    <a href="../index.html#ai-search" class="nav-mobile-link">Search</a>
+    <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank" class="nav-mobile-link">GitHub</a>
   </div>
 </nav>
 <div style="max-width:820px;margin:0 auto;padding:clamp(40px,6vw,70px) 24px 80px;">
@@ -5047,6 +5082,20 @@ document.body.classList.add('page-entering');
 const navEl=document.querySelector('.nav');
 if(navEl){ window.addEventListener('scroll',()=>{ navEl.classList.toggle('scrolled', window.scrollY>10); },{passive:true}); }
 
+// Mobile nav burger
+(function(){
+  const burger=document.getElementById('navBurger'),panel=document.getElementById('navMobile');
+  if(!burger||!panel) return;
+  burger.addEventListener('click',()=>{
+    const open=burger.classList.toggle('open');
+    panel.classList.toggle('open',open);
+    burger.setAttribute('aria-expanded',open?'true':'false');
+  });
+  panel.querySelectorAll('.nav-mobile-link').forEach(a=>a.addEventListener('click',()=>{
+    burger.classList.remove('open');panel.classList.remove('open');burger.setAttribute('aria-expanded','false');
+  }));
+})();
+
 // Cursor with mouse-parallax ambient orbs
 (function(){
   if(window.matchMedia('(pointer:coarse)').matches) return;
@@ -5376,8 +5425,10 @@ async function tutorSend(){
   const tid='t'+Date.now();
   body.insertAdjacentHTML('beforeend',`<div class="msg bot" id="${tid}"><div class="typing"><span></span><span></span><span></span></div></div>`);
   body.scrollTop=body.scrollHeight;
-  const ans=await callGemini(msg)||"No API key found. Get a free Gemini key at aistudio.google.com";
-  document.getElementById(tid).remove();addMsg(ans,'bot');btn.disabled=false;
+  const {text:ans,error}=await callGemini(msg);
+  document.getElementById(tid).remove();
+  addMsg(ans,error?'bot error':'bot');
+  btn.disabled=false;
 }
 function addMsg(text,role){
   const body=document.getElementById('tutorBody'),d=document.createElement('div');
@@ -5385,13 +5436,20 @@ function addMsg(text,role){
 }
 async function callGemini(msg){
   const k=(typeof GEMINI_KEY_JS!=='undefined'&&GEMINI_KEY_JS)?GEMINI_KEY_JS:(localStorage.getItem('dds-gemini')||'');
-  if(!k) { const nk=prompt('Enter your FREE Gemini API key (get at aistudio.google.com):'); if(nk&&nk.trim()){ localStorage.setItem('dds-gemini',nk.trim()); return callGemini(msg);} return null; }
+  if(!k) { const nk=prompt('Enter your FREE Gemini API key (get at aistudio.google.com):'); if(nk&&nk.trim()){ localStorage.setItem('dds-gemini',nk.trim()); return callGemini(msg);} return {text:"No API key found. Get a free Gemini key at aistudio.google.com",error:true}; }
   try{
     const ctx=typeof TUTOR_CTX!=='undefined'?TUTOR_CTX:'';
     const prompt_=`You are an expert AI tutor for Daily Dose of DS newsletter content. Use this index to answer:\n\n${ctx}\n\nUser: ${msg}\n\nRules: Answer from the index above. If asked to explain an issue by number, explain thoroughly and cite issue number + date.`;
     const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt_}]}]})});
-    const d=await res.json();return d.candidates?.[0]?.content?.parts?.[0]?.text||null;
-  }catch(e){return null;}
+    if(!res.ok){
+      if(res.status===400||res.status===403){ localStorage.removeItem('dds-gemini'); return {text:"That API key was rejected. Click Ask again to enter a new one.",error:true}; }
+      if(res.status===429){ return {text:"Rate limit hit — the free Gemini tier is momentarily maxed out. Try again in a few seconds.",error:true}; }
+      return {text:`Gemini request failed (HTTP ${res.status}). Please try again.`,error:true};
+    }
+    const d=await res.json();
+    const t=d.candidates?.[0]?.content?.parts?.[0]?.text;
+    return t?{text:t,error:false}:{text:"Gemini returned an empty response — try rephrasing your question.",error:true};
+  }catch(e){ return {text:"Couldn't reach Gemini — check your connection and try again.",error:true}; }
 }
 document.querySelectorAll('.chip[data-q]').forEach(c=>{c.addEventListener('click',()=>{const inp=document.getElementById('tutorIn');if(inp){inp.value=c.dataset.q||c.textContent; tutorSend();}});});
 document.getElementById('tutorIn')?.addEventListener('keypress',e=>{if(e.key==='Enter')tutorSend();});
