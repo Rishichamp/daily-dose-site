@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Daily Dose of DS — Website Generator v7.0
+Daily Dose of DS — Website Generator v7
 ============================================
 COMPLETE REDESIGN — cinematic roadmap experience.
 
@@ -10,7 +10,7 @@ Fixes from v6:
     the roadmap only ever showed that day's single new issue). Now the full
     history persists forever across every automated run.
 
-New in v7 (redesign requested):
+New in v7 (redesign made):
   - Landing page is now a chronological ROADMAP, oldest -> newest top to
     bottom, grouped by week with sticky week-header labels while scrolling.
   - Clicking a card triggers a bold full-screen zoom/morph transition into
@@ -537,7 +537,134 @@ FURTHER_READING:
         )
 
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
+# ── Infographic renderer (PIL) ──────────────────────────────────────────────
+# Renders a square, LinkedIn-ready PNG summarizing a chapter, built directly
+# from the AI-authored StudyNote (topic, tldr, key_points) — no extra API
+# call needed, since that content is already Gemini/GPT-generated.
+
+def _ig_font(size: int, bold: bool = False):
+    from PIL import ImageFont
+    candidates = [
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf" if bold else "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf",
+    ]
+    for path in candidates:
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            continue
+    try:
+        return ImageFont.load_default(size=size)
+    except Exception:
+        return ImageFont.load_default()
+
+def _ig_wrap(draw, text, font, max_width, max_lines=None):
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        trial = f"{cur} {w}".strip()
+        if draw.textlength(trial, font=font) <= max_width:
+            cur = trial
+        else:
+            if cur: lines.append(cur)
+            cur = w
+    if cur: lines.append(cur)
+    if max_lines and len(lines) > max_lines:
+        lines = lines[:max_lines]
+        while draw.textlength(lines[-1] + "…", font=font) > max_width and len(lines[-1]) > 1:
+            lines[-1] = lines[-1][:-1]
+        lines[-1] += "…"
+    return lines
+
+def build_infographic_png(note: "StudyNote", out_path: str):
+    from PIL import Image, ImageDraw, ImageFilter
+
+    W = H = 1080
+    top, bottom = (10, 17, 40), (22, 18, 51)  # deep navy -> deep purple-navy
+    img = Image.new("RGB", (W, H), top)
+    px = img.load()
+    for y in range(H):
+        t = y / H
+        r = int(top[0] + (bottom[0] - top[0]) * t)
+        g = int(top[1] + (bottom[1] - top[1]) * t)
+        b = int(top[2] + (bottom[2] - top[2]) * t)
+        for x in range(0, W, 4):  # coarse horizontal step, purely vertical gradient anyway
+            for dx in range(4):
+                if x + dx < W: px[x + dx, y] = (r, g, b)
+
+    # soft glow accents (glassmorphism feel)
+    glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    gd = ImageDraw.Draw(glow)
+    gd.ellipse([-200, -200, 500, 500], fill=(91, 140, 255, 70))
+    gd.ellipse([W - 400, H - 500, W + 200, H - 100], fill=(124, 92, 255, 60))
+    glow = glow.filter(ImageFilter.GaussianBlur(120))
+    img = Image.alpha_composite(img.convert("RGBA"), glow).convert("RGB")
+    draw = ImageDraw.Draw(img)
+
+    ACCENT = (91, 140, 255)
+    ACCENT2 = (124, 92, 255)
+    WHITE = (244, 246, 255)
+    GRAY = (170, 178, 210)
+    margin = 72
+
+    # kicker
+    f_kicker = _ig_font(24, bold=True)
+    kicker = f"DAILY DOSE OF DS  ·  CHAPTER #{note.issue_number:03d}"
+    draw.text((margin, 64), kicker, font=f_kicker, fill=ACCENT)
+
+    # category pill
+    f_pill = _ig_font(22, bold=True)
+    cat = (note.category or "Data Science").upper()
+    pw = draw.textlength(cat, font=f_pill) + 40
+    draw.rounded_rectangle([margin, 108, margin + pw, 108 + 44], radius=22, outline=ACCENT, width=2)
+    draw.text((margin + 20, 118), cat, font=f_pill, fill=ACCENT)
+
+    # title
+    f_title = _ig_font(58, bold=True)
+    title_lines = _ig_wrap(draw, note.topic, f_title, W - margin * 2, max_lines=3)
+    ty = 190
+    for line in title_lines:
+        draw.text((margin, ty), line, font=f_title, fill=WHITE)
+        ty += 68
+
+    # tldr subtitle
+    f_sub = _ig_font(27)
+    sub_lines = _ig_wrap(draw, note.tldr or "", f_sub, W - margin * 2, max_lines=2)
+    ty += 14
+    for line in sub_lines:
+        draw.text((margin, ty), line, font=f_sub, fill=GRAY)
+        ty += 36
+
+    # key points
+    points = [p.strip() for p in (note.key_points or []) if p.strip()][:5]
+    f_num = _ig_font(24, bold=True)
+    f_pt = _ig_font(26)
+    py = ty + 46
+    badge_r = 22
+    for i, point in enumerate(points, 1):
+        cx, cy = margin + badge_r, py + badge_r
+        draw.ellipse([cx - badge_r, cy - badge_r, cx + badge_r, cy + badge_r], fill=ACCENT if i % 2 else ACCENT2)
+        num_w = draw.textlength(str(i), font=f_num)
+        draw.text((cx - num_w / 2, cy - 15), str(i), font=f_num, fill=WHITE)
+        text_x = margin + badge_r * 2 + 24
+        lines = _ig_wrap(draw, point, f_pt, W - margin - text_x, max_lines=2)
+        lyy = py
+        for line in lines:
+            draw.text((text_x, lyy), line, font=f_pt, fill=WHITE)
+            lyy += 32
+        py += max(60, (lyy - py) + 20)
+
+    # footer
+    draw.line([margin, H - 110, W - margin, H - 110], fill=(255, 255, 255, 30), width=1)
+    f_foot = _ig_font(22, bold=True)
+    f_foot2 = _ig_font(20)
+    draw.text((margin, H - 86), "Daily Dose of DS", font=f_foot, fill=WHITE)
+    draw.text((margin, H - 58), "AI-generated summary · dailydoseofds.com", font=f_foot2, fill=GRAY)
+
+    Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+    img.save(out_path, "PNG", optimize=True)
+
+
+
 
 
 
@@ -545,8 +672,8 @@ CSS = """
 @view-transition { navigation: auto; }
 
 :root{
-  --void:#050816;--deep:#080b1c;--card:#0E1324;--card-glass:rgba(14,19,36,.55);
-  --border:rgba(255,255,255,.08);--border-h:rgba(91,140,255,.35);
+  --void:#0A1128;--deep:#101A38;--card:#182348;--card-glass:rgba(24,35,72,.55);
+  --border:rgba(255,255,255,.10);--border-h:rgba(91,140,255,.4);
   --text:#f4f6ff;--text-2:rgba(210,215,240,.75);--text-3:rgba(155,162,200,.5);
   --a:#5B8CFF;--b:#7C5CFF;--c:#22d3ee;--d:#a78bfa;--e:#34d399;--f:#fbbf24;
   --ca:#5B8CFF;--cb:#7C5CFF;
@@ -555,8 +682,8 @@ CSS = """
   --sans:'Inter','General Sans','Segoe UI',system-ui,sans-serif;
   --mono:'Fira Code','JetBrains Mono',monospace;
 }
-body.light{--void:#f7f8fd;--deep:#ffffff;--card:#ffffff;--card-glass:rgba(255,255,255,.7);
-  --border:rgba(91,140,255,.14);--border-h:rgba(91,140,255,.35);
+body.light{--void:#eef2fc;--deep:#f7f9ff;--card:#ffffff;--card-glass:rgba(255,255,255,.75);
+  --border:rgba(91,140,255,.16);--border-h:rgba(91,140,255,.4);
   --text:#0c0f1e;--text-2:rgba(20,24,50,.72);--text-3:rgba(40,46,80,.48);}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -733,12 +860,23 @@ CSS += """
 @media(max-width:640px){.sb-item{border-right:none;border-bottom:1px solid var(--border);}}
 
 /* ── SECTION SHELL ─────────────────────────────────────────────────── */
-.section-shell{max-width:1240px;margin:0 auto;padding:90px 24px;}
+.section-shell{max-width:1240px;margin:0 auto;padding:90px 24px;scroll-margin-top:120px;}
 .section-head{text-align:center;max-width:640px;margin:0 auto 56px;}
 .section-kicker{display:inline-block;font-size:.72rem;font-weight:800;color:var(--a);text-transform:uppercase;
   letter-spacing:1.8px;margin-bottom:12px;}
 .section-title{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:800;line-height:1.2;margin-bottom:14px;letter-spacing:-.01em;}
 .section-sub{color:var(--text-2);font-size:1rem;line-height:1.65;}
+
+/* ── TWO-COLUMN (Features + How it works, side by side) ─────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+.two-col-h{font-size:1.05rem;font-weight:800;margin-bottom:20px;color:var(--text);}
+.feature-grid.feature-grid-compact{grid-template-columns:1fr;gap:14px;}
+.feature-grid-compact .f-card{padding:18px 20px;display:flex;align-items:flex-start;gap:14px;}
+.feature-grid-compact .f-icon{margin-bottom:0;flex-shrink:0;width:38px;height:38px;font-size:1.05rem;}
+.feature-grid-compact .f-body{min-width:0;}
+.feature-grid-compact .f-title{font-size:.95rem;margin-bottom:3px;}
+.feature-grid-compact .f-desc{font-size:.82rem;}
+@media(max-width:860px){.two-col{grid-template-columns:1fr;gap:48px;}}
 
 /* ── FEATURE GRID ──────────────────────────────────────────────────── */
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
@@ -843,6 +981,11 @@ CSS += """
 
 /* ── AI SEARCH HERO SECTION ───────────────────────────────────────── */
 .search-hero{max-width:720px;margin:0 auto;text-align:center;}
+.roadmap-search{display:flex;align-items:center;gap:8px;background:var(--card-glass);border:1px solid var(--border);
+  border-radius:14px;padding:12px 18px;max-width:480px;margin:0 auto 28px;backdrop-filter:blur(10px);
+  transition:border-color .25s,box-shadow .25s,transform .25s;}
+.roadmap-search:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(91,140,255,.15);transform:translateY(-1px);}
+.roadmap-search .ask-input{border:none;background:none;}
 .ask-shell{display:flex;align-items:center;gap:8px;background:var(--card-glass);border:1px solid var(--border);
   border-radius:16px;padding:8px 8px 8px 22px;backdrop-filter:blur(14px);transition:border-color .25s,box-shadow .25s,transform .2s;}
 .ask-shell:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(91,140,255,.15),0 10px 34px rgba(0,0,0,.35);transform:translateY(-2px);}
@@ -914,50 +1057,60 @@ CSS += """
 .footer-bottom{padding-top:24px;border-top:1px solid var(--border);text-align:center;color:var(--text-3);font-size:.8rem;}
 .footer-bottom a{color:var(--a);text-decoration:none;}
 
-/* ── AI TUTOR (chapter/e-book pages) ─────────────────────────────── */
-.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:58px;height:58px;border-radius:50%;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-size:1.45rem;box-shadow:0 4px 24px rgba(91,140,255,.5);
-  animation:fabPulse 3s ease-in-out infinite;transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
-@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(91,140,255,.4);}50%{box-shadow:0 4px 40px rgba(91,140,255,.7);}}
-.fab:hover{transform:scale(1.12) rotate(8deg);}
+/* ── AI TUTOR — terminal style ───────────────────────────────────── */
+.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:58px;height:58px;border-radius:16px;border:1px solid rgba(91,140,255,.4);cursor:none;
+  background:linear-gradient(145deg,#0d1226,#161f3d);color:var(--c);font-size:1.3rem;font-family:var(--mono);font-weight:700;
+  box-shadow:0 4px 24px rgba(91,140,255,.35);animation:fabPulse 3s ease-in-out infinite;
+  transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
+@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(91,140,255,.3);}50%{box-shadow:0 4px 36px rgba(91,140,255,.6);}}
+.fab:hover{transform:scale(1.1);}
 .fab.hidden{display:none!important;}
-.tutor{position:fixed;bottom:96px;right:24px;z-index:999;width:396px;height:534px;
-  background:rgba(5,8,22,.94);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--border);border-radius:var(--r24);
-  box-shadow:0 32px 80px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;
-  opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:all .3s var(--bounce);}
+.tutor{position:fixed;bottom:96px;right:24px;z-index:999;width:420px;height:540px;
+  background:#0A0E1F;backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(91,140,255,.25);border-radius:14px;
+  box-shadow:0 32px 80px rgba(0,0,0,.75),0 0 0 1px rgba(91,140,255,.08);display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:all .3s var(--bounce);font-family:var(--mono);}
 .tutor.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
 @media(max-width:480px){.tutor{width:calc(100% - 32px);right:16px;bottom:88px;height:65vh;}}
-.tutor-head{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(135deg,rgba(91,140,255,.15),rgba(124,92,255,.1));border-bottom:1px solid var(--border);flex-shrink:0;}
-.tutor-title{font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:8px;}
-.t-close{background:none;border:none;color:var(--text-3);font-size:1.1rem;cursor:none;}
-.t-close:hover{color:var(--text);}
-.tutor-hint{padding:10px 16px;background:rgba(91,140,255,.04);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.72rem;color:var(--text-3);}
-.tutor-hint strong{color:var(--a);}
-.tutor-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.tutor-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+  background:#0d1226;border-bottom:1px solid rgba(91,140,255,.18);flex-shrink:0;}
+.tutor-title{font-weight:700;font-size:.78rem;display:flex;align-items:center;gap:9px;color:var(--text-2);letter-spacing:.3px;}
+.term-dots{display:flex;gap:6px;}
+.term-dots span{width:10px;height:10px;border-radius:50%;display:block;}
+.term-dots span:nth-child(1){background:#ff5f57;}
+.term-dots span:nth-child(2){background:#febc2e;}
+.term-dots span:nth-child(3){background:#28c840;}
+.t-close{background:none;border:1px solid var(--border);border-radius:6px;width:24px;height:24px;color:var(--text-3);font-size:.85rem;cursor:none;font-family:var(--mono);}
+.t-close:hover{color:var(--text);border-color:var(--border-h);}
+.tutor-hint{padding:8px 16px;background:rgba(91,140,255,.05);border-bottom:1px solid rgba(91,140,255,.12);flex-shrink:0;font-size:.7rem;color:var(--text-3);font-family:var(--mono);}
+.tutor-hint strong{color:var(--c);}
+.tutor-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:4px;font-size:.82rem;line-height:1.6;}
 .tutor-body::-webkit-scrollbar{width:4px;}
 .tutor-body::-webkit-scrollbar-thumb{background:rgba(91,140,255,.3);border-radius:2px;}
-.msg{max-width:88%;padding:11px 15px;border-radius:14px;font-size:.85rem;line-height:1.55;word-wrap:break-word;animation:msgPop .35s var(--bounce);}
-@keyframes msgPop{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
-.msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-bottom-right-radius:4px;}
-.msg.bot{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
-.msg.error{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:#fca5a5;}
+.msg{max-width:100%;padding:2px 0;border-radius:0;font-size:.82rem;line-height:1.6;word-wrap:break-word;
+  animation:msgPop .25s ease;font-family:var(--mono);white-space:pre-wrap;}
+@keyframes msgPop{from{opacity:0;}to{opacity:1;}}
+.msg.user{color:var(--c);}
+.msg.user::before{content:'$ ';color:var(--text-3);}
+.msg.bot{color:var(--text-2);}
+.msg.bot::before{content:'> ';color:var(--a);}
+.msg.error{color:#fca5a5;}
+.msg.error::before{content:'! ';color:#ef4444;}
 .typing{display:flex;gap:5px;padding:4px 0;}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:tyBounce 1.3s ease-in-out infinite;}
+.typing::before{content:'> ';color:var(--a);}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--c);animation:tyBounce 1.3s ease-in-out infinite;}
 .typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
-@keyframes tyBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
+@keyframes tyBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
 .chips{padding:0 16px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
-.chip{padding:5px 12px;border-radius:100px;font-size:.72rem;cursor:none;
-  background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.15);color:var(--a);transition:all .2s;}
-.chip:hover{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.35);}
-.tutor-inp{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);flex-shrink:0;}
-.tutor-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;
-  padding:10px 15px;color:var(--text);font-size:.85rem;outline:none;cursor:text;transition:border-color .2s;}
-.tutor-input:focus{border-color:var(--a);box-shadow:0 0 0 2px rgba(91,140,255,.12);}
-.tsend{padding:10px 17px;border:none;border-radius:11px;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.85rem;transition:transform .2s,box-shadow .2s;}
-.tsend:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,140,255,.4);}
-.tsend:disabled{opacity:.5;transform:none;}
+.chip{padding:5px 12px;border-radius:6px;font-size:.7rem;cursor:none;font-family:var(--mono);
+  background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.2);color:var(--c);transition:all .2s;}
+.chip:hover{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.4);}
+.tutor-inp{display:flex;align-items:center;gap:6px;padding:12px 16px;border-top:1px solid rgba(91,140,255,.15);background:#0A0E1F;flex-shrink:0;}
+.tutor-inp::before{content:'❯';color:var(--c);font-weight:700;font-family:var(--mono);}
+.tutor-input{flex:1;background:none;border:none;padding:6px 0;color:var(--text);font-size:.83rem;outline:none;cursor:text;font-family:var(--mono);}
+.tsend{padding:6px 14px;border:1px solid rgba(91,140,255,.35);border-radius:6px;cursor:none;font-family:var(--mono);
+  background:rgba(91,140,255,.1);color:var(--c);font-weight:700;font-size:.75rem;transition:all .2s;}
+.tsend:hover{background:rgba(91,140,255,.22);border-color:var(--border-h);}
+.tsend:disabled{opacity:.5;}
 
 /* ── ENTRY (chapter) PAGE ─────────────────────────────────────────── */
 .entry-hero{padding:clamp(56px,9vw,90px) 24px 36px;text-align:center;position:relative;overflow:hidden;}
@@ -987,6 +1140,14 @@ CSS += """
   transition:opacity .7s var(--smooth),transform .7s var(--bounce),filter .7s var(--smooth);}
 .sec.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
 .sec:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.4);}
+
+.ig-sec{text-align:center;}
+.ig-hint{color:var(--text-2);font-size:.9rem;margin:-8px 0 20px;}
+.ig-frame{max-width:420px;margin:0 auto 22px;border-radius:var(--r20);overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 20px 50px rgba(0,0,0,.45);}
+.ig-img{display:block;width:100%;height:auto;}
+.ig-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.ig-download{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-color:transparent;}
 .sec h2{font-size:1.28rem;font-weight:700;color:var(--ca);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
 .sec-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--ca) 12%,transparent);
   display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
@@ -1150,7 +1311,8 @@ document.addEventListener('click',e=>{
   function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
   function init(){
     resize();
-    nodes=Array.from({length:14},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:2+Math.random()*2.6,p:Math.random()*Math.PI*2}));
+    const n=parseInt(cv.dataset.nodes,10)||14;
+    nodes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:2+Math.random()*2.6,p:Math.random()*Math.PI*2}));
   }
   function draw(){
     ctx.clearRect(0,0,W,H);
@@ -1469,7 +1631,6 @@ def nav_html(back=False) -> str:
     ebook = '../ebook.html' if back else 'ebook.html'
     idx_anchor = f'{home}#roadmap'
     feat_anchor = f'{home}#features'
-    search_anchor = f'{home}#ai-search'
     return f"""
 <nav class="nav">
   <div class="nav-in">
@@ -1481,7 +1642,7 @@ def nav_html(back=False) -> str:
       <a href="{idx_anchor}" class="nav-link">Roadmap</a>
       <a href="{ebook}" class="nav-link">Chapters</a>
       <a href="{feat_anchor}" class="nav-link">Features</a>
-      <a href="{search_anchor}" class="nav-link">Search</a>
+      <a href="#" class="nav-link" onclick="openTutor();return false;">AI Tutor</a>
       <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank" class="nav-link">GitHub</a>
       {back_link}
     </div>
@@ -1501,7 +1662,7 @@ def nav_html(back=False) -> str:
     <a href="{idx_anchor}" class="nav-mobile-link">Roadmap</a>
     <a href="{ebook}" class="nav-mobile-link">Chapters</a>
     <a href="{feat_anchor}" class="nav-mobile-link">Features</a>
-    <a href="{search_anchor}" class="nav-mobile-link">Search</a>
+    <a href="#" class="nav-mobile-link" onclick="openTutor();return false;">AI Tutor</a>
     <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank" class="nav-mobile-link">GitHub</a>
   </div>
 </nav>"""
@@ -1517,24 +1678,24 @@ def ambient_layers() -> str:
 def tutor_widget(tutor_ctx_js: str, topic_hint: str = "") -> str:
     hint = f'<br><br>You are reading: <strong>{esc(topic_hint)}</strong>' if topic_hint else ''
     return f"""
-<button class="fab" id="tutorFab" onclick="openTutor()">🧠</button>
+<button class="fab" id="tutorFab" onclick="openTutor()" aria-label="Open AI tutor terminal">&gt;_</button>
 <div class="tutor" id="tutorPanel">
   <div class="tutor-head">
-    <div class="tutor-title"><span class="dot-live"></span>AI Study Tutor</div>
-    <button class="t-close" onclick="closeTutor()">✕</button>
+    <div class="tutor-title"><span class="term-dots"><span></span><span></span><span></span></span>&nbsp;ai-tutor — zsh</div>
+    <button class="t-close" onclick="closeTutor()" aria-label="Close">✕</button>
   </div>
-  <div class="tutor-hint">Ask me to <strong>explain any issue by number</strong> — e.g. "Explain issue #5"</div>
+  <div class="tutor-hint">Ask about <strong>any chapter by number</strong> — e.g. "explain issue #5"</div>
   <div class="tutor-body" id="tutorBody">
-    <div class="msg bot">👋 Hi! I know every {SITE_TITLE} chapter.{hint}</div>
+    <div class="msg bot">Welcome to the {SITE_TITLE} AI tutor. I know every chapter you've published.{hint}</div>
   </div>
   <div class="chips">
-    <span class="chip" data-q="Explain issue #1">Issue #1</span>
-    <span class="chip" data-q="What topics have been covered?">All topics</span>
-    <span class="chip" data-q="Which issues cover LLMs?">LLMs</span>
+    <span class="chip" data-q="Explain issue #1">issue #1</span>
+    <span class="chip" data-q="What topics have been covered?">all topics</span>
+    <span class="chip" data-q="Which issues cover LLMs?">llms</span>
   </div>
   <div class="tutor-inp">
-    <input class="tutor-input" id="tutorIn" placeholder='Try "Explain issue #7"...'>
-    <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
+    <input class="tutor-input" id="tutorIn" placeholder='explain issue #7...'>
+    <button class="tsend" id="tSend" onclick="tutorSend()">run</button>
   </div>
 </div>
 <script>const GEMINI_KEY_JS='';const TUTOR_CTX={tutor_ctx_js};</script>"""
@@ -1546,32 +1707,42 @@ def common_tail(extra_head: str = "") -> str:
 <canvas id="confetti"></canvas>
 <script>{JS}</script>"""
 
-def dashboard_visual_html() -> str:
-    """Hero right-side AI dashboard mock illustration."""
-    return """
+def dashboard_visual_html(rows_asc=None, cats_present=None) -> str:
+    """Hero right-side AI dashboard mock illustration — driven by real chapter data."""
+    rows_asc = rows_asc or []
+    cats_present = cats_present or []
+    latest2 = list(reversed(rows_asc))[:2]  # (date, topic, html_file, subject, category, issue_num)
+    total = len(rows_asc)
+
+    def _card(row, pct):
+        if not row:
+            return '<div class="df-cat">—</div><div class="df-title">No chapters yet</div><div class="df-bar"><div class="df-bar-fill" style="width:0%"></div></div>'
+        _, topic, _, _, _, issue_num = row
+        title = (topic or "").replace("_", " ")
+        title = title if len(title) <= 46 else title[:44] + "…"
+        return f'<div class="df-cat">Chapter #{issue_num or 0}</div><div class="df-title">{esc(title)}</div><div class="df-bar"><div class="df-bar-fill" style="width:{pct}%"></div></div>'
+
+    row1 = latest2[0] if len(latest2) > 0 else None
+    row2 = latest2[1] if len(latest2) > 1 else None
+    pct1 = min(100, round((row1[5] or 0) / total * 100)) if row1 and total else 0
+    pct2 = min(100, round((row2[5] or 0) / total * 100)) if row2 and total else 0
+
+    legend = cats_present[:3] or ["Data Science"]
+    legend_html = "".join(f'<span class="dm-chip">{esc(c)}</span>' for c in legend)
+    node_count = max(8, min(24, total))
+
+    return f"""
 <div class="hero-visual">
   <div class="dash-panel dash-main">
     <div class="dm-head">
-      <span class="dm-title">📈 Learning Progress</span>
+      <span class="dm-title">📈 Learning Progress — {total} chapters</span>
       <span class="dm-dots"><span></span><span></span><span></span></span>
     </div>
-    <canvas id="dash-graph"></canvas>
-    <div class="dm-legend">
-      <span class="dm-chip">Machine Learning</span>
-      <span class="dm-chip">LLMs</span>
-      <span class="dm-chip">Deep Learning</span>
-    </div>
+    <canvas id="dash-graph" data-nodes="{node_count}"></canvas>
+    <div class="dm-legend">{legend_html}</div>
   </div>
-  <div class="dash-panel dash-float dash-float-1">
-    <div class="df-cat">Chapter #47</div>
-    <div class="df-title">How LLM Routing Works</div>
-    <div class="df-bar"><div class="df-bar-fill" style="width:82%"></div></div>
-  </div>
-  <div class="dash-panel dash-float dash-float-2">
-    <div class="df-cat">Chapter #12</div>
-    <div class="df-title">Function Approximation in RL</div>
-    <div class="df-bar"><div class="df-bar-fill" style="width:64%"></div></div>
-  </div>
+  <div class="dash-panel dash-float dash-float-1">{_card(row1, pct1)}</div>
+  <div class="dash-panel dash-float dash-float-2">{_card(row2, pct2)}</div>
 </div>"""
 
 
@@ -1595,11 +1766,7 @@ HOW_IT_WORKS = [
     ("✨", "Displays the Learning Path", "Your site redeploys automatically — the new chapter is live, with zero manual work."),
 ]
 
-TESTIMONIALS = [
-    ("Aisha Rahman", "ML Engineer", "I stopped losing newsletter issues in my inbox. Everything's organized into a roadmap I actually revisit."),
-    ("Daniel Cho", "Data Scientist", "The AI tutor answering questions about old issues is genuinely useful before interviews."),
-    ("Priya Nandakumar", "Grad Student", "Turns a daily 5-minute read into a proper structured course I can search through later."),
-]
+TESTIMONIALS = []  # removed — do not reintroduce fabricated testimonials/reviews
 
 
 # ── Site Builder ──────────────────────────────────────────────────────────────
@@ -1673,6 +1840,23 @@ class SiteBuilder:
 <div class="sec">
   <h2><span class="sec-icon">📚</span>Further Reading</h2>
   <ul>{items}</ul>
+</div>"""
+
+        ig_rel = f"../assets/infographics/issue_{note.issue_number:03d}.png"
+        ig_abs = self.out / "assets" / "infographics" / f"issue_{note.issue_number:03d}.png"
+        if ig_abs.exists():
+            share_url = f"https://rishichamp.github.io/daily-dose-site/{fname}"
+            content_html += f"""
+<div class="sec ig-sec">
+  <h2><span class="sec-icon">🖼️</span>Chapter Infographic</h2>
+  <p class="ig-hint">A one-glance summary of this chapter — save it and share what you learned.</p>
+  <div class="ig-frame">
+    <img src="{ig_rel}" alt="Infographic summary of {esc(note.topic)}" loading="lazy" class="ig-img">
+  </div>
+  <div class="ig-actions">
+    <a href="{ig_rel}" download="daily-dose-of-ds-issue-{note.issue_number:03d}.png" class="pill-btn ig-download">⬇ Download for LinkedIn</a>
+    <a href="https://www.linkedin.com/sharing/share-offsite/?url={share_url}" target="_blank" rel="noopener" class="pill-btn">Share chapter on LinkedIn ↗</a>
+  </div>
 </div>"""
 
         html = f"""{head_html(note.topic, ca, cb)}
@@ -1782,8 +1966,7 @@ class SiteBuilder:
         feature_cards = "".join(f"""
 <div class="f-card">
   <div class="f-icon">{icon}</div>
-  <div class="f-title">{esc(title)}</div>
-  <div class="f-desc">{esc(desc)}</div>
+  <div class="f-body"><div class="f-title">{esc(title)}</div><div class="f-desc">{esc(desc)}</div></div>
 </div>""" for icon, title, desc in FEATURES)
 
         # ── How it works timeline ──────────────────────────────────────
@@ -1806,16 +1989,6 @@ class SiteBuilder:
   <div class="chap-title">{esc(topic.replace('_',' '))}</div>
   <div class="chap-tags"><span class="chap-tag">{esc(category or 'DS')}</span><span class="chap-tag">#{issue_num or 0:03d}</span></div>
 </a>"""
-
-        # ── Testimonials ────────────────────────────────────────────────
-        testi_cards = "".join(f"""
-<div class="testi-card">
-  <div class="testi-quote">"{esc(quote)}"</div>
-  <div class="testi-person">
-    <div class="testi-avatar">{esc(name[0])}</div>
-    <div><div class="testi-name">{esc(name)}</div><div class="testi-role">{esc(role)}</div></div>
-  </div>
-</div>""" for name, role, quote in TESTIMONIALS)
 
         html = f"""{head_html(SITE_TITLE)}
 <body>
@@ -1840,54 +2013,7 @@ class SiteBuilder:
         <div><div class="hstat-n" data-date="true">{latest}</div><div class="hstat-l">Latest</div></div>
       </div>
     </div>
-    {dashboard_visual_html()}
-  </div>
-</div>
-
-<div class="stats-bar">
-  <div class="sb-item"><div class="sb-n">100%</div><div class="sb-l">Automated</div></div>
-  <div class="sb-item"><div class="sb-n">7 AM</div><div class="sb-l">Daily Sync</div></div>
-  <div class="sb-item"><div class="sb-n">{total}</div><div class="sb-l">Chapters Built</div></div>
-  <div class="sb-item"><div class="sb-n">0</div><div class="sb-l">Manual Work</div></div>
-</div>
-
-<div class="section-shell" id="features">
-  <div class="section-head">
-    <span class="section-kicker">Features</span>
-    <h2 class="section-title">Everything runs itself</h2>
-    <p class="section-sub">From your inbox to a searchable knowledge base — no manual steps anywhere in the pipeline.</p>
-  </div>
-  <div class="feature-grid">{feature_cards}</div>
-</div>
-
-<div class="section-shell">
-  <div class="section-head">
-    <span class="section-kicker">How It Works</span>
-    <h2 class="section-title">From newsletter to knowledge, automatically</h2>
-    <p class="section-sub">Every morning, this pipeline runs end-to-end with zero human involvement.</p>
-  </div>
-  <div class="timeline"><div class="tl-line"></div>{tl_steps}</div>
-</div>
-
-<div class="section-shell" id="ai-search">
-  <div class="section-head">
-    <span class="section-kicker">AI Tutor</span>
-    <h2 class="section-title">Ask anything you've learned</h2>
-    <p class="section-sub">Search chapters instantly, or ask the AI tutor a direct question about any issue in your history.</p>
-  </div>
-  <div class="search-hero">
-    <div class="ask-shell">
-      <span class="ask-ico">🔍</span>
-      <input class="ask-input" id="askIn" placeholder="Search anything you've learned...">
-      <button class="ask-go" id="askGo">Ask AI</button>
-    </div>
-    <div class="ask-hint">Press / to focus · type to search, or click Ask AI to query your AI tutor</div>
-    <div class="suggest-row">
-      <span class="suggest-chip" data-q="Explain issue #1">Explain issue #1</span>
-      <span class="suggest-chip" data-q="What topics cover LLMs?">What topics cover LLMs?</span>
-      <span class="suggest-chip" data-q="Summarize the last 3 chapters">Summarize the last 3 chapters</span>
-    </div>
-    <div class="ask-answer"><div class="ask-answer-box" id="askAns"></div></div>
+    {dashboard_visual_html(rows_asc, cats_present)}
   </div>
 </div>
 
@@ -1895,8 +2021,9 @@ class SiteBuilder:
   <div class="section-head">
     <span class="section-kicker">Roadmap Preview</span>
     <h2 class="section-title">Your learning journey, week by week</h2>
-    <p class="section-sub">Click any week to expand its chapters. Filter by topic below.</p>
+    <p class="section-sub">Click any week to expand its chapters. Filter by topic, or search by keyword below.</p>
   </div>
+  <div class="roadmap-search"><span class="ask-ico">🔍</span><input class="ask-input" id="askIn" placeholder="Search chapters... (press /)"></div>
   <div class="chip-row">{chips_html}</div>
   <div class="search-count" id="searchCount"></div>
   <div class="roadmap-wrap">
@@ -1914,19 +2041,21 @@ class SiteBuilder:
   <div class="chap-strip">{chap_cards}</div>
 </div>
 
-<div class="section-shell">
+<div class="section-shell" id="features">
   <div class="section-head">
-    <span class="section-kicker">Testimonials</span>
-    <h2 class="section-title">What learners are saying</h2>
+    <span class="section-kicker">How it all works</span>
+    <h2 class="section-title">Zero manual steps, start to finish</h2>
+    <p class="section-sub">From your inbox to a searchable knowledge base — here's what runs under the hood.</p>
   </div>
-  <div class="testi-grid">{testi_cards}</div>
-</div>
-
-<div class="section-shell">
-  <div class="final-cta">
-    <h2>Start Learning Smarter</h2>
-    <p>Your roadmap updates itself every morning. Jump back in anytime.</p>
-    <a href="#roadmap" class="btn-primary magnetic">Generate My Learning Roadmap →</a>
+  <div class="two-col">
+    <div>
+      <h3 class="two-col-h">What it does</h3>
+      <div class="feature-grid feature-grid-compact">{feature_cards}</div>
+    </div>
+    <div>
+      <h3 class="two-col-h">How it runs, every morning</h3>
+      <div class="timeline"><div class="tl-line"></div>{tl_steps}</div>
+    </div>
   </div>
 </div>
 
@@ -1938,7 +2067,7 @@ class SiteBuilder:
         <p class="footer-desc">An AI-powered learning roadmap automatically generated every day from Daily Dose of Data Science newsletters.</p>
       </div>
       <div class="footer-col"><h4>Explore</h4>
-        <a href="#roadmap">Roadmap</a><a href="ebook.html">Chapters</a><a href="#features">Features</a><a href="#ai-search">Search</a>
+        <a href="#roadmap">Roadmap</a><a href="ebook.html">Chapters</a><a href="#features">Features</a><a href="#" onclick="openTutor();return false;">AI Tutor</a>
       </div>
       <div class="footer-col"><h4>Project</h4>
         <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank">GitHub</a>
@@ -1953,8 +2082,7 @@ class SiteBuilder:
     <div class="footer-bottom">Auto-generated daily at 7:00 AM IST · <a href="https://www.dailydoseofds.com" target="_blank">dailydoseofds.com</a></div>
   </div>
 </footer>
-<script>const TUTOR_CTX={tutor_ctx_js};const GEMINI_KEY_JS='';</script>
-{common_tail()}
+{common_tail(tutor_widget(tutor_ctx_js))}
 </body></html>"""
         (self.out / "index.html").write_text(html, encoding="utf-8")
         log.info("Landing page built — %d chapters.", total)
@@ -2105,6 +2233,11 @@ class App:
             log.info("Duplicate content, skipping."); return
         note = self.ai.enhance(email)
         note.issue_number = self.db.next_issue()
+        try:
+            ig_path = f"{OUT_DIR}/assets/infographics/issue_{note.issue_number:03d}.png"
+            build_infographic_png(note, ig_path)
+        except Exception as e:
+            log.warning("Infographic render failed for #%d: %s", note.issue_number, e)
         ctx_js = self._tutor_ctx()
         html_file = self.site.build_entry(email, note, ctx_js)
         self.db.save(email.email_id, email.subject, email.date.strftime("%Y-%m-%d"),

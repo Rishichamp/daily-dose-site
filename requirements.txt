@@ -1,5 +1,4 @@
-# Daily Dose of DS — Website Generator v7.0
-
+# Daily Dose of DS — Website Generator
 # Gmail API
 google-auth>=2.22.0
 google-auth-oauthlib>=1.0.0
@@ -9,6 +8,9 @@ google-api-python-client>=2.95.0
 # AI
 google-genai>=1.0.0
 openai>=1.12.0
+
+# Infographic rendering
+Pillow>=10.1.0
 
 # Utilities
 python-dotenv>=1.0.0
