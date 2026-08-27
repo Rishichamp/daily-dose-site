@@ -12,8 +12,8 @@
 @view-transition { navigation: auto; }
 
 :root{
-  --void:#050816;--deep:#080b1c;--card:#0E1324;--card-glass:rgba(14,19,36,.55);
-  --border:rgba(255,255,255,.08);--border-h:rgba(91,140,255,.35);
+  --void:#0A1128;--deep:#101A38;--card:#182348;--card-glass:rgba(24,35,72,.55);
+  --border:rgba(255,255,255,.10);--border-h:rgba(91,140,255,.4);
   --text:#f4f6ff;--text-2:rgba(210,215,240,.75);--text-3:rgba(155,162,200,.5);
   --a:#5B8CFF;--b:#7C5CFF;--c:#22d3ee;--d:#a78bfa;--e:#34d399;--f:#fbbf24;
   --ca:#5B8CFF;--cb:#7C5CFF;
@@ -22,8 +22,8 @@
   --sans:'Inter','General Sans','Segoe UI',system-ui,sans-serif;
   --mono:'Fira Code','JetBrains Mono',monospace;
 }
-body.light{--void:#f7f8fd;--deep:#ffffff;--card:#ffffff;--card-glass:rgba(255,255,255,.7);
-  --border:rgba(91,140,255,.14);--border-h:rgba(91,140,255,.35);
+body.light{--void:#eef2fc;--deep:#f7f9ff;--card:#ffffff;--card-glass:rgba(255,255,255,.75);
+  --border:rgba(91,140,255,.16);--border-h:rgba(91,140,255,.4);
   --text:#0c0f1e;--text-2:rgba(20,24,50,.72);--text-3:rgba(40,46,80,.48);}
 
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -198,12 +198,23 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 @media(max-width:640px){.sb-item{border-right:none;border-bottom:1px solid var(--border);}}
 
 /* ── SECTION SHELL ─────────────────────────────────────────────────── */
-.section-shell{max-width:1240px;margin:0 auto;padding:90px 24px;}
+.section-shell{max-width:1240px;margin:0 auto;padding:90px 24px;scroll-margin-top:120px;}
 .section-head{text-align:center;max-width:640px;margin:0 auto 56px;}
 .section-kicker{display:inline-block;font-size:.72rem;font-weight:800;color:var(--a);text-transform:uppercase;
   letter-spacing:1.8px;margin-bottom:12px;}
 .section-title{font-size:clamp(1.7rem,3.4vw,2.5rem);font-weight:800;line-height:1.2;margin-bottom:14px;letter-spacing:-.01em;}
 .section-sub{color:var(--text-2);font-size:1rem;line-height:1.65;}
+
+/* ── TWO-COLUMN (Features + How it works, side by side) ─────────────── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+.two-col-h{font-size:1.05rem;font-weight:800;margin-bottom:20px;color:var(--text);}
+.feature-grid.feature-grid-compact{grid-template-columns:1fr;gap:14px;}
+.feature-grid-compact .f-card{padding:18px 20px;display:flex;align-items:flex-start;gap:14px;}
+.feature-grid-compact .f-icon{margin-bottom:0;flex-shrink:0;width:38px;height:38px;font-size:1.05rem;}
+.feature-grid-compact .f-body{min-width:0;}
+.feature-grid-compact .f-title{font-size:.95rem;margin-bottom:3px;}
+.feature-grid-compact .f-desc{font-size:.82rem;}
+@media(max-width:860px){.two-col{grid-template-columns:1fr;gap:48px;}}
 
 /* ── FEATURE GRID ──────────────────────────────────────────────────── */
 .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;}
@@ -308,6 +319,11 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 
 /* ── AI SEARCH HERO SECTION ───────────────────────────────────────── */
 .search-hero{max-width:720px;margin:0 auto;text-align:center;}
+.roadmap-search{display:flex;align-items:center;gap:8px;background:var(--card-glass);border:1px solid var(--border);
+  border-radius:14px;padding:12px 18px;max-width:480px;margin:0 auto 28px;backdrop-filter:blur(10px);
+  transition:border-color .25s,box-shadow .25s,transform .25s;}
+.roadmap-search:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(91,140,255,.15);transform:translateY(-1px);}
+.roadmap-search .ask-input{border:none;background:none;}
 .ask-shell{display:flex;align-items:center;gap:8px;background:var(--card-glass);border:1px solid var(--border);
   border-radius:16px;padding:8px 8px 8px 22px;backdrop-filter:blur(14px);transition:border-color .25s,box-shadow .25s,transform .2s;}
 .ask-shell:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(91,140,255,.15),0 10px 34px rgba(0,0,0,.35);transform:translateY(-2px);}
@@ -379,50 +395,60 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
 .footer-bottom{padding-top:24px;border-top:1px solid var(--border);text-align:center;color:var(--text-3);font-size:.8rem;}
 .footer-bottom a{color:var(--a);text-decoration:none;}
 
-/* ── AI TUTOR (chapter/e-book pages) ─────────────────────────────── */
-.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:58px;height:58px;border-radius:50%;border:none;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-size:1.45rem;box-shadow:0 4px 24px rgba(91,140,255,.5);
-  animation:fabPulse 3s ease-in-out infinite;transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
-@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(91,140,255,.4);}50%{box-shadow:0 4px 40px rgba(91,140,255,.7);}}
-.fab:hover{transform:scale(1.12) rotate(8deg);}
+/* ── AI TUTOR — terminal style ───────────────────────────────────── */
+.fab{position:fixed;bottom:24px;right:24px;z-index:1000;width:58px;height:58px;border-radius:16px;border:1px solid rgba(91,140,255,.4);cursor:none;
+  background:linear-gradient(145deg,#0d1226,#161f3d);color:var(--c);font-size:1.3rem;font-family:var(--mono);font-weight:700;
+  box-shadow:0 4px 24px rgba(91,140,255,.35);animation:fabPulse 3s ease-in-out infinite;
+  transition:transform .25s var(--bounce),box-shadow .25s;display:flex;align-items:center;justify-content:center;}
+@keyframes fabPulse{0%,100%{box-shadow:0 4px 24px rgba(91,140,255,.3);}50%{box-shadow:0 4px 36px rgba(91,140,255,.6);}}
+.fab:hover{transform:scale(1.1);}
 .fab.hidden{display:none!important;}
-.tutor{position:fixed;bottom:96px;right:24px;z-index:999;width:396px;height:534px;
-  background:rgba(5,8,22,.94);backdrop-filter:blur(30px) saturate(180%);border:1px solid var(--border);border-radius:var(--r24);
-  box-shadow:0 32px 80px rgba(0,0,0,.7);display:flex;flex-direction:column;overflow:hidden;
-  opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:all .3s var(--bounce);}
+.tutor{position:fixed;bottom:96px;right:24px;z-index:999;width:420px;height:540px;
+  background:#0A0E1F;backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(91,140,255,.25);border-radius:14px;
+  box-shadow:0 32px 80px rgba(0,0,0,.75),0 0 0 1px rgba(91,140,255,.08);display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;transform:translateY(20px) scale(.96);pointer-events:none;transition:all .3s var(--bounce);font-family:var(--mono);}
 .tutor.open{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
 @media(max-width:480px){.tutor{width:calc(100% - 32px);right:16px;bottom:88px;height:65vh;}}
-.tutor-head{padding:16px 18px;display:flex;justify-content:space-between;align-items:center;
-  background:linear-gradient(135deg,rgba(91,140,255,.15),rgba(124,92,255,.1));border-bottom:1px solid var(--border);flex-shrink:0;}
-.tutor-title{font-weight:700;font-size:.9rem;display:flex;align-items:center;gap:8px;}
-.t-close{background:none;border:none;color:var(--text-3);font-size:1.1rem;cursor:none;}
-.t-close:hover{color:var(--text);}
-.tutor-hint{padding:10px 16px;background:rgba(91,140,255,.04);border-bottom:1px solid var(--border);flex-shrink:0;font-size:.72rem;color:var(--text-3);}
-.tutor-hint strong{color:var(--a);}
-.tutor-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.tutor-head{padding:12px 16px;display:flex;justify-content:space-between;align-items:center;
+  background:#0d1226;border-bottom:1px solid rgba(91,140,255,.18);flex-shrink:0;}
+.tutor-title{font-weight:700;font-size:.78rem;display:flex;align-items:center;gap:9px;color:var(--text-2);letter-spacing:.3px;}
+.term-dots{display:flex;gap:6px;}
+.term-dots span{width:10px;height:10px;border-radius:50%;display:block;}
+.term-dots span:nth-child(1){background:#ff5f57;}
+.term-dots span:nth-child(2){background:#febc2e;}
+.term-dots span:nth-child(3){background:#28c840;}
+.t-close{background:none;border:1px solid var(--border);border-radius:6px;width:24px;height:24px;color:var(--text-3);font-size:.85rem;cursor:none;font-family:var(--mono);}
+.t-close:hover{color:var(--text);border-color:var(--border-h);}
+.tutor-hint{padding:8px 16px;background:rgba(91,140,255,.05);border-bottom:1px solid rgba(91,140,255,.12);flex-shrink:0;font-size:.7rem;color:var(--text-3);font-family:var(--mono);}
+.tutor-hint strong{color:var(--c);}
+.tutor-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:4px;font-size:.82rem;line-height:1.6;}
 .tutor-body::-webkit-scrollbar{width:4px;}
 .tutor-body::-webkit-scrollbar-thumb{background:rgba(91,140,255,.3);border-radius:2px;}
-.msg{max-width:88%;padding:11px 15px;border-radius:14px;font-size:.85rem;line-height:1.55;word-wrap:break-word;animation:msgPop .35s var(--bounce);}
-@keyframes msgPop{from{opacity:0;transform:scale(.85) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
-.msg.user{align-self:flex-end;background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-bottom-right-radius:4px;}
-.msg.bot{align-self:flex-start;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--text);border-bottom-left-radius:4px;}
-.msg.error{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:#fca5a5;}
+.msg{max-width:100%;padding:2px 0;border-radius:0;font-size:.82rem;line-height:1.6;word-wrap:break-word;
+  animation:msgPop .25s ease;font-family:var(--mono);white-space:pre-wrap;}
+@keyframes msgPop{from{opacity:0;}to{opacity:1;}}
+.msg.user{color:var(--c);}
+.msg.user::before{content:'$ ';color:var(--text-3);}
+.msg.bot{color:var(--text-2);}
+.msg.bot::before{content:'> ';color:var(--a);}
+.msg.error{color:#fca5a5;}
+.msg.error::before{content:'! ';color:#ef4444;}
 .typing{display:flex;gap:5px;padding:4px 0;}
-.typing span{width:6px;height:6px;border-radius:50%;background:var(--text-3);animation:tyBounce 1.3s ease-in-out infinite;}
+.typing::before{content:'> ';color:var(--a);}
+.typing span{width:5px;height:5px;border-radius:50%;background:var(--c);animation:tyBounce 1.3s ease-in-out infinite;}
 .typing span:nth-child(2){animation-delay:.2s;}.typing span:nth-child(3){animation-delay:.4s;}
-@keyframes tyBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-7px);}}
+@keyframes tyBounce{0%,60%,100%{transform:translateY(0);}30%{transform:translateY(-6px);}}
 .chips{padding:0 16px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0;}
-.chip{padding:5px 12px;border-radius:100px;font-size:.72rem;cursor:none;
-  background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.15);color:var(--a);transition:all .2s;}
-.chip:hover{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.35);}
-.tutor-inp{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:rgba(0,0,0,.2);flex-shrink:0;}
-.tutor-input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:11px;
-  padding:10px 15px;color:var(--text);font-size:.85rem;outline:none;cursor:text;transition:border-color .2s;}
-.tutor-input:focus{border-color:var(--a);box-shadow:0 0 0 2px rgba(91,140,255,.12);}
-.tsend{padding:10px 17px;border:none;border-radius:11px;cursor:none;
-  background:linear-gradient(135deg,var(--a),var(--b));color:#fff;font-weight:700;font-size:.85rem;transition:transform .2s,box-shadow .2s;}
-.tsend:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(91,140,255,.4);}
-.tsend:disabled{opacity:.5;transform:none;}
+.chip{padding:5px 12px;border-radius:6px;font-size:.7rem;cursor:none;font-family:var(--mono);
+  background:rgba(91,140,255,.08);border:1px solid rgba(91,140,255,.2);color:var(--c);transition:all .2s;}
+.chip:hover{background:rgba(91,140,255,.18);border-color:rgba(91,140,255,.4);}
+.tutor-inp{display:flex;align-items:center;gap:6px;padding:12px 16px;border-top:1px solid rgba(91,140,255,.15);background:#0A0E1F;flex-shrink:0;}
+.tutor-inp::before{content:'❯';color:var(--c);font-weight:700;font-family:var(--mono);}
+.tutor-input{flex:1;background:none;border:none;padding:6px 0;color:var(--text);font-size:.83rem;outline:none;cursor:text;font-family:var(--mono);}
+.tsend{padding:6px 14px;border:1px solid rgba(91,140,255,.35);border-radius:6px;cursor:none;font-family:var(--mono);
+  background:rgba(91,140,255,.1);color:var(--c);font-weight:700;font-size:.75rem;transition:all .2s;}
+.tsend:hover{background:rgba(91,140,255,.22);border-color:var(--border-h);}
+.tsend:disabled{opacity:.5;}
 
 /* ── ENTRY (chapter) PAGE ─────────────────────────────────────────── */
 .entry-hero{padding:clamp(56px,9vw,90px) 24px 36px;text-align:center;position:relative;overflow:hidden;}
@@ -452,6 +478,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   transition:opacity .7s var(--smooth),transform .7s var(--bounce),filter .7s var(--smooth);}
 .sec.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
 .sec:hover{border-color:color-mix(in srgb,var(--ca) 25%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.4);}
+
+.ig-sec{text-align:center;}
+.ig-hint{color:var(--text-2);font-size:.9rem;margin:-8px 0 20px;}
+.ig-frame{max-width:420px;margin:0 auto 22px;border-radius:var(--r20);overflow:hidden;border:1px solid var(--border);
+  box-shadow:0 20px 50px rgba(0,0,0,.45);}
+.ig-img{display:block;width:100%;height:auto;}
+.ig-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.ig-download{background:linear-gradient(135deg,var(--a),var(--b));color:#fff;border-color:transparent;}
 .sec h2{font-size:1.28rem;font-weight:700;color:var(--ca);margin-bottom:18px;display:flex;align-items:center;gap:10px;}
 .sec-icon{width:34px;height:34px;border-radius:10px;background:color-mix(in srgb,var(--ca) 12%,transparent);
   display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0;}
@@ -527,7 +561,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <a href="../index.html#roadmap" class="nav-link">Roadmap</a>
       <a href="../ebook.html" class="nav-link">Chapters</a>
       <a href="../index.html#features" class="nav-link">Features</a>
-      <a href="../index.html#ai-search" class="nav-link">Search</a>
+      <a href="#" class="nav-link" onclick="openTutor();return false;">AI Tutor</a>
       <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank" class="nav-link">GitHub</a>
       <a href="../index.html" class="nav-link">← Roadmap</a>
     </div>
@@ -547,7 +581,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
     <a href="../index.html#roadmap" class="nav-mobile-link">Roadmap</a>
     <a href="../ebook.html" class="nav-mobile-link">Chapters</a>
     <a href="../index.html#features" class="nav-mobile-link">Features</a>
-    <a href="../index.html#ai-search" class="nav-mobile-link">Search</a>
+    <a href="#" class="nav-mobile-link" onclick="openTutor();return false;">AI Tutor</a>
     <a href="https://github.com/Rishichamp/daily-dose-site" target="_blank" class="nav-mobile-link">GitHub</a>
   </div>
 </nav>
@@ -558,7 +592,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">89 Chapters · Generated August 26, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">90 Chapters · Generated August 27, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1275,6 +1309,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#064</span>
   <span style="font-size:.9rem">Build a MultiAgent GTM Intelligence System</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 25, 2026</span>
+</a>
+<a href="#ch90" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#090</span>
+  <span style="font-size:.9rem">Handson Turn Scientific Figures Into Structured Data with Mistral OCR</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 26, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -5032,6 +5074,50 @@ gtm_crew = Crew(
 )</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>GTM outreach timing should be driven by contextual business triggers like executive hires or funding rounds rather than arbitrary calendar schedules.</li><li>Standard search engines return fragmented snippets requiring expensive crawl-and-parse loops, whereas structured web indices return complete records in a single pass.</li><li>Multi-agent GTM pipelines can be effectively orchestrated using CrewAI paired with HTTP-based Model Context Protocol (MCP) servers.</li><li>Context compaction in LLM agents can paradoxically increase short-term costs by invalidating prefix caches and converting cheap cache reads into expensive cache writes.</li><li>Five primary context compaction strategies exist: truncation, rolling summarization, prompt compression, RAG-based retrieval, and serving-layer KV cache eviction.</li><li>Chaining open web search for initial macro-discovery with structured web indices for deep profile and news retrieval yields optimal pipeline performance.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch90" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 90</span>
+    <span style="font-size:.72rem;color:var(--text-3)">August 26, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Handson Turn Scientific Figures Into Structured Data with Mistral OCR
+  </h2>
+  <h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Modern data science and scientific research rely heavily on consuming massive corpuses of literature to extract actionable insights. However, a significant bottleneck in automated literature review is the reliance of traditional parsers on plain text extraction. When a research paper communicates its core findings through a multi-axis line graph, a complex scatter plot, or a biochemical diagram, conventional parsers treat the visual artifact as an isolated image or ignore it entirely, leaving the underlying numerical data unindexed.</p><p>To solve this, modern document intelligence requires a structural shift in how we ingest multi-modal documents. By treating visual elements as first-class citizens of the extraction pipeline, systems can capture the semantic relationships between axis values, legends, and accompanying body text. This approach prevents data degradation and forms a reliable bedrock for downstream reasoning agents and vector databases.</p><p>Implementing such a system effectively requires separating the extraction phase from the reasoning phase. Mistral OCRv4 provides a robust foundation for this by processing entire pages holistically, preserving layout context, and outputting structured JSON alongside embedded image assets. This ensures that downstream agents receive clean, well-defined inputs rather than compounding errors from messy, localized OCR passes.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Why Traditional PDF Parsers Fail at Scientific Figure Extraction</h3><p>Standard document parsers are optimized to extract raw string data from the text layers of PDF files. When processing a dense medical or financial paper, these tools will successfully pull thousands of words of body copy while completely skipping the quantitative data trapped inside visual figures. The text parser reads phrases like "as shown in Figure 3," but the underlying measurements, trends, and statistical distributions remain locked inside a static rasterized image format.</p><p>This limitation stems from the fundamental architecture of legacy document parsers, which segment pages into isolated rectangular blocks and process them independently. In technical literature, layout context is critical; a figure legend placed in the bottom right corner of a page must be accurately associated with the correct multi-line chart. When parsers break these spatial relationships apart, the contextual meaning of the data is lost, rendering automated literature reviews blind to the most information-dense parts of the paper.</p><p>Furthermore, combining tables, charts, diagrams, and photographic images into a single unstructured extraction bucket creates a downstream nightmare for analysis agents. Without a system that understands page layout and visual boundaries, text-based LLMs are forced to hallucinate or guess the contents of charts based solely on surrounding paragraphs. True document intelligence demands an extraction framework that preserves the structural integrity of the page while explicitly targeting embedded figures.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Architectural Requirements for Advanced Document Intelligence</h3><p>Effective document intelligence pipelines must strictly separate the text extraction phase from the chart analysis phase. Optical Character Recognition is engineered to recover written strings, but it lacks the contextual reasoning required to understand spatial relationships, vector lines, colors, and dense tick labels on a graph. Forcing an OCR engine to interpret visual charts directly leads to cascading errors that compromise the reliability of the entire data pipeline.</p><p>By keeping extraction and analysis as distinct stages, each component of the pipeline receives a clean and predictable input. The first stage focuses purely on layout-aware parsing, identifying where figures, captions, and legends reside on the page and isolating them into structured assets. The second stage utilizes vision-language models or specialized agentic workflows to interpret those isolated visual assets against a predefined JSON schema.</p><p>This modular architecture guarantees that every extracted figure conforms to a consistent schema, making the resulting data instantly ready for storage in vector databases or integration into systematic reviews. Decoupling extraction from reasoning also allows data scientists to independently swap, benchmark, or upgrade their vision models without breaking the upstream data ingestion pipeline or corrupting historical database records.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Leveraging Mistral OCRv4 for Whole-Page Understanding</h3><p>Mistral OCRv4 introduces a fundamentally different paradigm for document processing by analyzing entire pages holistically rather than segmenting them into disjointed text blocks. This whole-page Document AI pass allows the model to understand the semantic interplay between body text, embedded figure images, captions, and structural layouts simultaneously. As a result, elements like legends remain properly tied to their corresponding data visualizations.</p><p>When configured correctly, a single API request to Mistral OCRv4 returns a comprehensive payload containing the parsed page text, explicit layout coordinates, embedded figure images, and structured metadata. By providing a strict JSON schema directly to the model during the extraction call, developers can force the system to return structured extractions rather than free-form text, streamlining downstream processing steps.</p><p>This capability eliminates the need to stitch together multiple disparate tool outputs for text and images. For scientific and financial domains characterized by dense typography, complex layouts, and intricate charts, this unified extraction process forms a resilient foundation. It bridges the gap between raw document binaries and structured, queryable data stores ready for enterprise-grade deployment.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code># Illustrative example of calling Mistral OCR for structured document and figure extraction
+import os
+from mistralai import Mistral
+
+api_key = os.environ.get("MISTRAL_API_KEY")
+client = Mistral(api_key=api_key)
+
+document_path = "path_to_scientific_paper.pdf"
+
+# Upload or read the document depending on the SDK specification
+with open(document_path, "rb") as f:
+    pdf_bytes = f.read()
+
+# Executing whole-page OCR extraction with Mistral OCRv4
+response = client.ocr.process(
+    document={
+        "type": "document_url", # or base64 data depending on implementation
+        "document_name": "research_paper.pdf"
+    },
+    model="mistral-ocr-4-0",
+    include_image_base64=True
+)
+
+# Iterating through extracted pages and embedded figures
+for page in response.pages:
+    print(f"Processing page index: {page.index}")
+    print(f"Extracted text length: {len(page.markdown)}")
+    
+    # Accessing extracted embedded figures associated with the page layout
+    for figure in page.images:
+        print(f"Found figure ID: {figure.id} with dimensions {figure.dimensions}")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Scientific literature hides critical quantitative insights inside charts and figures that traditional text-only PDF parsers routinely ignore.</li><li>Legacy document parsers segment pages into isolated blocks, breaking the spatial relationship between figure legends and their charts.</li><li>Modern document intelligence requires separating raw text extraction from visual chart analysis to prevent compounding errors.</li><li>Mistral OCRv4 performs a holistic, whole-page Document AI pass that captures layout context and content simultaneously.</li><li>Providing a JSON schema directly to the OCR model enforces structured extractions rather than unstructured, free-form text.</li><li>Decoupling extraction from reasoning enables seamless integration with vector databases and systematic review pipelines.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
 </div>
 <div class="footer" style="border-top:1px solid var(--border);text-align:center;padding:30px;">
@@ -5039,24 +5125,24 @@ gtm_crew = Crew(
 </div>
 
 
-<button class="fab" id="tutorFab" onclick="openTutor()">🧠</button>
+<button class="fab" id="tutorFab" onclick="openTutor()" aria-label="Open AI tutor terminal">&gt;_</button>
 <div class="tutor" id="tutorPanel">
   <div class="tutor-head">
-    <div class="tutor-title"><span class="dot-live"></span>AI Study Tutor</div>
-    <button class="t-close" onclick="closeTutor()">✕</button>
+    <div class="tutor-title"><span class="term-dots"><span></span><span></span><span></span></span>&nbsp;ai-tutor — zsh</div>
+    <button class="t-close" onclick="closeTutor()" aria-label="Close">✕</button>
   </div>
-  <div class="tutor-hint">Ask me to <strong>explain any issue by number</strong> — e.g. "Explain issue #5"</div>
+  <div class="tutor-hint">Ask about <strong>any chapter by number</strong> — e.g. "explain issue #5"</div>
   <div class="tutor-body" id="tutorBody">
-    <div class="msg bot">👋 Hi! I know every Daily Dose of DS chapter.</div>
+    <div class="msg bot">Welcome to the Daily Dose of DS AI tutor. I know every chapter you've published.</div>
   </div>
   <div class="chips">
-    <span class="chip" data-q="Explain issue #1">Issue #1</span>
-    <span class="chip" data-q="What topics have been covered?">All topics</span>
-    <span class="chip" data-q="Which issues cover LLMs?">LLMs</span>
+    <span class="chip" data-q="Explain issue #1">issue #1</span>
+    <span class="chip" data-q="What topics have been covered?">all topics</span>
+    <span class="chip" data-q="Which issues cover LLMs?">llms</span>
   </div>
   <div class="tutor-inp">
-    <input class="tutor-input" id="tutorIn" placeholder='Try "Explain issue #7"...'>
-    <button class="tsend" id="tSend" onclick="tutorSend()">Ask</button>
+    <input class="tutor-input" id="tutorIn" placeholder='explain issue #7...'>
+    <button class="tsend" id="tSend" onclick="tutorSend()">run</button>
   </div>
 </div>
 <script>const GEMINI_KEY_JS='';const TUTOR_CTX='';</script>
@@ -5177,7 +5263,8 @@ document.addEventListener('click',e=>{
   function resize(){W=cv.width=cv.offsetWidth;H=cv.height=cv.offsetHeight;}
   function init(){
     resize();
-    nodes=Array.from({length:14},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:2+Math.random()*2.6,p:Math.random()*Math.PI*2}));
+    const n=parseInt(cv.dataset.nodes,10)||14;
+    nodes=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:2+Math.random()*2.6,p:Math.random()*Math.PI*2}));
   }
   function draw(){
     ctx.clearRect(0,0,W,H);
