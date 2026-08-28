@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">90 Chapters · Generated August 27, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">91 Chapters · Generated August 28, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1325,6 +1325,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#090</span>
   <span style="font-size:.9rem">Handson Turn Scientific Figures Into Structured Data with Mistral OCR</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 26, 2026</span>
+</a>
+<a href="#ch91" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#091</span>
+  <span style="font-size:.9rem">KV vs Prefix vs Prompt vs Semantic Caching</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 27, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -5124,6 +5132,41 @@ for page in response.pages:
     # Accessing extracted embedded figures associated with the page layout
     for figure in page.images:
         print(f"Found figure ID: {figure.id} with dimensions {figure.dimensions}")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Scientific literature hides critical quantitative insights inside charts and figures that traditional text-only PDF parsers routinely ignore.</li><li>Legacy document parsers segment pages into isolated blocks, breaking the spatial relationship between figure legends and their charts.</li><li>Modern document intelligence requires separating raw text extraction from visual chart analysis to prevent compounding errors.</li><li>Mistral OCRv4 performs a holistic, whole-page Document AI pass that captures layout context and content simultaneously.</li><li>Providing a JSON schema directly to the OCR model enforces structured extractions rather than unstructured, free-form text.</li><li>Decoupling extraction from reasoning enables seamless integration with vector databases and systematic review pipelines.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch91" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 91</span>
+    <span style="font-size:.72rem;color:var(--text-3)">August 27, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    KV vs Prefix vs Prompt vs Semantic Caching
+  </h2>
+  <h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Modern generative AI architectures face severe scaling bottlenecks at both the data persistence layer and the inference execution layer. When deploying AI agents to production, every user, team, and project demands isolated state tracking, usually materialized as independent knowledge graphs. Traditional graph databases are fundamentally engineered for a single, large, resident enterprise graph rather than millions of cold, sparsely accessed tenant graphs. This structural mismatch forces engineering teams to build custom storage engines that intelligently tier data across RAM, NVMe, and object storage.</p><p>Concurrently, inference optimization requires a deep understanding of memory and compute utilization during prompt processing and token generation. The term "caching" is often thrown around loosely in the LLM ecosystem, yet it refers to four completely different layers of the stack: the in-request KV cache, server-side prefix caching, provider-managed prompt caching, and response-level semantic caching. Each layer operates on distinct objects—ranging from attention tensors to cosine similarity embeddings—and introduces unique failure modes, memory footprints, and financial implications.</p><p>Understanding these mechanics is critical for systems architects designing high-throughput, low-latency AI applications. Failing to distinguish between exact-match prefix reuse and fuzzy semantic response retrieval can lead to silent correctness failures or severe throughput regressions. Similarly, ignoring the memory bandwidth bounds of the KV cache during decoding will cripple hardware utilization regardless of raw compute provisioning.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Agent Memory Graphs and Storage Bottlenecks</h3><p>Agent memory stores often materialize as individualized knowledge graphs, yielding millions of distinct graphs for a single enterprise customer. In any given operational window, the vast majority of these graphs remain cold, with incoming queries targeting precisely one graph at a time. Traditional graph databases such as Neo4j are architected for the inverse workload: a single massive graph kept resident in memory, where every incoming query must first traverse a Cypher parser and query optimizer.</p><p>When traditional graph engines are forced to manage millions of small, idle tenant graphs, the hardware cost scales proportionally with provisioned RAM rather than active read volume. Furthermore, data isolation is awkwardly handled as a filter over one shared graph rather than true physical or logical separation per tenant. Because adding raw hardware fails to resolve this architectural friction, modern agent memory engines adopt tiered storage architectures. Hot graphs reside in RAM, recently accessed graphs sit on local NVMe, and idle graphs are offloaded to object storage, ready to be reloaded instantaneously upon query arrival.</p><p>This tiered approach unlocks significant performance gains. Because a single query targets only one isolated graph, operations like PageRank can execute inline in milliseconds rather than running as heavy asynchronous batch jobs. Retrieval latency achieves a p95 under 100ms across tens of millions of graphs, keeping end-to-end response times well under 200ms. Additionally, advanced engines maintain dual in-memory layouts, dynamically converting between them on demand to optimize traversal speed and memory overhead.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">The Four Layers of LLM Caching</h3><p>The LLM stack features four distinct caching mechanisms that operate on entirely different objects, yet all are colloquially referred to as caching. The KV cache stores intermediate attention tensors for a single active request during inference. During the prefill phase, the model computes key and value vectors for every prompt token across all layers. During decoding, the model attends over these stored vectors and appends one new pair per generated token, bypassing the need to recompute the entire historical sequence at every step. However, because the entire cache must be loaded from High Bandwidth Memory on every decode step, inference quickly transitions from compute-bound to memory bandwidth-bound.</p><p>Prefix caching moves this tensor persistence to the server side, utilizing fixed-size blocks (e.g., 16 tokens) identified by a cryptographic hash chain over parent block hashes and token IDs. The inference engine walks incoming blocks, incrementing reference counts on hits and triggering fresh prefills only from the first miss onward. While this drastically reduces prefill computation for shared system prompts, it is strictly exact-match and struggles with variable data ordering, such as dynamically shuffled RAG chunks.</p><p>Prompt caching represents the commercial, provider-managed equivalent of prefix reuse. Users pay a premium to write cache entries (often 1.25x the base input rate) and a discounted rate to read them (0.1x), recovering costs across subsequent requests within a specified Time-To-Live. However, providers enforce strict architectural constraints, such as limiting the backward search window for breakpoints, which means excessive conversational turns can easily push older cached blocks out of scope.</p><p>Finally, semantic caching operates at the application layer by embedding incoming prompts and performing nearest-neighbor vector searches against stored historical queries. If a query's cosine similarity exceeds a predefined threshold, the system returns a previously generated response string outright. Unlike the first three exact-match mechanisms, semantic caching saves both input prefill compute and output generation tokens, but introduces an embedding round-trip overhead on every request and carries the risk of returning incorrect cached responses for subtly distinct queries.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code># Illustrative representation of KV cache memory footprint estimation
+def calculate_kv_cache_size_gb(num_layers, num_kv_heads, head_dim, context_length, batch_size, bytes_per_param=2):
+    """
+    Calculates the memory consumption of the Key-Value cache in gigabytes.
+    Formula accounts for keys and values across all layers and heads for a given sequence length.
+    """
+    tokens_per_seq = context_length
+    # KV cache stores both Key and Value tensors: factor of 2
+    elements_per_token = 2 * num_layers * num_kv_heads * head_dim
+    total_elements = elements_per_token * tokens_per_seq * batch_size
+    total_bytes = total_elements * bytes_per_param
+    return total_bytes / (1024 ** 3)
+
+# Example calculation for a hypothetical 70B model configuration
+layers = 80
+kv_heads = 8
+head_dim = 128
+ctx_len = 131072 # 128K context
+bsz = 1
+
+cache_size = calculate_kv_cache_size_gb(layers, kv_heads, head_dim, ctx_len, bsz)
+print(f"Estimated KV Cache Memory: {cache_size:.2f} GB")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Agent memory graphs require multi-tenant isolation where millions of individual graphs are predominantly idle, breaking traditional monolithic graph databases.</li><li>Tiered storage architectures (RAM, NVMe, object storage) allow dynamic loading of tenant graphs, reducing p95 retrieval latency below 100ms.</li><li>The KV cache eliminates redundant sequence recomputation during token generation but creates a severe memory bandwidth bottleneck during decoding.</li><li>Prefix caching uses hash chains over fixed-size token blocks to reuse prefill tensors across requests, though exact-match requirements limit its utility for unordered RAG chunks.</li><li>Provider prompt caching offers discounted read rates for reused prefixes, but strict window limits mean excessive intermediate chat turns will invalidate historical cache entries.</li><li>Semantic caching bypasses model execution entirely via embedding similarity search, saving both input and output tokens at the cost of potential accuracy drift.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
