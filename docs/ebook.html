@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">91 Chapters · Generated August 28, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">92 Chapters · Generated August 29, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1333,6 +1333,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#091</span>
   <span style="font-size:.9rem">KV vs Prefix vs Prompt vs Semantic Caching</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 27, 2026</span>
+</a>
+<a href="#ch92" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#092</span>
+  <span style="font-size:.9rem">Implementing Siamese Network with Contrastive Learning</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 28, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -5167,6 +5175,86 @@ bsz = 1
 
 cache_size = calculate_kv_cache_size_gb(layers, kv_heads, head_dim, ctx_len, bsz)
 print(f"Estimated KV Cache Memory: {cache_size:.2f} GB")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Agent memory graphs require multi-tenant isolation where millions of individual graphs are predominantly idle, breaking traditional monolithic graph databases.</li><li>Tiered storage architectures (RAM, NVMe, object storage) allow dynamic loading of tenant graphs, reducing p95 retrieval latency below 100ms.</li><li>The KV cache eliminates redundant sequence recomputation during token generation but creates a severe memory bandwidth bottleneck during decoding.</li><li>Prefix caching uses hash chains over fixed-size token blocks to reuse prefill tensors across requests, though exact-match requirements limit its utility for unordered RAG chunks.</li><li>Provider prompt caching offers discounted read rates for reused prefixes, but strict window limits mean excessive intermediate chat turns will invalidate historical cache entries.</li><li>Semantic caching bypasses model execution entirely via embedding similarity search, saving both input and output tokens at the cost of potential accuracy drift.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch92" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 92</span>
+    <span style="font-size:.72rem;color:var(--text-3)">August 28, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Implementing Siamese Network with Contrastive Learning
+  </h2>
+  <h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Modern machine learning pipelines often require systems to reason about relationships between inputs rather than simply categorizing data in isolation. Siamese networks combined with contrastive learning provide an elegant framework for this, mapping inputs into a shared embedding space where semantic similarity can be directly measured via distance metrics. This self-supervised approach underpins powerful architectures like CLIP, which bridges text and image representations for multimodal applications.</p><p>Concurrently, the engineering of autonomous AI agents demands sophisticated architectural patterns. Long-running analytical pipelines frequently fail because execution plans are hardcoded into static prompts, making mid-task requirement changes catastrophic. By externalizing task state into explicit structures and treating dependencies as subgraphs, systems can perform incremental rebuilds, preserving valid computational artifacts while adapting to dynamic inputs.</p><p>Contrastive learning operates by training models to distinguish between similar and dissimilar pairs of data. When implemented using PyTorch, a Siamese network shares weights across two parallel sub-networks, processing dual inputs simultaneously. The resulting embeddings are evaluated using a contrastive loss function that pulls matching classes together and pushes non-matching classes apart beyond a predefined margin.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">State Management and Resilience in Long-Running AI Agents</h3><p>Long-running AI workflows often suffer from brittleness because their execution plans reside entirely inside dynamic prompt strings. When an underlying file changes or review criteria shift midway through a tens-of-minute analysis run, traditional systems are forced to discard all progress and restart from scratch. This occurs because there is no externalized state object to edit while the execution is live.</p><p>The solution relies on maintaining task state as an explicit structure outside the conversation history. This structure maps out the overall plan, completed steps, generated artifacts, and explicit inter-step dependencies. By defining these relationships, a new requirement does not invalidate the entire run; instead, it isolates the impact to a specific subgraph. The orchestrator checks new inputs against historical steps, retains valid artifacts, marks downstream dependents as stale, and triggers an incremental rebuild.</p><p>Furthermore, this explicit state architecture enables safe parallel execution. When multiple subagents operate concurrently and write their outputs back to a shared state, mid-task adjustments automatically propagate to branches that have not yet initialized. This reframes robust agentic behavior primarily as a state management problem, where error recovery involves locating the exact decision failure, restoring environment state, and building shorter continuation paths rather than abandoning prior computational work.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Contrastive Learning and Siamese Network Architecture</h3><p>Contrastive learning is a self-supervised training methodology that teaches models to generate meaningful representations by directly comparing sample pairs. Instead of predicting absolute class labels, the model learns a relative distance metric. In the context of facial recognition or digit matching, a Siamese network is designed with twin subnetworks that share identical weights and parameters.</p><p>To train this architecture, datasets are curated into pairs with explicit binary targets. If two samples belong to the same class or entity, the target label is set to zero, instructing the loss function to minimize the Euclidean or cosine distance between their resulting embeddings. Conversely, if the samples belong to different classes, the target label is set to one, and the network is penalized if the embedding distance falls below a specified margin.</p><p>The contrastive loss function mathematically balances these competing objectives. It computes the squared distance for matching pairs directly, while applying a hinge-loss formulation for non-matching pairs that only penalizes distances falling within the margin threshold. This forces dissimilar representations apart without wasting gradient updates on pairs that are already sufficiently separated in the embedding space.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+import torchvision
+import torchvision.transforms as transforms
+import random
+
+class SiameseDataset(Dataset):
+    def __init__(self, mnist_dataset):
+        self.mnist_dataset = mnist_dataset
+        self.data = mnist_dataset.data
+        self.labels = mnist_dataset.targets
+
+    def __len__(self):
+        return len(self.mnist_dataset)
+
+    def __getitem__(self, idx):
+        img1, label1 = self.mnist_dataset[idx]
+        should_get_same_class = random.randint(0, 1)
+        
+        if should_get_same_class:
+            while True:
+                idx2 = random.randint(0, len(self.mnist_dataset) - 1)
+                img2, label2 = self.mnist_dataset[idx2]
+                if label1 == label2:
+                    break
+        else:
+            while True:
+                idx2 = random.randint(0, len(self.mnist_dataset) - 1)
+                img2, label2 = self.mnist_dataset[idx2]
+                if label1 != label2:
+                    break
+                    
+        # If labels are different, target is 1. If same, target is 0.
+        target = 0 if label1 == label2 else 1
+        return img1, img2, torch.tensor(target, dtype=torch.float32)
+
+class SiameseNetwork(nn.Module):
+    def __init__(self):
+        super(SiameseNetwork, self).__init__()
+        self.fc1 = nn.Sequential(
+            nn.Linear(28 * 28, 128),
+            nn.ReLU(inplace=True),
+            nn.Linear(128, 64),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward_once(self, x):
+        x = x.view(x.size(0), -1)
+        return self.fc1(x)
+
+    def forward(self, input1, input2):
+        output1 = self.forward_once(input1)
+        output2 = self.forward_once(input2)
+        return output1, output2
+
+class ContrastiveLoss(nn.Module):
+    def __init__(self, margin=2.0):
+        super(ContrastiveLoss, self).__init__()
+        self.margin = margin
+
+    def forward(self, output1, output2, label):
+        euclidean_distance = F.pairwise_distance(output1, output2, keepdim=True)
+        loss_contrastive = torch.mean((1 - label) * torch.pow(euclidean_distance, 2) +
+                                      (label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
+        return loss_contrastive</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Externalizing agent task state into an explicit structure prevents complete pipeline restarts when requirements change mid-run.</li><li>Inter-step dependencies allow systems to execute incremental rebuilds by validating subgraphs rather than invalidating entire execution histories.</li><li>Siamese networks process dual inputs through identical weight-sharing subnetworks to generate comparable low-dimensional embeddings.</li><li>Contrastive learning minimizes the distance between matching sample pairs while maximizing the distance between non-matching pairs up to a set margin.</li><li>Multimodal architectures like CLIP leverage contrastive pretraining to project disparate data modalities, such as text and images, into a shared vector space.</li><li>Guardrails for AI agents establish vital operational boundaries by limiting tool usage, enforcing validation checkpoints, and providing fallback mechanisms.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
