@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">92 Chapters · Generated August 30, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">93 Chapters · Generated August 31, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1341,6 +1341,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#092</span>
   <span style="font-size:.9rem">Implementing Siamese Network with Contrastive Learning</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 28, 2026</span>
+</a>
+<a href="#ch93" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#093</span>
+  <span style="font-size:.9rem">Why KV Cache Stores K and V Vectors But Never Q</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">August 30, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -5255,6 +5263,61 @@ class ContrastiveLoss(nn.Module):
         loss_contrastive = torch.mean((1 - label) * torch.pow(euclidean_distance, 2) +
                                       (label) * torch.pow(torch.clamp(self.margin - euclidean_distance, min=0.0), 2))
         return loss_contrastive</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Externalizing agent task state into an explicit structure prevents complete pipeline restarts when requirements change mid-run.</li><li>Inter-step dependencies allow systems to execute incremental rebuilds by validating subgraphs rather than invalidating entire execution histories.</li><li>Siamese networks process dual inputs through identical weight-sharing subnetworks to generate comparable low-dimensional embeddings.</li><li>Contrastive learning minimizes the distance between matching sample pairs while maximizing the distance between non-matching pairs up to a set margin.</li><li>Multimodal architectures like CLIP leverage contrastive pretraining to project disparate data modalities, such as text and images, into a shared vector space.</li><li>Guardrails for AI agents establish vital operational boundaries by limiting tool usage, enforcing validation checkpoints, and providing fallback mechanisms.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch93" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 93</span>
+    <span style="font-size:.72rem;color:var(--text-3)">August 30, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Why KV Cache Stores K and V Vectors But Never Q
+  </h2>
+  <h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Modern AI systems rely heavily on robust data preparation, efficient inference caching, and multimodal agent orchestration. As document understanding scales to handle thousands of pages of PDFs, images, and office documents, traditional sequential parsing scripts create severe GPU bottlenecks. Solving this requires architectural shifts, such as decoupling lightweight CPU document workers from a centralized GPU-backed vision-language model server.</p><p>Concurrently, running autoregressive Large Language Models efficiently requires a deep understanding of memory management. During inference, managing how vectors are stored determines whether a model can scale to long contexts without running out of memory. By inspecting the mechanics of attention matrices and matrix multiplication rows, engineers can optimize inference throughput and understand why specific memory caches are necessary while others are intentionally omitted.</p><p>Beyond text generation, modern agentic applications frequently require multimodal capabilities. By combining multimodal data infrastructure libraries like Pixeltable with agent orchestration frameworks like CrewAI, developers can route complex queries across diverse data modalities. This ensures that text, video, images, and audio can be seamlessly processed and synthesized into coherent user responses within a unified agent architecture.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">High-Throughput Document Parsing with Marker v2</h3><p>Parsing complex document layouts at scale has historically been constrained by sequential GPU processing limitations. Traditional scaling strategies involve adding independent worker processes, where each worker loads its own copy of a parsing model into GPU memory and processes pages one at a time. This approach underutilizes hardware because GPUs excel at parallel execution across batches of inputs. Furthermore, private model copies sit idle while individual workers perform CPU-bound tasks like reading files and assembling outputs, leading to poor resource utilization and inflated VRAM costs.</p><p>Marker v2 solves this architectural inefficiency by decoupling document ingestion from model inference. Instead of running isolated model copies per worker, it utilizes lightweight CPU workers that communicate with a single, shared inference server running the Surya model. The parent process dynamically evaluates server capacity and splits the workload across workers, ensuring that incoming pages from multiple files batch together on a single model instance. This design scales throughput with server utilization rather than available VRAM per process.</p><p>To further optimize throughput and accuracy, Marker v2 leverages existing digital text layers within PDFs, invoking the vision model only when text extraction falls short, such as in scanned documents, mathematical equations, or complex tables. Users can configure this behavior through specialized modes. Balanced mode runs the model for layout detection and re-OCR on bad pages to maximize quality. Fast mode relies heavily on the native text layer with minimal model overhead, significantly lowering compute costs per page. Disable_ocr skips the model entirely, falling back to CPU processing for clean digital documents.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">The Architecture of LLM KV Caching</h3><p>Large Language Models generate text autoregressively, predicting each token sequentially based on all preceding tokens. During a forward pass, hidden states are produced at every layer, but only the final hidden state is projected to vocabulary logits to generate the next token. Understanding why the Key-Value (KV) cache stores only K and V vectors—while discarding Query (Q) vectors—requires analyzing the mechanics of the attention mechanism across prefill and decoding phases.</p><p>During the prefill phase, all prompt tokens pass through the model in parallel using causal masking. At every layer, each position generates a Query, Key, and Value vector, producing attention scores against all preceding positions. To generate the subsequent token, the model projects only the final position's hidden state to calculate logits. Tracing back through the attention matrix reveals that generating the $N$-th token relies on the $N$-th Query vector interacting with Key vectors $K_1$ through $K_N$, followed by multiplication across Value vectors $V_1$ through $V_N$.</p><p>Crucially, under causal masking, a token's Key and Value depend solely on that token and its predecessors, remaining entirely unaffected by future tokens. Because each decoding step requires a brand-new Query vector that is never reused for subsequent tokens, caching Query vectors provides no utility. Conversely, Key and Value vectors remain static for all historical tokens as generation proceeds, making them ideal candidates for caching to avoid redundant computation during autoregressive generation.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Building Multimodal Agent Systems with MCP</h3><p>Integrating multimodal data into modern AI applications requires specialized infrastructure capable of managing diverse data types, including images, videos, audio, and text. Building an effective multimodal architecture involves separating data storage and model execution from the agentic orchestration layer. Pixeltable serves as a foundational Python library for multimodal AI infrastructure, streamlining data storage and execution pipelines across multiple media formats.</p><p>To orchestrate these multimodal workflows, developers can build Model Context Protocol (MCP) servers integrated with agent frameworks like CrewAI. The architecture relies on a specialized router agent that inspects user queries, identifies the required data modality, and delegates tasks to domain-specific specialist agents. These specialist agents gather relevant context from the underlying multimodal data infrastructure and pass it to a response generator, producing a cohesive final output for the user.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code># Illustrative example of calculating attention and managing KV cache dynamics
+import torch
+import torch.nn.functional as F
+
+def scaled_dot_product_attention(q, k, v, mask=None):
+    """
+    Computes attention weights and applies them to value vectors.
+    q: Query tensor [batch, heads, seq_len_q, dim_k]
+    k: Key tensor   [batch, heads, seq_len_k, dim_k]
+    v: Value tensor [batch, heads, seq_len_v, dim_v]
+    """
+    dim_k = q.size(-1)
+    scores = torch.matmul(q, k.transpose(-2, -1)) / (dim_k ** 0.5)
+    
+    if mask is not None:
+        scores = scores.masked_fill(mask == 0, float('-inf'))
+        
+    attention_weights = F.softmax(scores, dim=-1)
+    output = torch.matmul(attention_weights, v)
+    return output, attention_weights
+
+# Simulate a single decoding step where Q is newly generated and K, V are fetched from cache
+batch_size, num_heads, head_dim = 1, 8, 64
+seq_len_cached = 10
+
+# New query for the current single token being decoded
+q_new = torch.randn(batch_size, num_heads, 1, head_dim)
+
+# Cached keys and values from previous prefill and decoding steps
+k_cache = torch.randn(batch_size, num_heads, seq_len_cached, head_dim)
+v_cache = torch.randn(batch_size, num_heads, seq_len_cached, head_dim)
+
+# Concatenate new K with K_cache (simulating KV cache update)
+k_new = torch.randn(batch_size, num_heads, 1, head_dim)
+v_new = torch.randn(batch_size, num_heads, 1, head_dim)
+
+k_updated = torch.cat([k_cache, k_new], dim=-2)
+v_updated = torch.cat([v_cache, v_new], dim=-2)
+
+# Compute attention for the new token against all cached and current keys/values
+output, weights = scaled_dot_product_attention(q_new, k_updated, v_updated)
+print("Attention output shape:", output.shape)</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Datalab Marker v2 decouples lightweight CPU document workers from a centralized GPU-backed Surya model inference server to maximize hardware throughput.</li><li>Marker v2 skips redundant model execution by reading native PDF text layers first, invoking OCR and layout models only for scans, equations, and complex tables.</li><li>Autoregressive LLM generation requires predicting tokens one at a time, where only the final hidden state of a forward pass is projected to vocabulary logits.</li><li>KV caches store Key and Value vectors because historical K and V representations remain invariant under causal masking as generation proceeds.</li><li>Query vectors are never cached across decoding steps because each generation step requires a unique, transient Query vector that is never reused.</li><li>Multimodal MCP servers combine data infrastructure libraries like Pixeltable with agent orchestration frameworks like CrewAI to route queries across text, video, and audio modalities.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
