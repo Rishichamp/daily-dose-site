@@ -186,6 +186,11 @@ class DB:
         r = self.conn.execute("SELECT MAX(issue_number) FROM issues").fetchone()
         return (r[0] or 0) + 1
 
+    def last_date(self):
+        """Date of the most recently processed issue, or None if the table is empty."""
+        r = self.conn.execute("SELECT MAX(date) FROM issues WHERE processed=1").fetchone()
+        return r[0] if r and r[0] else None
+
     def save(self, email_id, subject, date_str, topic, category, content_hash, html_file, note: StudyNote):
         self.conn.execute("""
             INSERT OR REPLACE INTO issues
@@ -2234,7 +2239,16 @@ class App:
         log.info("=" * 55)
         self._init_apis()
 
-        after = None if first_run else datetime.now() - timedelta(days=1)
+        if first_run:
+            after = None
+        else:
+            last = self.db.last_date()  # e.g. "2026-08-31"
+            after = (
+                datetime.fromisoformat(last) - timedelta(days=1)
+                if last
+                else datetime.now() - timedelta(days=1)
+            )
+
         messages = self.gmail.fetch_all(after)
         if not messages:
             log.info("No emails found. Rebuilding site...")
