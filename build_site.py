@@ -28,7 +28,8 @@ New in v7 (redesign requested):
 """
 
 import os, sys, re, json, base64, sqlite3, hashlib, argparse, subprocess, time
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 from dataclasses import dataclass, field
 
@@ -186,6 +187,42 @@ class DB:
         r = self.conn.execute("SELECT MAX(issue_number) FROM issues").fetchone()
         return (r[0] or 0) + 1
 
+    def renumber_chronologically(self) -> dict:
+        """Make issue numbers follow publication date: oldest issue is #1.
+
+        Numbers used to be handed out in processing order, so a backfill (or a
+        newest-first batch) left them out of date order. Returns {old: new} for
+        every issue whose number changed; note_json is kept in step.
+        """
+        rows = self.conn.execute(
+            "SELECT id, issue_number, note_json FROM issues "
+            "WHERE processed=1 ORDER BY date ASC, id ASC").fetchall()
+        changes = {}
+        for new_num, (row_id, old_num, note_json) in enumerate(rows, start=1):
+            if old_num == new_num:
+                continue
+            changes[old_num] = new_num
+            if note_json:
+                data = json.loads(note_json)
+                data["issue_number"] = new_num
+                note_json = json.dumps(data)
+            self.conn.execute("UPDATE issues SET issue_number=?, note_json=? WHERE id=?",
+                              (new_num, note_json, row_id))
+        self.conn.commit()
+        return changes
+
+    def set_html_file(self, issue_number: int, html_file: str):
+        self.conn.execute("UPDATE issues SET html_file=? WHERE issue_number=? AND processed=1",
+                          (html_file, issue_number))
+        self.conn.commit()
+
+    def all_notes(self):
+        """(issue_number, StudyNote) for every processed issue, oldest first."""
+        rows = self.conn.execute(
+            "SELECT issue_number, note_json FROM issues "
+            "WHERE processed=1 AND note_json IS NOT NULL ORDER BY issue_number ASC").fetchall()
+        return [(num, StudyNote.from_json(nj)) for num, nj in rows]
+
     def last_date(self):
         """Date of the most recently processed issue, or None if the table is empty."""
         r = self.conn.execute("SELECT MAX(date) FROM issues WHERE processed=1").fetchone()
@@ -285,9 +322,15 @@ class Gmail:
         subject = hdrs.get("Subject", "No Subject")
         date_str = hdrs.get("Date", "")
         try:
-            date = datetime.strptime(date_str[:31], "%a, %d %b %Y %H:%M:%S %z")
+            # RFC 2822 parser: copes with single-digit days and "(UTC)"-style suffixes
+            # that a fixed strptime format rejected.
+            date = parsedate_to_datetime(date_str)
         except Exception:
-            date = datetime.now()
+            # Fall back to Gmail's receive time rather than "now", so a malformed
+            # header can't stamp an old email with today's date and misorder it.
+            internal_ms = msg.get("internalDate")
+            date = (datetime.fromtimestamp(int(internal_ms) / 1000, tz=timezone.utc)
+                    if internal_ms else datetime.now())
         plain, html = self._extract_parts(msg["payload"])
         clean_text = self._clean(plain or self._html2text(html))
         topic = self._make_topic(subject, clean_text)
@@ -2255,8 +2298,9 @@ class App:
             self._rebuild()
             return
 
-        if first_run:
-            messages = list(reversed(messages))
+        # Gmail lists newest first. Process oldest first in every mode, so a
+        # multi-day catch-up gets issue numbers in date order.
+        messages = list(reversed(messages))
 
         processed = skipped = 0
         for meta in messages:
@@ -2268,6 +2312,9 @@ class App:
             except Exception as ex:
                 log.error("Failed %s: %s", eid, ex)
 
+        # Safety net: if an email arrived out of order (e.g. a late backfill),
+        # renumber by date and regenerate the affected pages.
+        self._renumber_pages()
         self._rebuild()
         log.info("Done! Processed: %d, Skipped: %d", processed, skipped)
         if processed > 0:
@@ -2301,6 +2348,61 @@ class App:
         log.info("Rebuilding site from existing database...")
         self._rebuild()
         log.info("Done.")
+
+    def _renumber_pages(self, regenerate_all: bool = False) -> int:
+        """Renumber issues by date and regenerate the pages that depend on the numbers.
+
+        Entry file names, the "Issue #N" badge and the infographic all carry the
+        number, so a changed number means a new page and a re-rendered image.
+        Needs no Gmail or AI access. Returns how many issues were renumbered.
+        """
+        ig_dir = Path(OUT_DIR) / "assets" / "infographics"
+        before = {n for (n,) in self.db.conn.execute(
+            "SELECT issue_number FROM issues WHERE processed=1")}
+        had_infographic = {n for n in before if (ig_dir / f"issue_{n:03d}.png").exists()}
+
+        changes = self.db.renumber_chronologically()
+        if not changes and not regenerate_all:
+            return 0
+        if changes:
+            log.info("Renumbering %d issues to match publication dates.", len(changes))
+
+        # Infographics: re-render under the new number (the image shows "#N").
+        keep_images = {n for n in had_infographic if n not in changes}
+        for old_num, new_num in changes.items():
+            if old_num in had_infographic:
+                keep_images.add(new_num)
+        notes = self.db.all_notes()
+        for num, note in notes:
+            if num in keep_images and (regenerate_all or num in changes.values()):
+                try:
+                    build_infographic_png(note, str(ig_dir / f"issue_{num:03d}.png"))
+                except Exception as e:
+                    log.warning("Infographic render failed for #%d: %s", num, e)
+        for png in ig_dir.glob("issue_*.png"):
+            m = re.fullmatch(r"issue_(\d+)\.png", png.name)
+            if m and int(m.group(1)) not in keep_images:
+                png.unlink()
+
+        # Entry pages: rebuild every page (each embeds the tutor's issue index),
+        # then remove pages that no issue points to any more.
+        ctx_js = self._tutor_ctx()
+        live = set()
+        for num, note in notes:
+            html_file = self.site.build_entry(None, note, ctx_js)
+            self.db.set_html_file(num, html_file)
+            live.add(html_file)
+        for page in (Path(OUT_DIR) / "entries").glob("*.html"):
+            if f"entries/{page.name}" not in live:
+                page.unlink()
+        log.info("Regenerated %d chapter pages.", len(live))
+        return len(changes)
+
+    def renumber(self):
+        """--renumber: fix issue numbering and regenerate the whole site from the DB."""
+        n = self._renumber_pages(regenerate_all=True)
+        self._rebuild()
+        log.info("Done. %d issues renumbered.", n)
 
     def _deploy(self):
         log.info("Deploying to GitHub Pages...")
@@ -2339,11 +2441,14 @@ def main():
     p.add_argument("--first-run", action="store_true", help="Process ALL historical emails")
     p.add_argument("--daily", action="store_true", help="Process new emails only")
     p.add_argument("--rebuild", action="store_true", help="Rebuild site from DB (no Gmail fetch)")
+    p.add_argument("--renumber", action="store_true",
+                   help="Renumber issues by date and regenerate every page (no Gmail fetch)")
     p.add_argument("--schedule", action="store_true", help="Run daily scheduler")
     args = p.parse_args()
 
     app = App()
     if args.schedule: app._init_apis(); app.schedule()
+    elif args.renumber: app.renumber()
     elif args.rebuild: app.rebuild_only()
     else: app.run(first_run=args.first_run)
 
