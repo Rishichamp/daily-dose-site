@@ -2,28 +2,48 @@ name: Daily Dose of DS — Auto Update
 
 on:
   schedule:
-    - cron: "30 1 * * *"   # 7:00 AM IST daily
+    # Two runs a day, at odd minutes (GitHub delays jobs queued on the hour).
+    # The second run is a safety net if the morning one hits a transient error.
+    - cron: "23 1 * * *"    # ~6:53 AM IST
+    - cron: "47 13 * * *"   # ~7:17 PM IST
   workflow_dispatch:
     inputs:
       first_run:
-        description: "Process ALL historical emails (first-time setup)"
+        description: "Process the whole newsletter history (first-time setup)"
         required: false
-        default: "false"
+        default: false
         type: boolean
-      renumber:
-        description: "Only renumber issues by date and regenerate pages (no Gmail needed)"
+      repair:
+        description: "Repair only: restore titles, recompute categories, renumber by date, regenerate every page (no fetching)"
         required: false
-        default: "false"
+        default: false
         type: boolean
+      source:
+        description: "Where new issues come from"
+        required: false
+        default: "feed"
+        type: choice
+        options:
+          - feed    # public Substack archive — no login, nothing expires
+          - auto    # Gmail, falling back to the feed
+          - gmail   # Gmail only (needs a fresh GMAIL_TOKEN secret)
 
 permissions:
   contents: write
   issues: write
+  actions: write   # lets the keep-alive step stop GitHub disabling the schedule
+
+# Never let two runs edit site_data.db at the same time.
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    env:
+      DDS_SOURCE: ${{ github.event.inputs.source || 'feed' }}
 
     steps:
       - name: Checkout
@@ -40,7 +60,10 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # Only needed for the optional Gmail source. The default feed source
+      # needs no credentials, so an expired Gmail token can't stop the site.
       - name: Write Gmail token
+        if: env.DDS_SOURCE != 'feed'
         env:
           GMAIL_TOKEN: ${{ secrets.GMAIL_TOKEN }}
         run: |
@@ -58,14 +81,14 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_ACTIONS: "true"
         run: |
-          if [ "${{ github.event.inputs.renumber }}" = "true" ]; then
-            echo "🔢 Renumber mode — putting issues in date order and regenerating pages..."
-            python build_site.py --renumber
+          if [ "${{ github.event.inputs.repair }}" = "true" ]; then
+            echo "🔧 Repair mode — fixing titles, categories and numbering, regenerating pages..."
+            python build_site.py --repair
           elif [ "${{ github.event.inputs.first_run }}" = "true" ]; then
-            echo "🕐 First-run mode — processing ALL historical emails..."
+            echo "🕐 First-run mode — processing the whole newsletter history..."
             python build_site.py --first-run
           else
-            echo "📅 Daily mode — processing new emails..."
+            echo "📅 Daily mode — processing new issues..."
             python build_site.py --daily
           fi
 
@@ -76,16 +99,30 @@ jobs:
           # IMPORTANT: site_data.db must be committed alongside docs/ so the
           # roadmap's full history persists across every automated run.
           git add docs/ site_data.db
-          git diff --staged --quiet || git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') [v8]"
-          git push
+          git diff --staged --quiet && { echo "Nothing to commit."; exit 0; }
+          git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') [v8]"
+          # If main moved while this run was building, replay on top and retry.
+          for attempt in 1 2 3; do
+            git push && exit 0
+            echo "Push rejected (attempt $attempt) — rebasing on origin/main..."
+            git pull --rebase origin main
+          done
+          exit 1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # GitHub disables scheduled workflows in a repo with no activity for 60
+      # days. Re-enabling the workflow on every run keeps the schedule alive.
+      - name: Keep the schedule enabled
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/daily-update.yml/enable"
+
       # ── Safety net ────────────────────────────────────────────────────────
-      # If "Build site" or "Commit and push" fails (e.g. the Gmail OAuth
-      # refresh token expired again), don't fail silently for a month like
-      # last time — open/update a GitHub issue immediately so it's visible
-      # in your notifications the same day.
+      # If "Build site" or "Commit and push" fails, open/update a GitHub issue
+      # immediately so it's visible in your notifications the same day.
       - name: Open issue on failure
         if: failure()
         uses: actions/github-script@v8
@@ -98,7 +135,11 @@ jobs:
               "",
               `View the failed run: ${runUrl}`,
               "",
-              "Common cause: the Gmail OAuth refresh token (`GMAIL_TOKEN` secret) has expired — this happens automatically every ~7 days if the Google Cloud OAuth consent screen is still in \"Testing\" status. Publish the app to Production, regenerate `token.json` locally, and update the `GMAIL_TOKEN` secret.",
+              "Things to check, in order:",
+              "1. **No new issue for 14+ days** — the newsletter's public archive (https://blog.dailydoseofds.com) may have moved or changed format. The run log says which.",
+              "2. **Network/API error** — usually transient; the next scheduled run (twice a day) retries automatically.",
+              "3. **Gemini** — an invalid `GEMINI_API_KEY` doesn't fail the run (chapters fall back to a non-AI summary), but check the log for `AI disabled`.",
+              "4. **Gmail source** (only if run with source = gmail/auto) — the `GMAIL_TOKEN` secret expires every 7 days while the Google OAuth app is in Testing mode.",
             ].join("\n");
 
             const { data: issues } = await github.rest.issues.listForRepo({

@@ -25,31 +25,56 @@ New in v7 (redesign requested):
   - Website-only: no local PDF folder, no separate PDF/EPUB download files.
     "E-Book" is a single in-browser page with full history, chapter by
     chapter, built from the same AI-enhanced content as the roadmap.
+
+v8.1 — new issues come from the newsletter's public Substack archive, which
+needs no login. The Gmail source is still available (--source gmail/auto),
+but its OAuth refresh token expired every 7 days and stopped the site.
 """
 
 import os, sys, re, json, base64, sqlite3, hashlib, argparse, subprocess, time
+import urllib.request
 from datetime import datetime, timedelta, timezone
+from difflib import SequenceMatcher
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 from dataclasses import dataclass, field
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # ── Config ──────────────────────────────────────────────────────────────────
 SENDER      = "Daily Dose of DS"
 SITE_TITLE  = "Daily Dose of DS"
-AI_MODEL    = "gemini-3.5-flash-lite"
+# Tried in order. The "-latest" aliases always point at a live model, so a
+# retired model name can't silently push every chapter onto the fallback.
+AI_MODELS   = [m for m in dict.fromkeys([
+    os.getenv("GEMINI_MODEL", ""), "gemini-3.5-flash-lite",
+    "gemini-flash-lite-latest", "gemini-flash-latest"]) if m]
 MAX_TOKENS  = 4000
 DB_FILE     = "site_data.db"
 TOKEN_FILE  = "token.json"
 CREDS_FILE  = "credentials.json"
 OUT_DIR     = "docs"
 IS_CI       = bool(os.getenv("GITHUB_ACTIONS"))
+# Where new issues come from: "feed" (public Substack archive, no login),
+# "gmail" (needs token.json), or "auto" (Gmail, falling back to the feed).
+SOURCE      = os.getenv("DDS_SOURCE", "feed")
+FEED_BASE   = os.getenv("DDS_FEED_BASE", "https://blog.dailydoseofds.com")
+USER_AGENT  = "Mozilla/5.0 (compatible; daily-dose-site/8.1; +https://github.com/Rishichamp/daily-dose-site)"
+# Daily runs re-check this many days before the newest saved issue, so a post
+# that failed once (or was published late) is picked up on a later run.
+LOOKBACK_DAYS = 10
+# The newsletter publishes ~6 times a week. No new issue for this long means
+# the source has broken, and the run fails so it shows up as a failed build.
+STALE_DAYS  = int(os.getenv("DDS_STALE_DAYS", "14"))
 
-from dotenv import load_dotenv
-load_dotenv()
 GEMINI_KEY = os.getenv("GEMINI_API_KEY", "")
 OPENAI_KEY = os.getenv("OPENAI_API_KEY", "")
 
 import logging
+# Windows consoles default to cp1252, which can't print the emoji in the logs.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)-8s | %(message)s",
@@ -95,11 +120,12 @@ class StudyNote:
 
 CAT_KW = {
     "Reinforcement Learning": ["rl","reinforcement","reward","policy","q-learn","dqn","ppo","grpo","rlhf","actor-critic"],
-    "LLMs & Agents":          ["llm","gpt","gemini","claude","agent","mcp","langchain","prompt","rag","agentic","hermes","openrouter","routing","shepherd"],
-    "Deep Learning":          ["neural","cnn","rnn","lstm","transformer","bert","attention","backprop","dropout","layer"],
-    "Machine Learning":       ["regression","classification","clustering","svm","random forest","xgboost","sklearn","ensemble","feature"],
+    "LLMs & Agents":          ["llm","gpt","gemini","claude","agent","mcp","langchain","prompt","rag","agentic","hermes","openrouter","routing","shepherd",
+                               "retrieval","kv cache","inference","fine-tun","speculative","harness","quantiz","moe"],
+    "Deep Learning":          ["neural","cnn","rnn","lstm","transformer","bert","attention","backprop","dropout","distillation","siamese","contrastive"],
+    "Machine Learning":       ["regression","classification","clustering","svm","random forest","xgboost","sklearn","ensemble","feature","momentum","gradient descent"],
     "Data Engineering":       ["pipeline","etl","spark","kafka","airflow","warehouse","dbt","streaming","ingestion"],
-    "Statistics":             ["probability","distribution","hypothesis","bayes","p-value","variance","inference"],
+    "Statistics":             ["probability","distribution","hypothesis","bayes","p-value","variance"],
     "NLP":                    ["nlp","text","language","token","embedding","sentiment","word2vec","tfidf"],
     "Python":                 ["pandas","numpy","decorator","generator","asyncio","dataframe","comprehension"],
     "SQL":                    ["sql","query","join","aggregate","window function","cte","postgresql"],
@@ -119,12 +145,22 @@ CAT_COLOR = {
     "Data Science":           ("#5B8CFF","#7C5CFF"),
 }
 
-def detect_category(text: str) -> str:
+def _keyword_hits(text: str) -> dict:
+    """{category: keyword count}. Keywords must start a word: a bare substring
+    test let "rl" match "clearly", "world" and "url", tagging most issues as RL."""
     low = text.lower()
-    for cat, kws in CAT_KW.items():
-        if any(k in low for k in kws):
+    return {cat: sum(len(re.findall(rf"(?<![a-z0-9]){re.escape(k)}", low)) for k in kws)
+            for cat, kws in CAT_KW.items()}
+
+def detect_category(title: str, extra: str = "") -> str:
+    """First category whose keyword is in the title; failing that, the category
+    with the most keyword hits in the extra text (summary/body)."""
+    for cat, hits in _keyword_hits(title).items():
+        if hits:
             return cat
-    return "Data Science"
+    hits = _keyword_hits(extra)
+    best = max(hits.values(), default=0)
+    return next(cat for cat, n in hits.items() if n == best) if best else "Data Science"
 
 def cat_color(cat: str):
     return CAT_COLOR.get(cat, CAT_COLOR["Data Science"])
@@ -148,6 +184,10 @@ def estimate_minutes(note) -> int:
 
 
 # ── Database ──────────────────────────────────────────────────────────────────
+
+def title_key(title: str) -> str:
+    """Lower-case words only, for comparing the same title from different sources."""
+    return re.sub(r"[^a-z0-9]+", " ", (title or "").lower()).strip()
 
 class DB:
     def __init__(self, path: str = DB_FILE):
@@ -182,6 +222,23 @@ class DB:
 
     def dup_hash(self, h: str) -> bool:
         return bool(self.conn.execute("SELECT 1 FROM issues WHERE content_hash=?", (h,)).fetchone())
+
+    def similar_title_exists(self, title: str, date_str: str, window_days: int = 3) -> bool:
+        """True if an issue with (nearly) the same title was saved within a few days.
+
+        One newsletter issue has a different id in each source (Gmail message id,
+        Substack slug), so title + date is what recognises it across sources.
+        """
+        day = datetime.fromisoformat(date_str[:10])
+        lo = (day - timedelta(days=window_days)).strftime("%Y-%m-%d")
+        hi = (day + timedelta(days=window_days)).strftime("%Y-%m-%d")
+        key = title_key(title)
+        for (subject,) in self.conn.execute(
+                "SELECT subject FROM issues WHERE processed=1 AND date BETWEEN ? AND ?", (lo, hi)):
+            other = title_key(subject)
+            if key == other or SequenceMatcher(None, key, other).ratio() >= 0.88:
+                return True
+        return False
 
     def next_issue(self) -> int:
         r = self.conn.execute("SELECT MAX(issue_number) FROM issues").fetchone()
@@ -282,7 +339,7 @@ class DB:
 # ── Gmail fetcher ─────────────────────────────────────────────────────────────
 
 class Gmail:
-    def __init__(self):
+    def __init__(self, interactive: bool = True):
         from google.auth.transport.requests import Request
         from google.oauth2.credentials import Credentials
         from google_auth_oauthlib.flow import InstalledAppFlow
@@ -295,6 +352,8 @@ class Gmail:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
+                if not interactive:
+                    raise RuntimeError(f"{TOKEN_FILE} is missing or has no refresh token")
                 if not os.path.exists(CREDS_FILE):
                     raise FileNotFoundError(f"{CREDS_FILE} not found. See README.")
                 flow = InstalledAppFlow.from_client_secrets_file(CREDS_FILE, SCOPES)
@@ -355,66 +414,228 @@ class Gmail:
         return plain, html
 
     def _html2text(self, html: str) -> str:
-        try:
-            from html.parser import HTMLParser
-            class H2T(HTMLParser):
-                def __init__(self):
-                    super().__init__(); self.result = []
-                def handle_data(self, d): self.result.append(d)
-                def get_text(self): return "".join(self.result)
-            p = H2T(); p.feed(html)
-            return p.get_text()
-        except Exception:
-            return re.sub(r"<[^>]+>", " ", html)
+        return html_to_text(html)
 
     def _clean(self, text: str) -> str:
-        text = re.sub(r'\(\s*https?://[^\s)]*(?:click\.kit|fff97757|tracking|aHR0c)[^\s)]*\s*\)', "", text)
-        text = re.sub(r'https?://[^\s)>]*aHR0c[^\s)>]*', "", text)
-        text = re.sub(r'\(\s*https?://\S{80,}\s*\)', "", text)
-        text = re.sub(r'\(\s*https?://\S{5,60}\s*\)', "", text)
-
-        SECTION_STOP = [
-            "unsubscribe", "you are receiving this", "advertise to 950",
-            "our newsletter puts your products", "partner with us",
-            "today's email was brought to you", "looking for more? unlock",
-            "no-fluff resources to", "get in touch today by replying",
-            "succeed in ai engineering roles", "that's a wrap",
-        ]
-        LINE_DROP = [
-            "master full-stack ai engineering", "unlock our premium",
-            "© 20", "all rights reserved", "today.s email was brought",
-        ]
-        out, skip = [], False
-        for line in text.split("\n"):
-            low = line.lower().strip()
-            if any(k in low for k in SECTION_STOP):
-                skip = True; continue
-            if skip and re.match(r'^[-=]{5,}$', low):
-                skip = False; continue
-            if skip:
-                continue
-            if any(k in low for k in LINE_DROP):
-                continue
-            out.append(line)
-        text = "\n".join(out)
-
-        text = re.sub(r'^[-=]{10,}\s*$', "", text, flags=re.MULTILINE)
-        paras = re.split(r'\n{2,}', text)
-        seen, unique = set(), []
-        for p in paras:
-            key = re.sub(r'\s+', " ", p.strip())[:120]
-            if key and key not in seen:
-                seen.add(key); unique.append(p.strip())
-        text = "\n\n".join(unique)
-        text = re.sub(r'^\s*[■→●•►▸✦]+\s*$', "", text, flags=re.MULTILINE)
-        text = re.sub(r'\n{3,}', "\n\n", text)
-        return text.strip()
+        return clean_text(text)
 
     def _make_topic(self, subject: str, body: str) -> str:
-        t = re.sub(r'^(Daily Dose of DS|Re:|Fwd:)\s*[-:]?\s*', "", subject, flags=re.I).strip()
-        t = re.sub(r'[^\w\s]', "", t)
-        t = re.sub(r'\s+', "_", t).strip("_")
-        return t or "Study_Notes"
+        return make_topic(subject)
+
+
+# ── Text helpers (shared by every source) ─────────────────────────────────────
+
+_BLOCK_TAGS = {"p", "div", "li", "ul", "ol", "h1", "h2", "h3", "h4", "h5", "h6",
+               "pre", "blockquote", "figure", "figcaption", "table", "tr", "section"}
+_SKIP_TAGS = {"script", "style", "svg", "button", "noscript", "head", "title"}
+
+def html_to_text(html: str) -> str:
+    """Readable plain text from newsletter HTML: one paragraph per block element."""
+    from html.parser import HTMLParser
+
+    class H2T(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.out, self.skip, self.pre = [], 0, 0
+        def handle_starttag(self, tag, attrs):
+            if tag in _SKIP_TAGS: self.skip += 1
+            elif tag == "br": self.out.append("\n")
+            # A dashed line, like the plain-text emails use between sections,
+            # so clean_text() can tell where a skipped footer/ad block ends.
+            elif tag == "hr": self.out.append("\n\n----------\n\n")
+            elif tag in _BLOCK_TAGS:
+                # Keep "- " on the same line as a list item's first paragraph.
+                if not (self.out and self.out[-1] == "- "):
+                    self.out.append("\n\n")
+                if tag == "li": self.out.append("- ")
+                if tag == "pre": self.pre += 1
+        def handle_endtag(self, tag):
+            if tag in _SKIP_TAGS: self.skip = max(0, self.skip - 1)
+            elif tag in _BLOCK_TAGS:
+                if tag == "pre": self.pre = max(0, self.pre - 1)
+                self.out.append("\n\n")
+        def handle_data(self, d):
+            if self.skip: return
+            self.out.append(d if self.pre else re.sub(r"\s+", " ", d))
+
+    try:
+        p = H2T(); p.feed(html or ""); p.close()
+        text = "".join(p.out)
+    except Exception:
+        text = re.sub(r"<[^>]+>", " ", html or "")
+    text = re.sub(r"[\u200b\u200c\u200d\u2060\ufeff]", "", text).replace("\xa0", " ")
+    text = re.sub(r"[ \t]+\n", "\n", text)
+    text = re.sub(r"\n[ \t]+(?=\S)", "\n", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+def clean_text(text: str) -> str:
+    """Strip tracking links, ads, footers and repeated paragraphs from newsletter text."""
+    text = re.sub(r'\(\s*https?://[^\s)]*(?:click\.kit|fff97757|tracking|aHR0c)[^\s)]*\s*\)', "", text)
+    text = re.sub(r'https?://[^\s)>]*aHR0c[^\s)>]*', "", text)
+    text = re.sub(r'\(\s*https?://\S{80,}\s*\)', "", text)
+    text = re.sub(r'\(\s*https?://\S{5,60}\s*\)', "", text)
+
+    SECTION_STOP = [
+        "unsubscribe", "you are receiving this", "advertise to 950",
+        "our newsletter puts your products", "partner with us",
+        "today's email was brought to you", "looking for more? unlock",
+        "no-fluff resources to", "get in touch today by replying",
+        "succeed in ai engineering roles", "that's a wrap",
+    ]
+    LINE_DROP = [
+        "master full-stack ai engineering", "unlock our premium",
+        "© 20", "all rights reserved", "today.s email was brought",
+    ]
+    out, skip = [], False
+    for line in text.split("\n"):
+        low = line.lower().strip()
+        if any(k in low for k in SECTION_STOP):
+            skip = True; continue
+        if skip and re.match(r'^[-=]{5,}$', low):
+            skip = False; continue
+        if skip:
+            continue
+        if any(k in low for k in LINE_DROP):
+            continue
+        out.append(line)
+    text = "\n".join(out)
+
+    text = re.sub(r'^[-=]{10,}\s*$', "", text, flags=re.MULTILINE)
+    paras = re.split(r'\n{2,}', text)
+    seen, unique = set(), []
+    for p in paras:
+        key = re.sub(r'\s+', " ", p.strip())[:120]
+        if key and key not in seen:
+            seen.add(key); unique.append(p.strip())
+    text = "\n\n".join(unique)
+    text = re.sub(r'^\s*[■→●•►▸✦]+\s*$', "", text, flags=re.MULTILINE)
+    text = re.sub(r'\n{3,}', "\n\n", text)
+    return text.strip()
+
+def clean_title(subject: str) -> str:
+    """The issue title as published, minus invisible characters and mail prefixes."""
+    t = re.sub(r"[\u200b\u200c\u200d\u2060\ufeff]", "", subject or "")
+    t = re.sub(r'^(Daily Dose of DS|Re:|Fwd:)\s*[-:]?\s*', "", t, flags=re.I)
+    return re.sub(r"\s+", " ", t).strip()
+
+def make_topic(subject: str) -> str:
+    t = re.sub(r'^(Daily Dose of DS|Re:|Fwd:)\s*[-:]?\s*', "", subject, flags=re.I).strip()
+    t = re.sub(r'[^\w\s]', "", t)
+    t = re.sub(r'\s+', "_", t).strip("_")
+    return t or "Study_Notes"
+
+
+# ── Public newsletter feed ────────────────────────────────────────────────────
+# Every emailed issue is also published as a public post on the newsletter's
+# Substack, so the site can read it there with no login and nothing to expire.
+
+def http_get(url: str, timeout: int = 30, retries: int = 3) -> bytes:
+    """GET with a few retries; client errors other than 429 fail straight away."""
+    last = None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return r.read()
+        except Exception as e:
+            last = e
+            code = getattr(e, "code", None)
+            if code and 400 <= code < 500 and code != 429:
+                break
+            if attempt < retries - 1:
+                time.sleep(5 * (attempt + 1))
+    raise last
+
+
+class NewsletterFeed:
+    """Lists and loads posts from the Substack archive API, or its RSS feed if that fails."""
+
+    def __init__(self, base: str = FEED_BASE):
+        self.base = base.rstrip("/")
+        self.rss_bodies = {}   # slug -> HTML, kept when listing came from RSS
+
+    def list_posts(self, after: datetime = None) -> list:
+        """Public posts published on or after `after` (a date), oldest first.
+
+        Each post is a dict: id, slug, title, date (UTC datetime), url, body_html
+        (None until load() fetches it).
+        """
+        try:
+            posts = self._list_archive(after)
+            how = "archive API"
+        except Exception as e:
+            log.warning("Substack archive API failed (%s) — reading the RSS feed instead.", e)
+            posts = self._list_rss(after)
+            how = "RSS feed"
+        posts.sort(key=lambda p: p["date"])
+        log.info("Feed (%s): %d post(s) since %s.", how, len(posts),
+                 after.strftime("%Y-%m-%d") if after else "the beginning")
+        return posts
+
+    def _list_archive(self, after):
+        posts, offset = [], 0
+        for _ in range(300):  # 300 pages is far more than the archive holds
+            page = json.loads(http_get(
+                f"{self.base}/api/v1/archive?sort=new&search=&offset={offset}&limit=12"))
+            if not isinstance(page, list):
+                raise ValueError("unexpected archive response")
+            if not page:
+                break
+            oldest = None
+            for p in page:  # newest first
+                date = datetime.fromisoformat(p["post_date"].replace("Z", "+00:00"))
+                oldest = date if oldest is None else min(oldest, date)
+                if after and date.date() < after.date():
+                    continue
+                if p.get("audience") == "only_paid" or not p.get("slug"):
+                    continue
+                posts.append(dict(id=f"substack:{p['slug']}", slug=p["slug"],
+                                  title=(p.get("title") or "").strip(), date=date,
+                                  url=p.get("canonical_url", ""), body_html=None))
+            if after and oldest and oldest.date() < after.date():
+                break  # this page already reaches past `after`
+            offset += len(page)
+            time.sleep(1)
+        return posts
+
+    def _list_rss(self, after):
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(http_get(f"{self.base}/feed"))
+        posts = []
+        for it in root.iter("item"):
+            link = (it.findtext("link") or "").strip()
+            slug = link.rstrip("/").rsplit("/", 1)[-1]
+            date = parsedate_to_datetime(it.findtext("pubDate") or "").astimezone(timezone.utc)
+            if not slug or (after and date.date() < after.date()):
+                continue
+            body = it.findtext("{http://purl.org/rss/1.0/modules/content/}encoded") or ""
+            self.rss_bodies[slug] = body
+            posts.append(dict(id=f"substack:{slug}", slug=slug,
+                              title=(it.findtext("title") or "").strip(), date=date,
+                              url=link, body_html=body))
+        if posts and after and min(p["date"] for p in posts).date() > after.date() + timedelta(days=3):
+            log.warning("The RSS feed only reaches back to %s — older posts may be missing.",
+                        min(p["date"] for p in posts).strftime("%Y-%m-%d"))
+        return posts
+
+    def load(self, post: dict) -> RawEmail:
+        html = post.get("body_html")
+        if not html:
+            try:
+                html = json.loads(http_get(f"{self.base}/api/v1/posts/{post['slug']}")).get("body_html") or ""
+            except Exception as e:
+                html = self.rss_bodies.get(post["slug"], "")
+                if not html:
+                    raise RuntimeError(f"could not download post body: {e}") from e
+            time.sleep(1)
+        text = clean_text(html_to_text(html))
+        if len(text) < 200:
+            raise RuntimeError("post body is empty or paywalled")
+        return RawEmail(
+            email_id=post["id"], subject=post["title"], date=post["date"],
+            body_text=text, body_html=html,
+            topic=make_topic(post["title"]), content_hash=DB.md5(text))
 
 
 # ── AI Engine ─────────────────────────────────────────────────────────────────
@@ -429,7 +650,8 @@ class AI:
             from google import genai as google_genai
             self.gemini_client = google_genai.Client(api_key=GEMINI_KEY)
             self.provider = "gemini"
-            log.info("AI: Gemini %s", AI_MODEL)
+            self.models = list(AI_MODELS)
+            log.info("AI: Gemini %s", self.models[0])
         elif OPENAI_KEY:
             import openai
             self.client = openai.OpenAI(api_key=OPENAI_KEY)
@@ -495,23 +717,35 @@ FURTHER_READING:
 [3-5 total]
 """
         MAX_RETRY = 3
-        for attempt in range(MAX_RETRY):
+        attempt = 0
+        while attempt < MAX_RETRY:
             try:
                 if self.provider == "gemini":
                     resp = self.gemini_client.models.generate_content(
-                        model=AI_MODEL,
+                        model=self.models[0],
                         contents=prompt,
                         config={"temperature": 0.25, "max_output_tokens": MAX_TOKENS},
                     )
-                    text = resp.text
+                    text = resp.text or ""
                 else:
                     resp = self.client.chat.completions.create(
                         model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}],
                         max_tokens=MAX_TOKENS, temperature=0.25)
                     text = resp.choices[0].message.content or ""
+                if not text.strip():
+                    raise ValueError("empty response from the model")
                 return self._parse(text, email)
             except Exception as e:
                 err = str(e)
+                # A retired or unknown model name: move on to the next model
+                # instead of giving up on AI for the rest of the run.
+                model_gone = any(s in err for s in (
+                    "404", "NotFound", "is not found for API version", "no longer available"))
+                if self.provider == "gemini" and model_gone and len(self.models) > 1:
+                    log.warning("Model %s unavailable — switching to %s.", self.models[0], self.models[1])
+                    self.models.pop(0)
+                    continue
+                attempt += 1
                 m = re.search(r'retry_delay.*?seconds:\s*([0-9]+)', err, re.DOTALL)
                 # Config-level errors (bad model name, invalid/expired key) will
                 # fail identically on every future call this run — trip the
@@ -530,15 +764,23 @@ FURTHER_READING:
                     log.error("AI disabled for rest of this run (%s) — using smart fallback from here on",
                               err.splitlines()[0][:120])
                     break
-                wait = int(m.group(1)) + 5 if m else 15 * (attempt + 1)
-                log.warning("AI quota/error — waiting %ds (attempt %d/%d)...", wait, attempt + 1, MAX_RETRY)
+                if attempt >= MAX_RETRY:
+                    break
+                wait = int(m.group(1)) + 5 if m else 15 * attempt
+                log.warning("AI quota/error (%s) — waiting %ds (attempt %d/%d)...",
+                            err.splitlines()[0][:100] if err else type(e).__name__, wait, attempt, MAX_RETRY)
                 time.sleep(wait)
-        log.error("AI failed after %d retries — using smart fallback", MAX_RETRY)
+        if not self.quota_exhausted:
+            log.error("AI failed after %d retries — using smart fallback", MAX_RETRY)
         return self._fallback(email)
 
     def _parse(self, text: str, email: RawEmail) -> StudyNote:
         def gs(header):
-            m = re.search(rf"{re.escape(header)}\s*\n(.*?)(?=\n[A-Z_]+:|SECTION:|CODE:|\Z)", text, re.DOTALL)
+            # The value may follow the header on the same line ("TLDR: ...") or
+            # start on the next one ("OVERVIEW:\n..."). Requiring a newline made
+            # every TL;DR come back empty.
+            m = re.search(rf"{re.escape(header)}[ \t]*\**[ \t]*\n?(.*?)(?=\n\**[A-Z_]+:|SECTION:|CODE:|\Z)",
+                          text, re.DOTALL)
             return m.group(1).strip() if m else ""
         def glist(header):
             raw = gs(header)
@@ -555,11 +797,14 @@ FURTHER_READING:
             if sections: sections[-1]["code"] = code_blocks[0].strip()
             else: sections.append({"title": "Code Example", "body": "", "code": code_blocks[0].strip()})
 
-        topic = gs("TOPIC:") or email.topic.replace("_", " ")
+        # The chapter keeps the newsletter's own title (as readers saw it in
+        # their inbox) rather than the model's re-worded TOPIC line.
+        topic = clean_title(email.subject) or email.topic.replace("_", " ")
+        tldr, overview = gs("TLDR:"), gs("OVERVIEW:")
         return StudyNote(
             issue_number=0, date=email.date.strftime("%Y-%m-%d"), topic=topic,
-            category=detect_category(topic + " " + email.body_text[:500]),
-            tldr=gs("TLDR:"), overview=gs("OVERVIEW:"), sections=sections,
+            category=detect_category(topic, tldr + " " + overview),
+            tldr=tldr, overview=overview, sections=sections,
             key_points=glist("KEY_POINTS:"), interview_qs=glist("INTERVIEW_QUESTIONS:"),
             further=glist("FURTHER_READING:"),
         )
@@ -575,10 +820,10 @@ FURTHER_READING:
                 if cleaned: bullets.append(cleaned)
         sections = [{"title": f"Section {i+1}", "body": p, "code": ""}
                     for i, p in enumerate(paras[1:6]) if len(p) > 100]
-        topic = email.topic.replace("_", " ")
+        topic = clean_title(email.subject) or email.topic.replace("_", " ")
         return StudyNote(
             issue_number=0, date=email.date.strftime("%Y-%m-%d"), topic=topic,
-            category=detect_category(topic + " " + email.body_text[:500]),
+            category=detect_category(topic, email.body_text[:500]),
             tldr=overview[:200], overview=overview, sections=sections,
             key_points=bullets[:7], interview_qs=[],
             further=["Visit dailydoseofds.com for the full article and related resources"],
@@ -1821,7 +2066,7 @@ def dashboard_visual_html(rows_asc=None, cats_present=None) -> str:
 
 
 FEATURES = [
-    ("📬", "Daily Newsletter Parsing", "Every morning, your Gmail is checked automatically for the latest Daily Dose of Data Science issue — no manual copy-pasting, ever."),
+    ("📬", "Daily Newsletter Parsing", "Every morning, the newsletter's public archive is checked automatically for the latest Daily Dose of Data Science issue — no manual copy-pasting, ever."),
     ("🧠", "AI Topic Extraction", "Gemini reads each newsletter, strips ads and tracking links, and identifies the core concepts worth learning."),
     ("📖", "Automatic Chapter Generation", "Every issue becomes a structured chapter — overview, deep-dive sections, code, key takeaways, and interview questions."),
     ("🗺️", "Roadmap Builder", "Chapters are organized chronologically into a week-by-week roadmap, so you can see your learning journey unfold."),
@@ -1831,8 +2076,8 @@ FEATURES = [
 ]
 
 HOW_IT_WORKS = [
-    ("📧", "Daily Dose of DS Email Arrives", "Every morning around 5 AM, the newsletter lands in your inbox."),
-    ("🤖", "AI Reads the Newsletter", "GitHub Actions wakes up at 7 AM and fetches the new email via the Gmail API."),
+    ("📧", "A New Issue Is Published", "Every evening, the latest Daily Dose of Data Science issue is published to its public archive."),
+    ("🤖", "AI Reads the Newsletter", "GitHub Actions wakes up at 7 AM IST and fetches the new issue from the archive."),
     ("🧹", "Extracts Resources", "Tracking links, ads, and footers are stripped out — only the educational content remains."),
     ("🧩", "Groups by Concepts", "Gemini identifies the core topics and structures them into logical sections."),
     ("📚", "Builds Chapters", "A polished chapter page is generated — overview, explanations, code, takeaways, and interview questions."),
@@ -2030,7 +2275,7 @@ class SiteBuilder:
         empty = """<div class="empty">
   <div class="empty-icon">📬</div>
   <h2>No chapters yet</h2>
-  <p>Run <code>python build_site.py --first-run</code> to process your emails.</p>
+  <p>Run <code>python build_site.py --first-run</code> to process the newsletter archive.</p>
 </div>""" if not roadmap_html else ""
 
         # ── Category filter chips ─────────────────────────────────────
@@ -2125,7 +2370,7 @@ class SiteBuilder:
   <div class="section-head">
     <span class="section-kicker">How it all works</span>
     <h2 class="section-title">Zero manual steps, start to finish</h2>
-    <p class="section-sub">From your inbox to a searchable knowledge base — here's what runs under the hood.</p>
+    <p class="section-sub">From the newsletter to a searchable knowledge base — here's what runs under the hood.</p>
   </div>
   <div class="two-col">
     <div>
@@ -2263,67 +2508,113 @@ class SiteBuilder:
         log.info("E-book built — %d chapters.", len(rows))
 
 class App:
-    def __init__(self):
+    def __init__(self, source: str = SOURCE):
         self.db = DB()
         self.ai = None
-        self.gmail = None
+        self.source = source
         self.site = SiteBuilder()
 
     def _init_apis(self):
-        self.gmail = Gmail()
         self.ai = AI()
 
     def _tutor_ctx(self) -> str:
         return json.dumps(self.db.tutor_context())
 
+    def _pending_from_feed(self, after):
+        """Feed posts not saved yet, oldest first, as (label, loader) pairs."""
+        feed = NewsletterFeed()
+        pending, skipped = [], 0
+        for post in feed.list_posts(after):
+            day = post["date"].strftime("%Y-%m-%d")
+            if self.db.exists(post["id"]) or self.db.similar_title_exists(post["title"], day):
+                skipped += 1
+                continue
+            pending.append((f"{day} {post['title']}", lambda p=post: feed.load(p)))
+        return pending, skipped
+
+    def _pending_from_gmail(self, after):
+        gmail = Gmail(interactive=(self.source == "gmail" and not IS_CI))
+        # Gmail lists newest first. Process oldest first in every mode, so a
+        # multi-day catch-up gets issue numbers in date order.
+        messages = list(reversed(gmail.fetch_all(after)))
+        pending, skipped = [], 0
+        for meta in messages:
+            if self.db.exists(meta["id"]):
+                skipped += 1
+                continue
+            pending.append((meta["id"], lambda eid=meta["id"]: gmail.get_email(eid)))
+        return pending, skipped
+
+    def _pending(self, after):
+        if self.source == "gmail":
+            return self._pending_from_gmail(after)
+        if self.source == "auto":
+            try:
+                return self._pending_from_gmail(after)
+            except Exception as e:
+                log.warning("Gmail unavailable (%s) — using the public feed instead.",
+                            str(e).splitlines()[0][:160] if str(e) else type(e).__name__)
+        return self._pending_from_feed(after)
+
     def run(self, first_run: bool = False):
         log.info("=" * 55)
-        log.info("Daily Dose of DS v8.0 — Mode: %s", "FULL HISTORY" if first_run else "DAILY")
+        log.info("Daily Dose of DS v8.1 — Mode: %s — Source: %s",
+                 "FULL HISTORY" if first_run else "DAILY", self.source)
         log.info("=" * 55)
         self._init_apis()
 
         if first_run:
             after = None
         else:
+            # Re-check a few days before the newest issue: already-saved posts
+            # are skipped cheaply, and one that failed last time gets retried.
             last = self.db.last_date()  # e.g. "2026-08-31"
-            after = (
-                datetime.fromisoformat(last) - timedelta(days=1)
-                if last
-                else datetime.now() - timedelta(days=1)
-            )
+            after = (datetime.fromisoformat(last) if last else datetime.now()) - timedelta(days=LOOKBACK_DAYS)
 
-        messages = self.gmail.fetch_all(after)
-        if not messages:
-            log.info("No emails found. Rebuilding site...")
-            self._rebuild()
-            return
-
-        # Gmail lists newest first. Process oldest first in every mode, so a
-        # multi-day catch-up gets issue numbers in date order.
-        messages = list(reversed(messages))
-
-        processed = skipped = 0
-        for meta in messages:
-            eid = meta["id"]
-            if self.db.exists(eid):
-                skipped += 1; continue
+        pending, skipped = self._pending(after)
+        processed = duplicates = failed = 0
+        for label, load in pending:
             try:
-                self._process(eid); processed += 1
+                if self._process(load()):
+                    processed += 1
+                else:
+                    duplicates += 1
             except Exception as ex:
-                log.error("Failed %s: %s", eid, ex)
+                failed += 1
+                log.error("Failed %s: %s", label, ex)
 
-        # Safety net: if an email arrived out of order (e.g. a late backfill),
+        # Safety net: if an issue arrived out of order (e.g. a late backfill),
         # renumber by date and regenerate the affected pages.
         self._renumber_pages()
         self._rebuild()
-        log.info("Done! Processed: %d, Skipped: %d", processed, skipped)
-        if processed > 0:
+        log.info("Done! New: %d, Already saved: %d, Duplicates: %d, Failed: %d",
+                 processed, skipped + duplicates, duplicates, failed)
+        # In CI the workflow commits and pushes; locally, push from here.
+        if processed > 0 and not IS_CI:
             self._deploy()
 
-    def _process(self, eid: str):
-        email = self.gmail.get_email(eid)
-        if self.db.dup_hash(email.content_hash):
-            log.info("Duplicate content, skipping."); return
+        if pending and failed == len(pending):
+            raise SystemExit(f"All {failed} new issue(s) failed to process — see the errors above.")
+        self._check_fresh()
+
+    def _check_fresh(self):
+        """Fail the run if no new issue has arrived for STALE_DAYS days."""
+        last = self.db.last_date()
+        if not last:
+            return
+        age = (datetime.now(timezone.utc).date() - datetime.fromisoformat(last[:10]).date()).days
+        if age > STALE_DAYS:
+            raise SystemExit(
+                f"Newest issue is from {last[:10]} ({age} days ago). The newsletter source "
+                f"({self.source}) may have moved or changed format — check {FEED_BASE}.")
+        log.info("Newest issue: %s (%d day(s) ago).", last[:10], age)
+
+    def _process(self, email: RawEmail) -> bool:
+        """Turn one fetched issue into a chapter. Returns False if it was a duplicate."""
+        if self.db.dup_hash(email.content_hash) or self.db.similar_title_exists(
+                email.subject, email.date.strftime("%Y-%m-%d")):
+            log.info("Duplicate of a saved issue, skipping: %s", email.subject)
+            return False
         note = self.ai.enhance(email)
         note.issue_number = self.db.next_issue()
         try:
@@ -2337,6 +2628,7 @@ class App:
                      note.topic, note.category, email.content_hash, html_file, note)
         log.info("✅ Issue #%d: %s [%s]", note.issue_number, note.topic, note.category)
         time.sleep(5)
+        return True
 
     def _rebuild(self):
         rows = self.db.all_issues_asc()
@@ -2404,6 +2696,30 @@ class App:
         self._rebuild()
         log.info("Done. %d issues renumbered.", n)
 
+    def repair(self):
+        """--repair: restore published titles, recompute categories, then --renumber.
+
+        Older chapters were titled with punctuation stripped ("85x" for "8.5x")
+        and tagged by a keyword test that matched inside words. Needs no fetching.
+        """
+        changed = 0
+        rows = self.db.conn.execute(
+            "SELECT id, subject, category, note_json FROM issues "
+            "WHERE processed=1 AND note_json IS NOT NULL").fetchall()
+        for row_id, subject, category, note_json in rows:
+            data = json.loads(note_json)
+            topic = clean_title(subject) or data["topic"]
+            new_cat = detect_category(topic, data.get("tldr", "") + " " + data.get("overview", ""))
+            if topic == data["topic"] and new_cat == category == data.get("category"):
+                continue
+            data["topic"], data["category"] = topic, new_cat
+            self.db.conn.execute("UPDATE issues SET topic=?, category=?, note_json=? WHERE id=?",
+                                 (topic, new_cat, json.dumps(data), row_id))
+            changed += 1
+        self.db.conn.commit()
+        log.info("Repaired the title/category of %d issues.", changed)
+        self.renumber()
+
     def _deploy(self):
         log.info("Deploying to GitHub Pages...")
         try:
@@ -2430,24 +2746,38 @@ class App:
 
     def schedule(self):
         import schedule as sched
-        sched.every().day.at("07:00").do(lambda: self.run())
+
+        def job():
+            try:
+                self.run()
+            except (Exception, SystemExit) as e:
+                log.error("Scheduled run failed: %s", e)
+
+        sched.every().day.at("07:00").do(job)
         log.info("Scheduler active — runs daily at 07:00. Ctrl+C to stop.")
         while True:
             sched.run_pending(); time.sleep(60)
 
 
 def main():
-    p = argparse.ArgumentParser(description="Daily Dose of DS Website v8.0")
-    p.add_argument("--first-run", action="store_true", help="Process ALL historical emails")
-    p.add_argument("--daily", action="store_true", help="Process new emails only")
-    p.add_argument("--rebuild", action="store_true", help="Rebuild site from DB (no Gmail fetch)")
+    p = argparse.ArgumentParser(description="Daily Dose of DS Website v8.1")
+    p.add_argument("--first-run", action="store_true", help="Process the whole newsletter history")
+    p.add_argument("--daily", action="store_true", help="Process new issues only (the default)")
+    p.add_argument("--rebuild", action="store_true", help="Rebuild site from DB (no fetching)")
     p.add_argument("--renumber", action="store_true",
-                   help="Renumber issues by date and regenerate every page (no Gmail fetch)")
+                   help="Renumber issues by date and regenerate every page (no fetching)")
+    p.add_argument("--repair", action="store_true",
+                   help="Restore published titles, recompute categories, renumber and "
+                        "regenerate every page (no fetching)")
     p.add_argument("--schedule", action="store_true", help="Run daily scheduler")
+    p.add_argument("--source", choices=["feed", "gmail", "auto"], default=SOURCE,
+                   help="Where new issues come from: the public Substack feed (default, no login), "
+                        "Gmail (needs token.json), or auto (Gmail, falling back to the feed)")
     args = p.parse_args()
 
-    app = App()
-    if args.schedule: app._init_apis(); app.schedule()
+    app = App(source=args.source)
+    if args.schedule: app.schedule()
+    elif args.repair: app.repair()
     elif args.renumber: app.renumber()
     elif args.rebuild: app.rebuild_only()
     else: app.run(first_run=args.first_run)
