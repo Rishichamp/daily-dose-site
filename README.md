@@ -3,6 +3,7 @@
 **A fully autonomous pipeline that turns a daily newsletter into a living, premium AI-SaaS-style learning platform — zero manual maintenance, forever.**
 
 🔗 **Live site:** [rishichamp.github.io/daily-dose-site](https://rishichamp.github.io/daily-dose-site/)
+☁️ **Also on Render:** `render.yaml` publishes `docs/` as a static site that redeploys on every commit
 ⏱️ **Runs:** Twice a day (≈7:00 AM and 7:15 PM IST), unattended, via GitHub Actions
 🧠 **Stack:** Python · Substack archive API / RSS · Google Gemini · SQLite · GitHub Actions · vanilla HTML/CSS/JS
 

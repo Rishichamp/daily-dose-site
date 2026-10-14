@@ -45,7 +45,9 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    # Pinned: "ubuntu-latest" moves to new Ubuntu releases (26.04 from Oct 2026),
+    # which can briefly lack prebuilt Python and change fonts the infographics use.
+    runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
       DDS_SOURCE: ${{ github.event.inputs.source || 'feed' }}
