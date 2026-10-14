@@ -716,6 +716,16 @@ FURTHER_READING:
 - [Topic to explore next, no URLs]
 [3-5 total]
 """
+        text = self._generate(prompt)
+        if text is None:
+            return self._fallback(email)
+        return self._parse(text, email)
+
+    def _generate(self, prompt: str, max_tokens: int = MAX_TOKENS):
+        """The model's reply text, retrying throttles and moving past retired
+        models. None once AI is unavailable for the rest of this run."""
+        if not self.provider or self.quota_exhausted:
+            return None
         MAX_RETRY = 3
         attempt = 0
         while attempt < MAX_RETRY:
@@ -724,17 +734,17 @@ FURTHER_READING:
                     resp = self.gemini_client.models.generate_content(
                         model=self.models[0],
                         contents=prompt,
-                        config={"temperature": 0.25, "max_output_tokens": MAX_TOKENS},
+                        config={"temperature": 0.25, "max_output_tokens": max_tokens},
                     )
                     text = resp.text or ""
                 else:
                     resp = self.client.chat.completions.create(
                         model="gpt-4o-mini", messages=[{"role": "user", "content": prompt}],
-                        max_tokens=MAX_TOKENS, temperature=0.25)
+                        max_tokens=max_tokens, temperature=0.25)
                     text = resp.choices[0].message.content or ""
                 if not text.strip():
                     raise ValueError("empty response from the model")
-                return self._parse(text, email)
+                return text
             except Exception as e:
                 err = str(e)
                 # A retired or unknown model name: move on to the next model
@@ -772,7 +782,35 @@ FURTHER_READING:
                 time.sleep(wait)
         if not self.quota_exhausted:
             log.error("AI failed after %d retries — using smart fallback", MAX_RETRY)
-        return self._fallback(email)
+        return None
+
+    def write_tldr(self, note: StudyNote) -> str:
+        """A 2-3 sentence TL;DR written from a chapter's existing notes ("" on failure)."""
+        sections = "\n\n".join(f"{s['title']}\n{s['body'][:700]}" for s in note.sections[:4])
+        points = "\n".join(f"- {k}" for k in note.key_points[:7])
+        prompt = f"""Write the TL;DR for this chapter of study notes from a data science newsletter.
+
+RULES: 2-3 sentences, 40-90 words, plain prose. Say what the issue covers and why it matters.
+Call it "this issue" (not "chapter", "newsletter chapter" or "study notes").
+No markdown, no URLs, no label such as "TL;DR:" — reply with the summary text only.
+
+TITLE: {note.topic}
+
+OVERVIEW:
+{note.overview[:2500]}
+
+SECTIONS:
+{sections}
+
+KEY POINTS:
+{points}
+"""
+        text = self._generate(prompt, max_tokens=1024)
+        if not text:
+            return ""
+        text = re.sub(r"^\s*\**\s*TL;?DR\s*\**\s*[:\-–]\s*", "", text.strip(), flags=re.I)
+        text = re.sub(r"\s+", " ", text).strip().strip('"').strip()
+        return text if 40 <= len(text) <= 900 else ""
 
     def _parse(self, text: str, email: RawEmail) -> StudyNote:
         def gs(header):
@@ -2616,6 +2654,9 @@ class App:
             log.info("Duplicate of a saved issue, skipping: %s", email.subject)
             return False
         note = self.ai.enhance(email)
+        if not note.tldr:
+            # The model's reply had no usable TLDR line; ask for one on its own.
+            note.tldr = self.ai.write_tldr(note)
         note.issue_number = self.db.next_issue()
         try:
             ig_path = f"{OUT_DIR}/assets/infographics/issue_{note.issue_number:03d}.png"
@@ -2720,6 +2761,43 @@ class App:
         log.info("Repaired the title/category of %d issues.", changed)
         self.renumber()
 
+    def fill_tldrs(self):
+        """--fill-tldr: write a TL;DR for every chapter without one, then regenerate the site.
+
+        Chapters before v8.1 have an empty TL;DR (a parser bug). The summary is
+        written from each chapter's own notes, so the rest of the page is unchanged.
+        Saves after each chapter; re-running only picks up the ones still missing.
+        """
+        self.ai = AI()
+        if not self.ai.provider:
+            raise SystemExit("No GEMINI_API_KEY or OPENAI_API_KEY set — cannot write TL;DRs.")
+        rows = self.db.conn.execute(
+            "SELECT id, issue_number, note_json FROM issues "
+            "WHERE processed=1 AND note_json IS NOT NULL ORDER BY issue_number").fetchall()
+        todo = [r for r in rows if not (json.loads(r[2]).get("tldr") or "").strip()]
+        log.info("%d chapter(s) have no TL;DR.", len(todo))
+        filled = 0
+        for row_id, num, note_json in todo:
+            text = self.ai.write_tldr(StudyNote.from_json(note_json))
+            if not text:
+                if self.ai.quota_exhausted:
+                    log.error("AI unavailable — stopping here; run --fill-tldr again to finish.")
+                    break
+                log.warning("No usable TL;DR for #%d — skipped.", num)
+                continue
+            data = json.loads(note_json)
+            data["tldr"] = text
+            self.db.conn.execute("UPDATE issues SET note_json=? WHERE id=?", (json.dumps(data), row_id))
+            self.db.conn.commit()
+            filled += 1
+            log.info("TL;DR #%d: %s", num, text[:100])
+            time.sleep(4)
+        log.info("Wrote %d of %d missing TL;DRs.", filled, len(todo))
+        if filled < len(todo):
+            log.warning("%d chapter(s) still have no TL;DR — run --fill-tldr again.", len(todo) - filled)
+        if filled:
+            self.renumber()  # regenerates every chapter page, infographic and the index
+
     def _deploy(self):
         log.info("Deploying to GitHub Pages...")
         try:
@@ -2769,6 +2847,8 @@ def main():
     p.add_argument("--repair", action="store_true",
                    help="Restore published titles, recompute categories, renumber and "
                         "regenerate every page (no fetching)")
+    p.add_argument("--fill-tldr", action="store_true",
+                   help="Write a TL;DR for chapters missing one, then regenerate every page")
     p.add_argument("--schedule", action="store_true", help="Run daily scheduler")
     p.add_argument("--source", choices=["feed", "gmail", "auto"], default=SOURCE,
                    help="Where new issues come from: the public Substack feed (default, no login), "
@@ -2778,6 +2858,7 @@ def main():
     app = App(source=args.source)
     if args.schedule: app.schedule()
     elif args.repair: app.repair()
+    elif args.fill_tldr: app.fill_tldrs()
     elif args.renumber: app.renumber()
     elif args.rebuild: app.rebuild_only()
     else: app.run(first_run=args.first_run)

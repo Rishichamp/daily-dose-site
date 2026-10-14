@@ -18,6 +18,11 @@ on:
         required: false
         default: false
         type: boolean
+      fill_tldr:
+        description: "Write a TL;DR for chapters missing one, then regenerate every page (no fetching)"
+        required: false
+        default: false
+        type: boolean
       source:
         description: "Where new issues come from"
         required: false
@@ -84,6 +89,9 @@ jobs:
           if [ "${{ github.event.inputs.repair }}" = "true" ]; then
             echo "🔧 Repair mode — fixing titles, categories and numbering, regenerating pages..."
             python build_site.py --repair
+          elif [ "${{ github.event.inputs.fill_tldr }}" = "true" ]; then
+            echo "📝 TL;DR mode — writing missing TL;DRs and regenerating pages..."
+            python build_site.py --fill-tldr
           elif [ "${{ github.event.inputs.first_run }}" = "true" ]; then
             echo "🕐 First-run mode — processing the whole newsletter history..."
             python build_site.py --first-run
