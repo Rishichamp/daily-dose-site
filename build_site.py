@@ -333,7 +333,7 @@ class DB:
 
     @staticmethod
     def md5(text: str) -> str:
-        return hashlib.md5(text.encode()).hexdigest()
+        return hashlib.md5(text.encode(), usedforsecurity=False).hexdigest()  # an ID, not security
 
 
 # ── Gmail fetcher ─────────────────────────────────────────────────────────────
