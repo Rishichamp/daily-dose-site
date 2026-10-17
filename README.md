@@ -78,31 +78,38 @@ This project is a self-contained demonstration of building a **production-style 
 ## 🚀 Setup (run it yourself)
 
 ### 1. Install dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 2. (Optional) Gmail credentials
+
 Not needed — the default source is the public newsletter archive. Only for `--source gmail`:
+
 1. [Google Cloud Console](https://console.cloud.google.com/) → new project → enable **Gmail API**
 2. OAuth consent screen → External → **publish the app to Production** (in *Testing* mode the refresh token expires after 7 days)
 3. Credentials → OAuth client ID → Desktop app → download JSON → rename to `credentials.json`
 
 ### 3. Get a free Gemini API key
+
 [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey) → Create API key
 
 ### 4. Configure
+
 ```bash
 cp .env.example .env
 # edit .env, paste your GEMINI_API_KEY
 ```
 
 ### 5. First run (processes the whole newsletter history)
+
 ```bash
 python build_site.py --first-run
 ```
 
 ### 6. Push to GitHub
+
 ```bash
 git init
 git add .
@@ -113,9 +120,11 @@ git push -u origin main
 ```
 
 ### 7. Enable GitHub Pages
+
 Repo → **Settings → Pages** → Source: `Deploy from branch` → Branch: `main` → Folder: `/docs` → Save
 
 ### 8. Add GitHub Secrets
+
 **Settings → Secrets and variables → Actions → New repository secret**
 
 | Secret | Value |
@@ -124,6 +133,7 @@ Repo → **Settings → Pages** → Source: `Deploy from branch` → Branch: `ma
 | `GMAIL_TOKEN` | *(optional, Gmail source only)* full contents of your local `token.json` |
 
 ### 9. Trigger the first cloud run
+
 Actions tab → "Daily Dose of DS — Auto Update" → Run workflow → Run (tick **first_run** only for a brand-new site)
 
 ---
