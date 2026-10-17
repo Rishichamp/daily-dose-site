@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">131 Chapters · Generated October 16, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">132 Chapters · Generated October 17, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1653,6 +1653,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#131</span>
   <span style="font-size:.9rem">A Full Walkthrough on Multimodal Jev</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 15, 2026</span>
+</a>
+<a href="#ch132" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#132</span>
+  <span style="font-size:.9rem">Run Jev Inside an Open Agent Harness</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 16, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7062,6 +7070,54 @@ with torch.cuda.graph(g, stream=s):
 # (Provided tensor shapes and memory locations remain identical)
 g.replay()
 print("Graph replayed successfully. Output tensor shape:", static_output.shape)</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>The Unified Harness Protocol (UHP) standardizes agent execution, allowing developers to swap agent harnesses without altering product code.</li><li>HarnessRouter serves as the open-source gateway that routes tasks, streams progress, and returns normalized artifacts to product backends.</li><li>LLM decoding bottlenecks are frequently caused by CPU launch overhead leaving idle gaps on the GPU timeline between microsecond-scale kernels.</li><li>CUDA Graphs eliminate CPU submission latency during generation by capturing and replaying sequences of GPU operations as a single unit.</li><li>Prefill phases benefit less from CUDA Graphs because parallel workloads generate long-running kernels that naturally keep the GPU fully saturated.</li><li>Production serving engines balance execution flexibility and launch overhead by capturing graphs for a discrete subset of common batch sizes.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch132" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 132</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 16, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Run Jev Inside an Open Agent Harness
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">This issue explores how to drastically reduce AI token consumption and decision costs by pairing specialized decision models with open-source agent harnesses. It provides a detailed architectural breakdown of routing repetitive choices away from expensive large language models and into high-efficiency decision heads. Additionally, it examines the mechanics of transforming a standard LLM into a calibrated decision engine using LoRA and custom heads.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Autonomous agents frequently burn through vast amounts of computational tokens on routine, discrete choices—such as matching client requests to specific GitHub issues or categorizing support tickets. While frontier models like Opus excel at these tasks, routing every micro-decision through a massive generative model is economically unsustainable. By shifting these structured choices to specialized decision models, developers can achieve equivalent classification accuracy at a fraction of the cost and latency.</p><p>To operationalize this approach effectively, developers require a robust ecosystem combining specialized inference engines, secure execution sandboxes, and context-aware agent harnesses. The architecture presented in this issue utilizes TrueForge as an open-source harness, Daytona for isolated code execution, and Jev as a non-generative decision model. This combination maintains strict security boundaries, keeps context windows exceptionally small, and delegates low-confidence edge cases back to frontier models for human-grade review.</p><p>Furthermore, engineers are no longer constrained to proprietary decision models; they can build custom decision models locally using lightweight backbones. By freezing the core representations of a small language model, replacing the next-token prediction head with a scoring mechanism, and training on discrete choice labels, teams can produce highly accurate routers. This technique democratizes high-performance classification, enabling developers to fine-tune local models efficiently on modest hardware.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Architectural Patterns for Cost-Effective Agent Harnesses</h3><p>Agent execution harnesses play a critical role in managing token usage, maintaining security, and preventing context window bloat during complex workflows. Traditional agent setups often dump extensive tool definitions and massive historical outputs directly into the conversation history, driving up inference costs and degrading model focus. An optimized harness mitigates this by dynamically loading tool definitions only when they are strictly required and writing bulky tool outputs directly to local files. The agent then processes this data programmatically within execution scripts rather than bloating the active prompt context.</p><p>Security and state management are equally vital components of a production-grade agent framework. Enterprise agent benchmarks demonstrate that maintaining strict boundaries—such as isolating code execution inside a dedicated sandbox like Daytona—prevents unauthorized system modifications. Furthermore, routing all write operations through an explicit human-in-the-loop approval mechanism ensures that autonomous agents cannot execute destructive actions autonomously. Credentials must be kept strictly outside the execution sandbox, accessible only through tightly controlled environment interfaces managed by the outer orchestrator.</p><p>Hybrid routing strategies further optimize operational costs by intelligently distributing workload complexity. When an agent encounters a categorization or matching task, it queries a lightweight decision model that scores available options directly without generating conversational text. If the decision model returns a high calibrated confidence score, the workflow proceeds automatically. However, if the confidence falls below a predefined threshold, the ambiguous case is escalated to a frontier model for deeper review. This hybrid fallback mechanism captures edge cases, ensuring that cost reduction does not come at the expense of overall system reliability and accuracy.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Transforming Language Models into Non-Generative Decision Engines</h3><p>Standard language models are fundamentally designed for autoregressive text generation, processing inputs token by token to construct responses. While versatile, this architecture is inefficient for classification and matching tasks where an application simply needs to select the best option from a predefined list. To solve this, engineers can transform an LLM into a dedicated decision model by altering its training objective and output architecture. Instead of generating text sequences, the model evaluates all valid choices simultaneously in a single forward pass and outputs calibrated probabilities for each candidate.</p><p>The transformation process begins by freezing the weights of the model's backbone, which processes the raw input text to build rich internal semantic representations. Small, trainable parameter components—specifically Low-Rank Adaptation (LoRA) modules—are injected into the backbone to adapt these representations specifically for decision-making tasks without altering the core linguistic knowledge. The standard language model head, responsible for predicting the next token in a vocabulary, is completely removed and replaced with a specialized decision head. This new head evaluates the interactions between the input context and the available options, ultimately generating a raw score for each distinct choice.</p><p>Once the raw scores are calculated, a softmax function is applied separately to each discrete question's choice set to convert those scores into a reliable probability distribution. The model is then optimized using cross-entropy loss against ground-truth labels, updating exclusively the decision head and the LoRA parameters during training. Following training, held-out validation examples are used to calibrate the output probabilities so that the model's predicted confidence accurately reflects its empirical correctness. At inference time, this streamlined architecture allows applications to route incoming data rapidly and reliably at minimal computational expense.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class DecisionHead(nn.Module):
+    """
+    A custom decision head that replaces the standard language model next-token head.
+    It evaluates multiple choices simultaneously based on backbone representations.
+    """
+    def __init__(self, hidden_dim, num_choices):
+        super().__init__()
+        # Linear layer to project hidden states into a single evidence score per choice
+        self.scorer = nn.Linear(hidden_dim, 1)
+        self.num_choices = num_choices
+
+    def forward(self, hidden_states):
+        # hidden_states shape: (batch_size, num_choices, hidden_dim)
+        # Compute raw scores for each choice
+        scores = self.scorer(hidden_states).squeeze(-1)
+        
+        # Apply softmax to convert raw scores into a valid probability distribution
+        probabilities = F.softmax(scores, dim=-1)
+        return probabilities
+
+# Example usage with dummy tensor representations
+batch_size = 1
+hidden_dimension = 768
+choices_count = 3
+
+# Simulate backbone representations for 3 distinct options
+mock_hidden_states = torch.randn(batch_size, choices_count, hidden_dimension)
+decision_head = DecisionHead(hidden_dim=hidden_dimension, num_choices=choices_count)
+
+output_probabilities = decision_head(mock_hidden_states)
+print("Choice Probabilities:", output_probabilities)</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Autonomous agents waste significant tokens on discrete matching tasks that can be handled more efficiently by non-generative decision models.</li><li>TrueForge optimizes agent performance by keeping context windows small, loading tools dynamically, and writing bulky outputs to files instead of prompts.</li><li>Transforming an LLM into a decision model involves freezing the backbone weights, adding LoRA adapters, and replacing the language model head with a scoring mechanism.</li><li>Applying softmax over choice scores yields calibrated probability distributions that facilitate reliable automated routing and decision-making.</li><li>Hybrid routing architectures route low-confidence predictions from lightweight decision models to frontier models for safety and accuracy reviews.</li><li>Local fine-tuning of small models like Qwen3.5 0.8B can dramatically improve classification accuracy with minimal training time and VRAM usage.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
