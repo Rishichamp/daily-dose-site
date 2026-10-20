@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">132 Chapters · Generated October 19, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">133 Chapters · Generated October 20, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1661,6 +1661,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#132</span>
   <span style="font-size:.9rem">Run Jev Inside an Open Agent Harness</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 16, 2026</span>
+</a>
+<a href="#ch133" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#133</span>
+  <span style="font-size:.9rem">Agents 2.0 is here!</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 19, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7118,6 +7126,55 @@ decision_head = DecisionHead(hidden_dim=hidden_dimension, num_choices=choices_co
 
 output_probabilities = decision_head(mock_hidden_states)
 print("Choice Probabilities:", output_probabilities)</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Autonomous agents waste significant tokens on discrete matching tasks that can be handled more efficiently by non-generative decision models.</li><li>TrueForge optimizes agent performance by keeping context windows small, loading tools dynamically, and writing bulky outputs to files instead of prompts.</li><li>Transforming an LLM into a decision model involves freezing the backbone weights, adding LoRA adapters, and replacing the language model head with a scoring mechanism.</li><li>Applying softmax over choice scores yields calibrated probability distributions that facilitate reliable automated routing and decision-making.</li><li>Hybrid routing architectures route low-confidence predictions from lightweight decision models to frontier models for safety and accuracy reviews.</li><li>Local fine-tuning of small models like Qwen3.5 0.8B can dramatically improve classification accuracy with minimal training time and VRAM usage.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch133" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 133</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 19, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Agents 2.0 is here!
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">This issue explores breakthrough open-source tools and architectural patterns transforming modern AI deployment. It covers Uzu, an inference engine that bypasses memory bandwidth limits to run LLMs 4x faster than llama.cpp, Switch, an open-source framework for multi-provider agent orchestration, and continuous batching mechanisms that dramatically increase GPU throughput.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>The landscape of artificial intelligence engineering is rapidly shifting from single-model prompting to complex, high-throughput production systems. As Large Language Models grow in capability and scale, engineers face severe hardware constraints, particularly the physical memory bandwidth limits that restrict token generation speeds on local and cloud devices. Solving these bottlenecks requires innovations not just in raw hardware utilization, but in how generation passes are scheduled and structured.</p><p>Concurrently, the paradigm of agentic workflows is evolving past isolated, single-provider ecosystems. Organizations are no longer satisfied with closed-stack agent platforms that lock them into one vendor's model, memory, and runtime. The next generation of systems—often referred to as Agents 2.0—demands open, decoupled coordination layers where humans and specialized AI agents from different providers can seamlessly collaborate within shared workspaces.</p><p>Underpinning all of these applications is the critical necessity of efficient server-side inference serving. Traditional static batching fails in production environments characterized by variable response lengths, resulting in severe GPU underutilization. Modern serving engines address this through continuous batching, dynamically swapping requests at every iteration boundary to maximize hardware efficiency.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">High-Speed Local Inference with Uzu</h3><p>Running Large Language Models locally is traditionally bound by a strict physical limit known as memory bandwidth. For instance, generating a single token with a 9 billion parameter model requires streaming roughly 5.2 gigabytes of weights through memory on every single forward pass. On hardware like a base M5 MacBook Pro with a memory bandwidth of approximately 153 gigabytes per second, the absolute mathematical ceiling for ordinary single-token decoding sits around 29 tokens per second, regardless of how fast the GPU compute cores can execute matrix multiplications.</p><p>Uzu breaks past this physical limitation by deeply optimizing speculative decoding specifically for Apple Silicon architecture. Instead of generating every token sequentially through an independent pass of the full model, speculative decoding employs a smaller drafting system to propose multiple future tokens simultaneously. The full 9B model then verifies these proposals in a single combined pass rather than evaluating them one by one. Uzu enhances this by drafting up to 16 positions and utilizing an algorithm called Weaver to turn independent guesses into coherent sequences.</p><p>Furthermore, Uzu verifies these possible sequences as a branching tree, committing state only for the exact path that the full model accepts. The main model remains entirely in control of the final output, but Uzu feeds it significantly more useful work to approve during each memory pass. In practical benchmarks, this approach allows a single pass of the 9B model to produce an average of 7.5 output tokens instead of the ordinary single token, vaulting generation speeds past the traditional hardware ceiling.</p><p>The entire inference engine is engineered to complement this optimized execution path. Uzu distributes its own quantized checkpoints and harnesses Metal kernels on Apple Silicon chips to run verification through the GPU's accelerated int8 matrix path. Available as an open-source engine with bindings across Rust, Swift, Python, and TypeScript, it represents a major leap forward for high-throughput local AI deployment.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Multi-Agent Collaboration and Vendor Decoupling</h3><p>The race among leading AI labs to build functional AI coworkers has introduced a significant architectural challenge: vendor lock-in. Major tech companies offer compelling agentic products, but each ties its model, runtime, memory, and orchestration strictly to its own proprietary ecosystem. Real-world engineering teams rarely rely on a single provider for every operational task, frequently mixing tools like Claude Code, Codex, local open-source models, and custom internal systems. Forcing these disparate agents and human team members to collaborate typically requires building fragile, custom integration glue from scratch.</p><p>To solve this, open-source coordination layers such as Switch allow organizations to host their own agnostic agent ecosystems. This framework bridges human users and AI agents across common communication platforms like Slack, Teams, Discord, Telegram, or Mattermost. Instead of dealing with isolated chat sessions, engineers can assign specific operational roles to different agents and route tasks through a central Manager agent. The Manager dynamically establishes dedicated rooms, pulls in the relevant specialized agents, carries context back and forth, and synthesizes the final output.</p><p>In complex incident response scenarios, this architecture proves exceptionally powerful. When multiple system failures occur simultaneously—such as an API returning 500 errors alongside a frozen model training job—a single prompt to the Manager can orchestrate parallel investigations. The Manager spins up linked rooms, assigns software engineers, architects, and QA leads, and allows humans to monitor, inspect, and inject guidance throughout the process via a dedicated console. </p><p>This model of human-agent symbiosis defines the philosophy of Agents 2.0. By decoupling the coordination layer from any single AI provider, organizations ensure future-proofing against rapid model iterations. Teams can freely swap out underlying LLMs while maintaining a persistent, collaborative workspace where humans and machines share context and drive tasks to completion together.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Continuous Batching and GPU Throughput Optimization</h3><p>In traditional machine learning inference, batching is treated much like a static matrix operation. Every input sequence is padded to an identical length, a single forward pass executes over the entire batch, and every row finishes computing at the exact same moment. However, Large Language Model decoding is inherently autoregressive and dynamic; one forward pass produces precisely one token per sequence, and the total length of a response is entirely unknown until the model naturally emits a stop token.</p><p>Under static batching paradigms, batch membership is permanently fixed at the moment execution begins. If a request finishes generating its response after 30 tokens, it is forced to hold its slot in memory until the slowest request in that exact same batch completes its 400-token generation. Consequently, the GPU continues to pay the full cost of reading model weights out of high-bandwidth memory even when the majority of active slots are sitting idle, waiting for straggling requests to finish.</p><p>Continuous batching fundamentally alters this scheduling boundary by shifting the evaluation point to every single iteration. Instead of locking requests into a static batch for the duration of their lifecycle, the scheduler executes a single forward pass, regains control of execution immediately, and re-evaluates the queue. The moment a request finishes, it exits the batch at the next iteration boundary, and a newly queued request instantly takes its open slot without wasting GPU cycles on padded empty space.</p><p>Production traffic typically exhibits massive variance, mixing short 30-token queries with sprawling 400-token replies—precisely the worst-case scenario for static batching. Benchmarks demonstrate that while static batching degrades under high-variance workloads, continuous batching engines like vLLM, SGLang, TGI, and TensorRT-LLM can achieve up to 23x the throughput of naive serving frameworks. This dynamic scheduling approach requires no modifications to the underlying neural network weights, making it an indispensable standard for modern production LLM infrastructure.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code># Illustrative Python example demonstrating a basic continuous batching 
+# request queue scheduler concept for LLM inference serving.
+
+class GenerationRequest:
+    def __init__(self, request_id: str, prompt_tokens: list):
+        self.request_id = request_id
+        self.tokens = prompt_tokens
+        self.is_finished = False
+
+class ContinuousBatchScheduler:
+    def __init__(self, max_batch_size: int):
+        self.max_batch_size = max_batch_size
+        self.waiting_queue = []
+        self.active_batch = []
+
+    def add_request(self, request: GenerationRequest):
+        self.waiting_queue.append(request)
+
+    def step(self):
+        # Evict finished requests from the active batch
+        self.active_batch = [req for req in self.active_batch if not req.is_finished]
+
+        # Fill open slots from the waiting queue dynamically
+        while len(self.active_batch) &lt; self.max_batch_size and self.waiting_queue:
+            next_req = self.waiting_queue.pop(0)
+            self.active_batch.append(next_req)
+
+        # Simulate one forward pass token generation for all active requests
+        for req in self.active_batch:
+            # Append a dummy generated token
+            req.tokens.append(101) 
+            # Check stopping criteria (e.g., max length reached)
+            if len(req.tokens) &gt; 50:
+                req.is_finished = True
+
+        return [req.request_id for req in self.active_batch]</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Memory bandwidth imposes a strict physical ceiling on local LLM token generation speeds during single-token sequential decoding passes.</li><li>Speculative decoding bypasses memory limits by using a smaller draft model to propose multiple tokens for verification in a single pass.</li><li>Uzu optimizes speculative decoding via tree-based verification and Metal kernel acceleration to achieve over 90 tokens per second on Apple Silicon.</li><li>Vendor lock-in remains a major hurdle in multi-agent systems, tying model runtimes and memory strictly to single-provider stacks.</li><li>Open-source orchestration layers like Switch enable humans and specialized multi-provider agents to collaborate seamlessly within standard chat applications.</li><li>Continuous batching replaces static tensor padding by dynamically swapping finished and queued requests at every iteration boundary to maximize GPU throughput.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
