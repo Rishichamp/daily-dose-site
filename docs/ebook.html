@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">133 Chapters · Generated October 20, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">134 Chapters · Generated October 21, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1669,6 +1669,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#133</span>
   <span style="font-size:.9rem">Agents 2.0 is here!</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 19, 2026</span>
+</a>
+<a href="#ch134" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#134</span>
+  <span style="font-size:.9rem">The Next Step After Karpathy’s Agentic Engineering</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 20, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7175,6 +7183,53 @@ class ContinuousBatchScheduler:
                 req.is_finished = True
 
         return [req.request_id for req in self.active_batch]</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Memory bandwidth imposes a strict physical ceiling on local LLM token generation speeds during single-token sequential decoding passes.</li><li>Speculative decoding bypasses memory limits by using a smaller draft model to propose multiple tokens for verification in a single pass.</li><li>Uzu optimizes speculative decoding via tree-based verification and Metal kernel acceleration to achieve over 90 tokens per second on Apple Silicon.</li><li>Vendor lock-in remains a major hurdle in multi-agent systems, tying model runtimes and memory strictly to single-provider stacks.</li><li>Open-source orchestration layers like Switch enable humans and specialized multi-provider agents to collaborate seamlessly within standard chat applications.</li><li>Continuous batching replaces static tensor padding by dynamically swapping finished and queued requests at every iteration boundary to maximize GPU throughput.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch134" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 134</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 20, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    The Next Step After Karpathy’s Agentic Engineering
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">Traditional LLM and RAG agent architectures often fail in production because they rely on ephemeral Python processes that cannot handle human-in-the-loop delays. This issue explores how durable execution frameworks solve state persistence, ensuring long-running AI workflows survive infrastructure restarts and interruptions.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>When designing advanced AI systems like Retrieval-Augmented Generation (RAG) agents, developers frequently focus on prompt engineering, retrieval accuracy, and tool-calling capabilities. However, a major architectural blind spot emerges when building systems that require real-world interaction, such as waiting for human approval before executing a critical tool call. In a standard Python application, an asynchronous wait or a dropped network connection can terminate the process, rendering the agent completely stateless and unable to resume its task.</p><p>The core fragility of modern AI agent engineering stems from treating multi-step reasoning loops as instantaneous scripts rather than long-running, asynchronous business processes. If an agent retrieves policy documents, drafts a response, and pauses for a supervisor's review that takes three hours, the underlying container or serverless function will likely have spun down. Re-running the request from scratch is not a viable solution because it creates entirely new state, wastes expensive API tokens, and risks executing non-idempotent actions twice.</p><p>To bridge the gap between experimental AI prototypes and production-grade enterprise software, developers must adopt durable execution paradigms. Instead of manually serializing state to a database and writing complex recovery logic, engineers can leverage workflow orchestration engines. These frameworks automatically checkpoint every execution step, variable state, and tool response, allowing paused AI agents to sleep indefinitely and resume execution seamlessly when external events occur.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">The Architectural Challenge of Ephemeral Agent State</h3><p>In standard software engineering, web applications are often stateless by design, handling requests and responses within milliseconds. AI agents, conversely, are stateful orchestrators that maintain a continuous conversational or operational context across multiple steps, API calls, and external tool executions. When a RAG agent performs a search, aggregates documents, and formulates a response, it accumulates a rich state object containing chat history, intermediate thoughts, and pending actions. </p><p>When a human-in-the-loop checkpoint is introduced, this ephemeral state becomes a liability. If the agent pauses to await external validation, the runtime environment holds resources open or discards them based on timeout configurations. Traditional web frameworks and lightweight script runners lack the native ability to hibernate an active execution stack and reconstruct it hours or days later with the exact same memory footprint and execution pointer.</p><p>Furthermore, rebuilding failed agent pipelines manually introduces severe reliability bugs. If an engineer attempts to save state in a relational database after every tool call, they must write exhaustive boilerplate code to handle state deserialization, error recovery, and concurrency locks. Without a systematic approach to state management, agents that encounter transient network failures or long processing delays will crash, leaving users with incomplete tasks and corrupted system states.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Durable Execution and Workflow Orchestration Engines</h3><p>Durable execution engines solve the problem of ephemeral state by treating code as a series of deterministic steps that can be safely suspended and resumed. In these architectures, every action taken by an AI agent—such as calling an LLM, querying a vector database, or waiting for human input—is recorded in an immutable event log. If a server crashes or a workflow pauses for an extended period, the execution state is safely preserved in persistent storage without consuming active compute resources.</p><p>When the blocking condition is finally resolved, such as when a manager approves a drafted customer reply, the workflow engine triggers a replay of the execution log. It recreates the local variables and advances the execution pointer to the exact line of code that was waiting. This mechanism allows developers to write straightforward, sequential Python code for complex agentic loops while gaining the enterprise-grade fault tolerance previously reserved for distributed transaction systems.</p><p>Implementing durable workflows also brings critical benefits to cost management and security auditing in AI engineering. By preventing redundant API calls during retries, organizations save significant amounts on LLM token costs. Additionally, the immutable event log provides a complete, step-by-step audit trail of every decision made by the agent, satisfying regulatory requirements and making debugging complex reasoning failures significantly more manageable.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>import asyncio
+from typing import Dict, Any
+
+# Illustrative example of a durable workflow pattern using asynchronous state checkpointing
+class DurableAgentWorkflow:
+    def __init__(self):
+        self.state: Dict[str, Any] = {"step": "initialized", "data": None}
+
+    async def run_rag_retrieval(self, query: str) -&gt; str:
+        # Simulate retrieval and state checkpointing
+        self.state["step"] = "retrieved"
+        self.state["data"] = f"Context for: {query}"
+        return self.state["data"]
+
+    async def wait_for_human_approval(self) -&gt; bool:
+        # Simulate pausing execution for external input
+        self.state["step"] = "waiting_for_approval"
+        # In a real durable engine, the process can safely exit here
+        await asyncio.sleep(1) 
+        return True
+
+    async def execute(self, query: str):
+        print(f"Current State: {self.state['step']}")
+        context = await self.run_rag_retrieval(query)
+        
+        print(f"Drafting response using: {context}")
+        approved = await self.wait_for_human_approval()
+        
+        if approved:
+            self.state["step"] = "completed"
+            print("Action approved and executed successfully.")
+
+workflow = DurableAgentWorkflow()
+asyncio.run(workflow.execute("Company policy on refunds"))</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Traditional Python processes and containers are ephemeral, making them ill-suited for AI agents that require human-in-the-loop approvals over long timeframes.</li><li>Re-running failed agent requests from scratch wastes valuable LLM tokens and risks non-idempotent duplicate tool executions.</li><li>Durable execution engines maintain immutable event logs that allow active workflows to sleep indefinitely and resume without losing state.</li><li>Writing manual state-saving logic into relational databases introduces complex boilerplate and error-prone deserialization code.</li><li>Workflow orchestration frameworks enable developers to write sequential agent logic while automatically handling infrastructure failures.</li><li>Immutable execution logs provide transparent audit trails for enterprise compliance and simplify debugging of complex multi-step reasoning loops.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
