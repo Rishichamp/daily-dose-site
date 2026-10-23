@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">135 Chapters · Generated October 22, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">136 Chapters · Generated October 23, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1685,6 +1685,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#135</span>
   <span style="font-size:.9rem">Give Claude Code, Codex, and Cursor a Self-improving Shared Memory</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 21, 2026</span>
+</a>
+<a href="#ch136" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#136</span>
+  <span style="font-size:.9rem">Build a Jev-powered Agentic RAG</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 22, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7303,6 +7311,53 @@ sample_log = {
 
 structured_trace = normalizer.process_telemetry_event(sample_log)
 print(json.dumps(structured_trace, indent=2))</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Onyx provides a self-hostable, open-source AI platform compatible with any LLM and deployable locally via Docker.</li><li>Unlike dynamic runtime API connectors, Onyx fully indexes data across 40+ enterprise sources for faster, reliable RAG.</li><li>Beacon unifies memory across 20+ coding harnesses, allowing developers to switch agents instantly without losing context.</li><li>Beacon analyzes historical sessions to automatically synthesize reusable skills while pruning unused instructions.</li><li>Centralized agent telemetry provides robust security governance, including real-time detection of risky credential handling.</li><li>Open-source architectures ensure complete data privacy and local infrastructure control for sensitive workflows.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch136" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 136</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 22, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Build a Jev-powered Agentic RAG
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">This issue explores how to build an advanced agentic Retrieval-Augmented Generation (RAG) system using decision models and a comprehensive backend platform. It covers serving multiple AI workloads efficiently on a single GPU, configuring automated decision gates to catch insufficient evidence, and routing unresolved queries to a human review dashboard.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Traditional Retrieval-Augmented Generation systems often struggle with two fundamental flaws: determining when retrieved evidence is genuinely insufficient to answer a user query and executing the appropriate fallback logic. Standard prompt tuning alone cannot reliably address these failure modes because Large Language Models tend to hallucinate answers when context is lacking. To build truly robust production pipelines, modern data architectures require specialized decision models that return structured judgments rather than free-form text.</p><p>Integrating these decision mechanisms into an application requires a unified backend that handles data isolation, vector storage, authentication, and real-time event distribution. Platforms like InsForge simplify this by combining Postgres with pgvector, serverless edge functions, and built-in model gateways into a single stack. Combined with multimodal embedding models and open-weight decision networks, developers can construct sophisticated workflows that automatically assess retrieval quality, generate grounded answers with precise citations, or escalate complex issues to human representatives.</p><p>This architectural pattern transforms static document retrieval into an active reasoning loop. By evaluating text chunks and rendered page images concurrently, systems can handle complex multimodal documentation containing diagrams and screenshots. When the decision model determines that the retrieved context falls below predefined confidence thresholds, the system bypasses the generation phase entirely, routes the query into a ticketing database, and alerts support staff via real-time updates.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Model Serving and Infrastructure Architecture</h3><p>Serving multiple specialized machine learning models concurrently has historically required fragmented infrastructure with separate server instances, dedicated task-specific endpoints, and complex routing layers. Recent advancements in unified inference servers allow developers to host diverse workloads—such as embedders, rerankers, entity extractors, OCR engines, and generators—on a single GPU. This approach dynamically loads models into shared memory when requested, keeps active models resident, and evicts them only when memory constraints demand it.</p><p>For multimodal retrieval-augmented generation, this efficiency is critical because the pipeline relies on multiple distinct AI capabilities operating in tandem. By leveraging a FastAPI server hosted in environments like Lightning AI Studio, developers can expose unified endpoints for embedding queries, reranking candidates, and indexing documents. Models such as EmbeddingGemma 2 map both text and visual artifacts into a shared vector space, allowing a text-based user query to seamlessly retrieve PDF pages containing crucial architectural diagrams or UI screenshots.</p><p>Running these diverse components efficiently requires careful orchestration of GPU memory and compute-aware batching. When embedding models and decision models—such as Liquid AI’s open-weight d1-3B network—share a single NVIDIA L4 GPU, they consume a predictable footprint of approximately 7.2 GB of VRAM. This consolidation drastically reduces infrastructure costs and eliminates network hops between microservices, resulting in lower latency for production search and generation pipelines.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Implementing Decision Gates and Agentic Workflows</h3><p>The core innovation of agentic RAG lies in introducing a decision gate between retrieval and generation. Instead of piping every retrieved document chunk directly into an LLM, the system passes candidates through a typed decision model. Models like TypeSafe AI's Jev take a state and structured questions, returning strict categorical choices, ordered scores, or probabilities that a statement is true. This quantitative evaluation allows the application to programmatically decide whether the retrieved context contains sufficient evidence to answer the prompt.</p><p>The execution flow begins when a user submits a query, which is subsequently embedded alongside any attached screenshots or interface images. The system executes parallel searches across text chunk tables and page image tables within a Postgres database powered by pgvector. The retrieved candidates are merged and sent to a reranking and evaluation endpoint. If the highest-scoring candidate fails to clear a configurable threshold stored in the database, the pipeline triggers a fallback strategy, such as widening the search parameters or escalating directly to a ticketing queue.</p><p>When documents pass the decision gate, they are forwarded to a vision-capable generation model through a secure model gateway. The generation model is strictly constrained to answer using only the provided context and must supply exact page citations and thumbnails. If the evidence is insufficient, the system bypasses generation entirely, creates a support ticket, and publishes the event to a real-time dashboard. Human support representatives can then review the customer's question alongside the rejected search candidates, formulate a reply, and optionally save their response back into the knowledge base.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+import torch
+
+app = FastAPI()
+
+class SearchQuery(BaseModel):
+    query_text: str
+    top_k: int = 5
+
+@app.post("/rerank")
+def rerank_candidates(payload: SearchQuery):
+    """
+    Simulated endpoint for scoring and reranking retrieved document candidates
+    using an open-weight decision model like Liquid AI's d1-3B.
+    """
+    try:
+        # Placeholder for model inference logic
+        candidates = [
+            {"id": 1, "text": "Sample text chunk matching query", "score": 0.89},
+            {"id": 2, "text": "Secondary low-confidence context", "score": 0.42}
+        ]
+        
+        # Filter candidates based on a relevance threshold
+        threshold = 0.75
+        valid_candidates = [c for c in candidates if c["score"] &gt;= threshold]
+        
+        return {
+            "status": "success",
+            "passed_gate": len(valid_candidates) &gt; 0,
+            "results": valid_candidates
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Unified inference servers allow multiple models like embedders and rerankers to run concurrently on a single GPU with dynamic memory management.</li><li>Multimodal embedding spaces map text and images together, enabling text queries to retrieve visual diagrams and UI screenshots.</li><li>Decision models return structured judgments rather than free text, enabling programmatic validation of retrieval sufficiency.</li><li>Automated decision gates prevent hallucinations by rerouting low-confidence retrieval results directly to human review workflows.</li><li>Comprehensive backend platforms combine vector search, authentication, edge functions, and real-time event streaming into one stack.</li><li>Real-time database triggers update support dashboards instantly when automated retrieval pipelines fail to find answers.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
