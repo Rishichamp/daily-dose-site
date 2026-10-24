@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">136 Chapters · Generated October 23, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">137 Chapters · Generated October 24, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1693,6 +1693,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#136</span>
   <span style="font-size:.9rem">Build a Jev-powered Agentic RAG</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 22, 2026</span>
+</a>
+<a href="#ch137" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#137</span>
+  <span style="font-size:.9rem">6 KV Cache Quantization Approaches</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 23, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7358,6 +7366,52 @@ def rerank_candidates(payload: SearchQuery):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Unified inference servers allow multiple models like embedders and rerankers to run concurrently on a single GPU with dynamic memory management.</li><li>Multimodal embedding spaces map text and images together, enabling text queries to retrieve visual diagrams and UI screenshots.</li><li>Decision models return structured judgments rather than free text, enabling programmatic validation of retrieval sufficiency.</li><li>Automated decision gates prevent hallucinations by rerouting low-confidence retrieval results directly to human review workflows.</li><li>Comprehensive backend platforms combine vector search, authentication, edge functions, and real-time event streaming into one stack.</li><li>Real-time database triggers update support dashboards instantly when automated retrieval pipelines fail to find answers.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch137" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 137</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 23, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    6 KV Cache Quantization Approaches
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">This issue breaks down six distinct KV cache quantization approaches used to reduce memory consumption and fit longer contexts during LLM inference. It explains the mechanics behind precision reduction, granularity, outlier handling, and memory trade-offs.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>When serving Large Language Models, optimizing model weights does not automatically reduce the memory footprint of the Key-Value (KV) cache. While weights store the model’s learned parameters, the KV cache stores keys and values computed dynamically while processing a request. As context windows grow and concurrent requests scale, the KV cache can quickly consume a massive amount of GPU memory.</p><p>Quantizing the KV cache reduces the number of bits allocated to store each entry, allowing systems to support longer contexts or higher concurrency on the same hardware. However, moving from high-precision formats (like FP16) to lower-precision representations (such as FP8, INT8, or INT4) introduces rounding errors and requires careful management of scaling factors. </p><p>Serving engines must balance memory savings against the compute overhead of packing, unpacking, and dequantizing cache entries during attention operations. Different strategies address this challenge by adjusting quantization granularity, isolating outlier values, or employing mixed-precision buffers to maintain output accuracy.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">FP8, INT8, and INT4 Cache Quantization</h3><p>A standard KV cache using FP16 or BF16 stores each number in 16 bits. Transitioning to FP8 cuts the raw storage requirement in half by representing numbers in 8 bits. A scaling factor is stored alongside the data so that the attention kernel can correctly interpret the compressed values. Although 1 GiB of 16-bit KV data becomes roughly 512 MiB of FP8 data (excluding metadata and scale overheads), achieving actual speedups requires compatible GPU hardware and optimized attention kernels.</p><p>Integer-based quantization formats, such as INT8 and INT4, use 8-bit or 4-bit integers respectively, often paired with a scale and a zero-point to map integers back to approximate floating-point values. INT8 provides 256 quantization levels, whereas INT4 provides only 16. This drastically reduces memory consumption but severely limits the granularity available when rounding numbers, potentially causing distinct values to collapse into the same level.</p><p>During inference, the serving engine must unpack and dequantize these stored integer entries to compute attention, a process that can occasionally offset the bandwidth savings gained from reading fewer bytes. Consequently, the performance benefit depends heavily on whether the reduction in memory traffic outweighs the additional compute overhead introduced by the dequantization steps.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Granularity, KIVI, Mixed Precision, and Outlier Handling</h3><p>Quantization granularity defines how many numbers share a single scaling factor, ranging from a single scale for an entire tensor to localized scales for specific channels, tokens, or small groups. If a single group contains an extreme outlier alongside many smaller values, a shared scale will force the smaller numbers to sacrifice precision. Smaller groups limit the impact of outliers but introduce memory overhead because every group requires its own stored scale.</p><p>Advanced methods like KIVI apply asymmetric grouping rules tailored specifically to the structural patterns of keys and values. By observing that large key values concentrate in specific channels while value distributions vary across tokens, KIVI groups keys across tokens within the same channel and groups values within individual tokens. This targeted block-level quantization helps maintain model accuracy at very low bit-widths without requiring model fine-tuning.</p><p>Mixed-precision strategies and outlier-aware quantization offer alternative ways to preserve quality. A mixed-precision cache keeps recent keys and values in an unquantized high-precision buffer before compressing them into older, quantized blocks, ensuring zero rounding error for the most active tokens. Meanwhile, outlier-aware methods isolate unusually large values into sparse storage layouts, allowing the remaining dense values to be safely represented in a tighter, low-bit format.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>import torch
+import torch.nn.functional as F
+
+def simulate_fp8_quantization(tensor: torch.Tensor) -&gt; tuple[torch.Tensor, torch.Tensor]:
+    """
+    Simulates FP8 KV cache quantization using a dynamic per-tensor scaling factor.
+    
+    Args:
+        tensor: High-precision KV cache tensor (e.g., FP16).
+        
+    Returns:
+        quantized_tensor: Scaled and clamped tensor representing lower precision.
+        scale: The scaling factor required to dequantize the tensor.
+    """
+    # Determine the maximum absolute value to fit within the target range (simulating FP8 max value ~448.0)
+    max_val = torch.max(torch.abs(tensor))
+    fp8_max = 448.0 
+    
+    scale = max_val / fp8_max
+    if scale == 0:
+        scale = torch.tensor(1.0, device=tensor.device)
+        
+    # Scale and clamp the tensor values
+    scaled_tensor = torch.clamp(tensor / scale, -fp8_max, fp8_max)
+    
+    # In a real FP8 engine, values are cast to torch.float8_e4m3fn or similar types here
+    quantized_tensor = scaled_tensor.to(torch.bfloat16) # Placeholder for low-bit storage representation
+    
+    return quantized_tensor, scale
+
+def dequantize_kv(quantized_tensor: torch.Tensor, scale: torch.Tensor) -&gt; torch.Tensor:
+    """Restores the quantized tensor back to high precision using the saved scale."""
+    return quantized_tensor * scale</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Quantizing model weights does not automatically reduce the memory consumed by the KV cache.</li><li>FP8 reduces raw KV cache storage by half compared to FP16, requiring a scale factor for attention kernels.</li><li>Lower-bit integer formats like INT4 save significant memory but increase rounding errors due to limited representation levels.</li><li>Granularity determines how scaling factors are shared across tensors, channels, or token groups.</li><li>KIVI optimizes quantization by applying distinct grouping rules for keys and values based on their unique distribution patterns.</li><li>Mixed-precision buffers keep recent tokens in high precision while quantizing older historical entries.</li><li>Outlier-aware quantization isolates extreme values into sparse storage to protect sensitive numerical ranges.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
