@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">140 Chapters · Generated October 28, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">141 Chapters · Generated October 29, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1725,6 +1725,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#140</span>
   <span style="font-size:.9rem">Which OCR Solution Works Best for Your Documents?</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 27, 2026</span>
+</a>
+<a href="#ch141" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#141</span>
+  <span style="font-size:.9rem">Why DeepSeek stores its KV cache on disk</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 28, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7544,6 +7552,41 @@ def simulate_speculative_decoding(draft_tokens_count: int, base_token_time: floa
 
 metrics = simulate_speculative_decoding(draft_tokens_count=16, base_token_time=0.035)
 print(f"Throughput metrics: {metrics}")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Local LLM inference speed is fundamentally bound by hardware memory bandwidth rather than compute power.</li><li>Speculative decoding bypasses memory limits by proposing candidate token trees verified in a single model pass.</li><li>Global OCR benchmarks are misleading because aggregate scores mask severe parser failures on specialized document types.</li><li>OmniParse Bench uses deterministic binary unit tests and content tags to evaluate parsers on targeted document slices.</li><li>Removing search access from deep research orchestrators prevents premature synthesis and forces structured task decomposition.</li><li>Limiting agent hierarchies to two levels prevents information degradation caused by excessive recursive summarization.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch141" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 141</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 28, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Why DeepSeek stores its KV cache on disk
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">This issue explores Magnitude, an open-source inference engine optimized for Apple Silicon via local kernel compilation. It examines DeepSeek’s innovative strategy of storing compressed KV caches on distributed SSD infrastructure using MLA and 3FS. Finally, it breaks down the mechanics and optimization benefits of the early exaggeration parameter in t-SNE dimensionality reduction.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Optimizing Large Language Model (LLM) performance requires addressing bottlenecks across hardware execution, memory access, and mathematical representation. Traditional local inference engines rely on prebuilt kernels that represent a compromise across diverse GPU architectures, failing to fully leverage localized hardware capabilities. Modern engines address this by compiling and tuning execution kernels directly on the target machine to maximize token generation speeds.</p><p>Beyond raw compute speed, memory architecture remains a primary constraint for long-context interactions and multi-turn AI agents. Because standard Key-Value (KV) caches consume vast amounts of memory, scaling context windows efficiently demands architectural shifts in how caches are stored and retrieved. By combining compressed latent attention representations with distributed file systems, architectures can bypass GPU memory limitations entirely, streaming prompt states directly from solid-state storage.</p><p>Finally, visualizing high-dimensional representations requires robust non-linear dimensionality reduction algorithms like t-SNE. Understanding the underlying optimization mechanics—such as probability distribution mapping and divergence minimization—allows data scientists to tune parameters effectively. Techniques like early exaggeration ensure that clusters remain distinct and well-separated during initial optimization phases, preventing local minima traps.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Optimizing Local LLM Inference via On-Device Kernel Compilation</h3><p>Prebuilt inference engines often underperform on consumer hardware because their underlying kernels are tuned in advance. A kernel is a low-level GPU program responsible for executing matrix multiplications and attention steps. Because Apple Silicon and other modern architectures vary significantly in core count and memory bandwidth, static prebuilt engines must rely on a generalized compromise configuration that is rarely optimal for any specific chip.</p><p>Engines like Magnitude solve this limitation by shifting kernel compilation to the user's local machine. When a model is downloaded, the engine compiles and tests multiple kernel configurations, dynamically retaining the variant that delivers maximum performance on that specific hardware. Additionally, this approach pairs models with optimized speculative decoding drafters to accelerate token generation per forward pass, significantly improving prefill and decode speeds for developer workflows and concurrent autonomous agents.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">DeepSeek KV Cache Architecture and Distributed SSD Storage</h3><p>During LLM generation, the model computes and stores keys and values for every token across all attention layers, known as the KV cache. Reusing this cache for repetitive prefixes—such as system prompts or previous dialogue turns—bypasses expensive prefill computations. Traditionally, engines store this cache in scarce GPU memory to ensure fast access speeds, which frequently leads to rapid eviction and low cache-hit efficiency.</p><p>DeepSeek overcomes the memory limitation by combining Multi-head Latent Attention (MLA) with a distributed file system called 3FS. MLA compresses the KV cache into a single latent vector per token per layer, reducing the total cache footprint by over ninety percent. This compact cache size makes it viable to store petabytes of prefix states across thousands of solid-state drives simultaneously, streaming data directly to host memory and GPU layers in parallel during request execution.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Mechanics of Early Exaggeration in t-SNE</h3><p>t-SNE projects high-dimensional data into low-dimensional spaces, typically two dimensions, by modeling data points as probability distributions. In the high-dimensional space, Euclidean distances are converted into Gaussian probabilities representing neighborhood densities. The algorithm then initializes random low-dimensional points and matches their corresponding distribution using Kullback-Leibler (KL) divergence as a loss function, minimized iteratively via gradient descent.</p><p>The early exaggeration parameter multiplies high-dimensional probabilities by a constant factor greater than one during the initial optimization phase. Because the KL divergence loss function forces the low-dimensional distribution to match the exaggerated target probabilities, the optimizer learns larger attractive forces between neighboring points. This mechanism creates tightly packed, highly distinct clusters and prevents the optimization process from getting trapped in suboptimal local arrangements.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code>import numpy as np
+
+def compute_kl_divergence(p: np.ndarray, q: np.ndarray, eps: float = 1e-12) -&gt; float:
+    """
+    Computes the Kullback-Leibler divergence between two probability distributions P and Q.
+    KL(P || Q) = sum(P(x) * log(P(x) / Q(x)))
+    
+    Parameters:
+    - p: True high-dimensional probability distribution array.
+    - q: Low-dimensional approximating probability distribution array.
+    - eps: Small constant to prevent division by zero or log of zero.
+    """
+    p = np.clip(p, eps, 1.0)
+    q = np.clip(q, eps, 1.0)
+    return np.sum(p * np.log(p / q))
+
+# Example usage with uniform probability distributions
+p_dist = np.array([0.4, 0.4, 0.2])
+q_dist = np.array([0.3, 0.5, 0.2])
+
+loss = compute_kl_divergence(p_dist, q_dist)
+print(f"Calculated KL Divergence Loss: {loss:.4f}")</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Local LLM inference engines achieve higher token throughput by compiling and tuning hardware-specific execution kernels directly on the user's machine.</li><li>Prefill execution speed is critical for multi-turn AI agents processing extensive file contexts and tool definitions.</li><li>Storing the LLM KV cache in GPU memory often causes rapid eviction due to strict capacity constraints.</li><li>Multi-head Latent Attention (MLA) compresses KV states into a single latent vector, reducing memory consumption by over 90%.</li><li>Distributed file systems like 3FS enable parallelized streaming of KV caches from SSD storage arrays directly to GPU layers.</li><li>The early exaggeration parameter in t-SNE inflates high-dimensional probabilities to form tight, well-separated low-dimensional clusters.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
