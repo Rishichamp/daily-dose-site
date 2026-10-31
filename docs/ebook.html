@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">142 Chapters · Generated October 30, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">143 Chapters · Generated October 31, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1741,6 +1741,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#142</span>
   <span style="font-size:.9rem">Prefix-Aware LLM Routing, clearly explained</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 29, 2026</span>
+</a>
+<a href="#ch143" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#143</span>
+  <span style="font-size:.9rem">RAG vs. Vectorless RAG, clearly explained!</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">October 30, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7622,6 +7630,45 @@ print(f"Calculated KL Divergence Loss: {loss:.4f}")</code></pre></div><h3 style=
         parent = hash((parent, block))
         hashes.append(parent)
     return hashes</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Basic binary verifiers that only check for execution success allow syntactically valid but semantically incorrect LLM outputs to pass.</li><li>Layering verifiers ensures that operational efficiency metrics only rank queries that have already passed strict correctness gates.</li><li>Distributed LLM serving suffers massive latency penalties when requests are routed to GPUs that must recompute shared KV cache prefixes.</li><li>Prefix-aware routers use chained block hashes to map prompt fragments to specific worker memory without storing raw KV tensors.</li><li>Balancing cache hit optimization with real-time worker load prevents single-node bottlenecks in production clusters.</li><li>Precise prefix-aware routing can reduce p90 Time to First Token by orders of magnitude compared to traditional random routing strategies.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch143" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 143</span>
+    <span style="font-size:.72rem;color:var(--text-3)">October 30, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    RAG vs. Vectorless RAG, clearly explained!
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">This issue examines advanced techniques for accelerating large language model inference on Apple Silicon using specialized speculative decoding engines like Uzu. It also contrasts traditional vector-based Retrieval-Augmented Generation with Vectorless RAG, a tree-indexed, reasoning-driven approach designed for complex, structured documents.</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Modern deployment of large language models requires balancing competing demands for high token generation speed and precise document retrieval. As models scale, traditional autoregressive generation can become a bottleneck, prompting the development of speculative decoding pipelines that leverage smaller draft models. By allowing a lightweight adapter to propose token trees for parallel verification by the main model, inference throughput can be significantly multiplied without sacrificing output quality.</p><p>Concurrently, the standard Retrieval-Augmented Generation paradigm faces distinct failure modes when applied to long, highly structured documents. Vector similarity search often struggles with documents that share repetitive templates or rely on internal cross-references, retrieving semantically relevant text blocks that fail to contain the actual required data. To resolve these challenges, alternative architectures like Vectorless RAG replace embedding models with LLM reasoning over document layout trees.</p><p>Understanding these foundational shifts in both generation and retrieval enables practitioners to design more efficient, accurate AI systems tailored to specific hardware constraints and document topologies. Whether optimizing for local Apple Silicon execution or building retrieval pipelines for complex financial filings, modern LLM engineering relies on structural awareness rather than brute-force similarity matching.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Speculative Decoding and Weaver Architecture for Inference Acceleration</h3><p>Speculative decoding addresses the inherent latency of autoregressive generation by splitting the generation workload between a fast, lightweight draft model and a heavy target model. In a standard speculative decoding setup, the draft model rapidly generates a short sequence of candidate tokens, which the main model then evaluates and verifies in a single parallel forward pass. While effective, traditional drafters evaluate tokens independently per position, meaning a single early mismatch invalidates the entire subsequent sequence.</p><p>To overcome this limitation, advanced frameworks integrate specialized adapters such as Weaver alongside parallel drafters like DFlash. Weaver operates as a single miniature Transformer layer with a modest parameter footprint that sits atop the draft model. Rather than forcing independent guesses, Weaver selects among top candidate tokens from left to right so that each token prediction depends contextually on the preceding choice, constructing a branching tree of likely token continuations rather than a rigid linear chain.</p><p>This tree-based structure allows the main target model to verify multiple potential token paths simultaneously in a single forward pass, dramatically increasing the average token output per inference step. When deployed on consumer hardware such as an Apple Silicon MacBook Pro using specialized inference engines like Uzu, these optimizations yield substantial speedups over standard generation. By leveraging hardware-tailored engines, developers can run large parameter models locally with performance characteristics previously restricted to enterprise-grade server clusters.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Limitations of Standard RAG and the Vectorless RAG Paradigm</h3><p>Traditional Retrieval-Augmented Generation relies on chunking documents, embedding text fragments, and storing them in vector databases to perform similarity-based retrieval. While this approach functions well for short, unstructured texts, its foundational assumption—that the text chunk most similar to a query contains the correct answer—breaks down when handling long, highly structured enterprise documents like annual reports or legal contracts. These documents often reuse standardized phrasing and layout templates across multiple iterations, causing similarity searches to mistakenly retrieve chunks from the wrong year or section because they share semantic traits with the query.</p><p>A secondary failure mode involves cross-references, where a retrieved chunk points to external data such as an appendix table, but the table itself remains unretrieved because its raw textual layout bears little similarity to the user's query. Vector-based enhancements like contextual retrieval and reranking help mitigate these issues, but they still ultimately rank text based on superficial vector similarity rather than document logic.</p><p>Vectorless RAG resolves these structural failures by discarding embedding models and vector databases entirely, replacing them with LLM-driven document navigation. In this architecture, documents are preprocessed into a hierarchical Table of Contents tree index where each node contains a section title, page range, and a concise summary. At query time, the language model reads these summaries to intelligently traverse the document layout, identifying and pulling entire relevant sections while retaining chat history context. Although this method incurs higher initial token processing costs and demands well-structured input data, it provides superior accuracy for complex, multi-hop document reasoning tasks.</p><div class="code-wrap"><div class="code-head"><span class="code-lang">Python</span><button class="code-copy">Copy</button></div><pre><code># Example of running an optimized local inference model using the Uzu engine CLI via Python
+import subprocess
+
+def run_local_inference(model_name: str, prompt: str) -&gt; None:
+    """
+    Executes a local LLM inference run using the Uzu engine CLI command.
+    
+    Args:
+        model_name (str): The identifier of the model to load.
+        prompt (str): The text prompt to feed into the model.
+    """
+    command = ["mirai", "--model", model_name, "-m", prompt]
+    
+    try:
+        # Run the subprocess and stream or capture output
+        result = subprocess.run(command, check=True, text=True, capture_output=True)
+        print("Inference Output:\n", result.stdout)
+    except subprocess.CalledProcessError as e:
+        print(f"Inference failed with error: {e.stderr}")
+
+# Example usage
+if __name__ == "__main__":
+    run_local_inference(
+        model_name="trymirai/Qwen3.5-9B-M",
+        prompt="Write a python function to merge two sorted lists"
+    )</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Speculative decoding accelerates autoregressive generation by having a lightweight draft model propose tokens for parallel verification by the main model.</li><li>Weaver uses a small 56.7M parameter adapter layer to construct a tree of context-dependent token continuations, reducing wasted inference compute.</li><li>Standard vector RAG fails on structured documents with repetitive templates due to embedding collisions and missed cross-references like appendices.</li><li>Vectorless RAG replaces vector databases with hierarchical Table of Contents tree indexes traversed via LLM reasoning.</li><li>Tree-based vectorless retrieval achieves higher accuracy on complex documents compared to traditional top-k similarity search, albeit with different latency and cost tradeoffs.</li><li>Specialized inference engines like Uzu unlock high-performance local execution of large models on Apple Silicon hardware.</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
