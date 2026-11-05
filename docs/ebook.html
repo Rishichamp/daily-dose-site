@@ -600,7 +600,7 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
       <div style="font-size:3.5rem;margin-bottom:14px;">📚</div>
       <h1 style="font-size:clamp(1.8rem,4.5vw,3rem);font-weight:800;margin-bottom:10px;"><span class="grad-text">Daily Dose of DS</span></h1>
       <p style="font-size:1.1rem;color:var(--text-2);margin-bottom:6px;font-weight:600">Complete Study Notes</p>
-      <p style="color:var(--text-3);font-size:.86rem">146 Chapters · Generated November 04, 2026</p>
+      <p style="color:var(--text-3);font-size:.86rem">147 Chapters · Generated November 05, 2026</p>
     </div>
   </div>
   <div id="toc" style="margin-bottom:50px;">
@@ -1773,6 +1773,14 @@ body.light .theme-switch .thumb{transform:translateX(23px);background:linear-gra
   <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#146</span>
   <span style="font-size:.9rem">Agent Framework vs. Agent Harness, clearly explained!</span>
   <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">November 03, 2026</span>
+</a>
+<a href="#ch147" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;
+  text-decoration:none;color:var(--text-2);transition:all .2s;border:1px solid transparent;"
+  onmouseover="this.style.background='rgba(91,140,255,.08)';this.style.borderColor='rgba(91,140,255,.15)';this.style.color='var(--text)'"
+  onmouseout="this.style.background='';this.style.borderColor='transparent';this.style.color='var(--text-2)'">
+  <span style="color:#7C5CFF;font-weight:800;font-size:.8rem;min-width:60px">#147</span>
+  <span style="font-size:.9rem">Grok Bot Masterclass</span>
+  <span style="margin-left:auto;color:var(--text-3);font-size:.75rem">November 04, 2026</span>
 </a></div>
   </div>
   <div id="chapters">
@@ -7794,6 +7802,20 @@ class LLMRouter:
 def verify_task_completion(test_suite_passed: bool, git_diff_clean: bool) -&gt; bool:
     # Application code owns the definition of success, not the agent loop
     return test_suite_passed and git_diff_clean</code></pre></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Per-request LLM routing can introduce hidden latency, misread user intent, and wipe out prefix-cache savings.</li><li>Session pinning and model affinity are essential to maintain cost efficiency in multi-turn agent loops.</li><li>Agent frameworks provide low-level abstractions and explicit orchestration for custom application design.</li><li>Agent harnesses package execution environments, file access, and context management on top of frameworks.</li><li>Long-running agent tasks require external artifacts like commit logs and test results rather than relying purely on conversational summaries.</li><li>Latent Sparse Attention mitigates the O(T²) prefill bottleneck in full attention mechanisms at extreme context lengths.</li></ul>
+  <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
+    onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
+</div>
+<div id="ch147" class="sec" style="--ca:#7C5CFF;--cb:#5B8CFF;margin-bottom:24px;">
+  <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;">
+    <span style="font-size:.72rem;font-weight:800;color:#7C5CFF;text-transform:uppercase;letter-spacing:1.4px">Chapter 147</span>
+    <span style="font-size:.72rem;color:var(--text-3)">November 04, 2026 · LLMs &amp; Agents</span>
+  </div>
+  <h2 style="font-size:clamp(1.3rem,3vw,1.9rem);font-weight:800;margin-bottom:16px;
+    background:linear-gradient(135deg,var(--text) 0%,#7C5CFF 60%,#5B8CFF 100%);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
+    Grok Bot Masterclass
+  </h2>
+  <div class="tldr-box" style="--ca:#7C5CFF;--cb:#5B8CFF"><div class="tldr-label">TL;DR</div><p style="margin:0">Most agent benchmarks compare models. But in production, the model runs inside a harness, and the harness changes cost, speed, and whether the task passes at all....</p></div><h3 style="color:#7C5CFF;margin:22px 0 10px">Overview</h3><p>Most agent benchmarks compare models. But in production, the model runs inside a harness, and the harness changes cost, speed, and whether the task passes at all....</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Section 2</h3><p>It runs one task across several harness × model configurations, and every config gets the same prompt, files, tools, skills, and evaluation checks.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Section 4</h3><p>HarnessRouter supports Codex, Hermes, Claude Code, DeepSeek Harness, System One (powered by Jev), and 25 more.</p><h3 style="color:#7C5CFF;margin:22px 0 10px">Key Takeaways</h3><ul><li>Benchmark agent harnesses side by side.</li><li>Grok Bot masterclass: from 1 bot to a 14-bot org.</li><li>:22 - What a Grok Bot really is (a new hire with a laptop)</li><li>:23 - Every bot gets its own computer</li><li>:35 - Installation and pricing</li><li>:01 - Creating your first bot (no system prompt to write)</li><li>:29 - Routines: tasks your bot runs on a schedule</li></ul>
   <a href="#toc" style="display:inline-flex;align-items:center;gap:6px;color:#7C5CFF;text-decoration:none;font-size:.83rem;margin-top:16px;opacity:.7;transition:opacity .2s"
     onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='.7'">↑ Back to Contents</a>
 </div></div>
