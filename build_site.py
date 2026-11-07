@@ -2545,6 +2545,13 @@ class SiteBuilder:
         (self.out / "ebook.html").write_text(html, encoding="utf-8")
         log.info("E-book built — %d chapters.", len(rows))
 
+# ── Page design ───────────────────────────────────────────────────────────────
+# Design v2 ("The Daily Capsule") lives in theme_v2.py and only changes how the
+# pages look. Set DDS_DESIGN=v1 to build the previous design above instead.
+if os.getenv("DDS_DESIGN", "v2") != "v1":
+    from theme_v2 import make_site_builder
+    SiteBuilder = make_site_builder(SiteBuilder, globals())
+
 class App:
     def __init__(self, source: str = SOURCE):
         self.db = DB()
